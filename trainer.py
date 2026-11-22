@@ -11,6 +11,7 @@ ROOT = Path(__file__).parent
 PROBLEMS = ROOT / "problems"
 WORK = ROOT / "work"
 PROGRESS = ROOT / "progress.json"
+CACHE = ROOT / "cache"
 LANGS = ["c", "cpp", "py", "rs"]
 
 STUBS = {
@@ -137,6 +138,32 @@ def normalize(text):
     return [line.rstrip() for line in text.rstrip().splitlines()]
 
 
+def test_cases(p):
+    """List of (name, input, expected) for a problem.
+
+    Small tests are stored as N.in / N.out. Large tests are N.gen.py scripts that print the
+    input; the expected output comes from the reference solution. Both are cached in cache/.
+    """
+    tests = p["dir"] / "tests"
+    names = sorted({f.name.split(".")[0] for f in tests.iterdir()}, key=int)
+    cases = []
+    for name in names:
+        gen = tests / f"{name}.gen.py"
+        if gen.exists():
+            cached = CACHE / p["dir"].parent.name / p["name"]
+            inp, out = cached / f"{name}.in", cached / f"{name}.out"
+            if not out.exists():
+                cached.mkdir(parents=True, exist_ok=True)
+                inp.write_text(subprocess.run([sys.executable, str(gen)], capture_output=True, text=True,
+                                              check=True).stdout)
+                out.write_text(subprocess.run([sys.executable, str(p["dir"] / "solution.py")], input=inp.read_text(),
+                                              capture_output=True, text=True, check=True).stdout)
+        else:
+            inp, out = tests / f"{name}.in", tests / f"{name}.out"
+        cases.append((name, inp.read_text(), out.read_text()))
+    return cases
+
+
 def check_lang(p, lang):
     """Return (passed, report) for one language's solution."""
     src = p["work"] / f"main.{lang}"
@@ -147,17 +174,15 @@ def check_lang(p, lang):
         result = compile_src(lang, src, build)
         if result is not None and result.returncode != 0:
             return False, f"{lang:<4} COMPILE ERROR\n{result.stderr}"
-        tests = sorted((p["dir"] / "tests").glob("*.in"), key=lambda f: int(f.stem))
-        for t in tests:
-            stdin = t.read_text()
-            expected = t.with_suffix(".out").read_text()
+        tests = test_cases(p)
+        for name, stdin, expected in tests:
             try:
                 got = run(lang, src, build, stdin)
             except subprocess.TimeoutExpired:
-                return False, f"{lang:<4} TIMEOUT on test {t.stem}"
+                return False, f"{lang:<4} TIMEOUT on test {name}"
             if normalize(got.stdout) != normalize(expected):
                 return False, (
-                    f"{lang:<4} WRONG on test {t.stem}\n"
+                    f"{lang:<4} WRONG on test {name}\n"
                     f"input:\n{stdin.rstrip()}\n"
                     f"expected:\n{expected.rstrip()}\n"
                     f"got:\n{got.stdout.rstrip()}{got.stderr.rstrip()}"
