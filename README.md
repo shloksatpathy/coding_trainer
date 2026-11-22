@@ -20,8 +20,11 @@ Requires `python3`, `gcc`, `g++` and `rustc`. No other dependencies.
 ### Desktop app (native window)
 
 ```
-./gui.py                              # or: /usr/bin/python3 gui.py
+./install-desktop.sh                  # once: adds "Coding Trainer" (with icon) to your app grid
+./gui.py                              # or start it directly: /usr/bin/python3 gui.py
 ```
+
+`install-desktop.sh` writes `~/.local/share/applications/coding-trainer.desktop` pointing at this folder (no root needed). Re-run it if you move the folder; remove the app with `rm ~/.local/share/applications/coding-trainer.desktop`.
 
 A GTK 3 window with the same layout as the web app: sidebar with days and progress dots, problem statement, C / C++ / Python / Rust editor tabs, **Check**, **Reference solution**, and the System / Light / Dark theme selector. No browser or server needed. It uses the system Python because that is where GTK's Python bindings live (`python3-gi`, preinstalled on Ubuntu). It shares `work/` and `progress.json` with the CLI and web app; the theme choice is stored in `progress.json`.
 
