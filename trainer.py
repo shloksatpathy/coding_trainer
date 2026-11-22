@@ -138,16 +138,15 @@ def normalize(text):
 
 
 def check_lang(p, lang):
+    """Return (passed, report) for one language's solution."""
     src = p["work"] / f"main.{lang}"
     if not src.exists():
-        print(f"  {lang:<4} missing {src.relative_to(ROOT)}")
-        return False
+        return False, f"{lang:<4} missing {src.relative_to(ROOT)}"
     with tempfile.TemporaryDirectory() as tmp:
         build = Path(tmp)
         result = compile_src(lang, src, build)
         if result is not None and result.returncode != 0:
-            print(f"  {lang:<4} COMPILE ERROR\n{result.stderr}")
-            return False
+            return False, f"{lang:<4} COMPILE ERROR\n{result.stderr}"
         tests = sorted((p["dir"] / "tests").glob("*.in"), key=lambda f: int(f.stem))
         for t in tests:
             stdin = t.read_text()
@@ -155,16 +154,21 @@ def check_lang(p, lang):
             try:
                 got = run(lang, src, build, stdin)
             except subprocess.TimeoutExpired:
-                print(f"  {lang:<4} TIMEOUT on test {t.stem}")
-                return False
+                return False, f"{lang:<4} TIMEOUT on test {t.stem}"
             if normalize(got.stdout) != normalize(expected):
-                print(f"  {lang:<4} WRONG on test {t.stem}")
-                print(f"       input:\n{stdin.rstrip()}")
-                print(f"       expected:\n{expected.rstrip()}")
-                print(f"       got:\n{got.stdout.rstrip()}{got.stderr.rstrip()}")
-                return False
-        print(f"  {lang:<4} PASS ({len(tests)} tests)")
-        return True
+                return False, (
+                    f"{lang:<4} WRONG on test {t.stem}\n"
+                    f"input:\n{stdin.rstrip()}\n"
+                    f"expected:\n{expected.rstrip()}\n"
+                    f"got:\n{got.stdout.rstrip()}{got.stderr.rstrip()}"
+                )
+        return True, f"{lang:<4} PASS ({len(tests)} tests)"
+
+
+def record_pass(progress, p, lang):
+    passed = progress["passed"].setdefault(p["id"], {})
+    passed.setdefault(lang, datetime.date.today().isoformat())
+    save_progress(progress)
 
 
 def cmd_check(progress, args):
@@ -173,10 +177,10 @@ def cmd_check(progress, args):
     langs = args[1:] or LANGS
     print(f"Checking {p['id'].upper()} {p['name'][4:]}")
     for lang in langs:
-        if check_lang(p, lang):
-            passed = progress["passed"].setdefault(p["id"], {})
-            passed.setdefault(lang, datetime.date.today().isoformat())
-    save_progress(progress)
+        ok, report = check_lang(p, lang)
+        print("  " + report)
+        if ok:
+            record_pass(progress, p, lang)
 
 
 def cmd_solution(progress, args):
