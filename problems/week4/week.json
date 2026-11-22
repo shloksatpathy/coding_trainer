@@ -1,0 +1,62 @@
+{
+  "title": "Graphs, dynamic programming, greedy",
+  "level": 4,
+  "days": [
+    {
+      "title": "Graph traversal",
+      "problems": [
+        "p64_bfs",
+        "p65_dfs_components",
+        "p66_islands"
+      ]
+    },
+    {
+      "title": "Unweighted shortest paths and ordering",
+      "problems": [
+        "p67_shortest_path",
+        "p68_maze",
+        "p69_topological_sort"
+      ]
+    },
+    {
+      "title": "Weighted graphs",
+      "problems": [
+        "p70_dijkstra",
+        "p71_kruskal",
+        "p72_bipartite"
+      ]
+    },
+    {
+      "title": "Dynamic programming: first steps",
+      "problems": [
+        "p73_climbing_stairs",
+        "p74_coin_change_min",
+        "p75_coin_change_ways"
+      ]
+    },
+    {
+      "title": "Dynamic programming on sequences",
+      "problems": [
+        "p76_lis",
+        "p77_lcs",
+        "p78_edit_distance"
+      ]
+    },
+    {
+      "title": "Dynamic programming: knapsack and grids",
+      "problems": [
+        "p79_knapsack",
+        "p80_grid_paths",
+        "p81_max_subarray"
+      ]
+    },
+    {
+      "title": "Greedy and the final mini-project",
+      "problems": [
+        "p82_activity_selection",
+        "p83_jump_game",
+        "p84_route_planner"
+      ]
+    }
+  ]
+}
