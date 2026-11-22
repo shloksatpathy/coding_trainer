@@ -1,0 +1,62 @@
+{
+  "title": "Hashing, two pointers, backtracking, trees, heaps",
+  "level": 3,
+  "days": [
+    {
+      "title": "Hashing",
+      "problems": [
+        "p43_two_sum",
+        "p44_word_frequency",
+        "p45_first_unique_char"
+      ]
+    },
+    {
+      "title": "Two pointers",
+      "problems": [
+        "p46_three_sum",
+        "p47_container_water",
+        "p48_trapping_rain_water"
+      ]
+    },
+    {
+      "title": "Sliding window",
+      "problems": [
+        "p49_max_window_sum",
+        "p50_longest_unique_substring",
+        "p51_min_subarray_len"
+      ]
+    },
+    {
+      "title": "Recursion and backtracking",
+      "problems": [
+        "p52_subsets",
+        "p53_permutations",
+        "p54_n_queens"
+      ]
+    },
+    {
+      "title": "Binary trees",
+      "problems": [
+        "p55_tree_traversals",
+        "p56_level_order",
+        "p57_tree_diameter"
+      ]
+    },
+    {
+      "title": "Binary search trees",
+      "problems": [
+        "p58_bst_search",
+        "p59_validate_bst",
+        "p60_bst_delete"
+      ]
+    },
+    {
+      "title": "Heaps",
+      "problems": [
+        "p61_heap_sort",
+        "p62_k_largest",
+        "p63_running_median"
+      ]
+    }
+  ]
+}
