@@ -17,6 +17,14 @@ It should be such that the problems should help someoen who is completly new to 
 
 Requires `python3`, `gcc`, `g++` and `rustc`. No other dependencies.
 
+### Desktop app (native window)
+
+```
+./gui.py                              # or: /usr/bin/python3 gui.py
+```
+
+A GTK 3 window with the same layout as the web app: sidebar with days and progress dots, problem statement, C / C++ / Python / Rust editor tabs, **Check**, **Reference solution**, and the System / Light / Dark theme selector. No browser or server needed. It uses the system Python because that is where GTK's Python bindings live (`python3-gi`, preinstalled on Ubuntu). It shares `work/` and `progress.json` with the CLI and web app; the theme choice is stored in `progress.json`.
+
 ### Web app
 
 ```
