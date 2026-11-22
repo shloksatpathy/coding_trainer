@@ -17,6 +17,16 @@ It should be such that the problems should help someoen who is completly new to 
 
 Requires `python3`, `gcc`, `g++` and `rustc`. No other dependencies.
 
+### Web app
+
+```
+python3 app.py                        # then open http://localhost:8000
+```
+
+Sidebar shows the unlocked days with a dot per language (green = passed). Pick a problem, write code in the C / C++ / Python / Rust tabs, press **Check**. Code is saved to `work/` on every check, so the CLI and the app share the same files and progress.
+
+### CLI
+
 ```
 python3 trainer.py start              # begin today (or: start 2026-11-22)
 python3 trainer.py list               # unlocked days + per-language progress
