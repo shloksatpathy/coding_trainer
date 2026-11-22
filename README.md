@@ -25,6 +25,8 @@ python3 app.py                        # then open http://localhost:8000
 
 Sidebar shows the unlocked days with a dot per language (green = passed). Pick a problem, write code in the C / C++ / Python / Rust tabs, press **Check**. Code is saved to `work/` on every check, so the CLI and the app share the same files and progress.
 
+Theme: pick **System** (follows your OS light/dark setting), **Light** or **Dark** at the top of the sidebar. The choice is remembered in the browser.
+
 ### CLI
 
 ```
