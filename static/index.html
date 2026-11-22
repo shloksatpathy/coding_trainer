@@ -14,6 +14,7 @@
   .prob { display: flex; justify-content: space-between; padding: 4px 6px; border-radius: 4px; cursor: pointer; }
   .prob:hover { background: #f0f0f0; }
   .prob.active { background: #e3eefb; }
+  .dots { white-space: nowrap; flex-shrink: 0; margin-left: 6px; }
   .dots span { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-left: 3px; background: #ddd; }
   .dots span.ok { background: #2e9e44; }
   main { flex: 1; display: flex; overflow: hidden; }
@@ -99,6 +100,7 @@ async function load() {
   if (!current) {
     const last = state.days[state.days.length - 1];
     openProblem(last.problems[0].id);
+    document.querySelector(".day:last-child").scrollIntoView();
   }
 }
 
