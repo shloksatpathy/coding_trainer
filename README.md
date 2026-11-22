@@ -17,6 +17,19 @@ It should be such that the problems should help someoen who is completly new to 
 
 Requires `python3`, `gcc`, `g++` and `rustc`. No other dependencies.
 
+### Build system
+
+```
+make            # list targets
+make run        # desktop app          make web        # web app
+make install    # add to app grid      make uninstall  # remove from app grid
+make test       # all 84 reference solutions + generators, in a temp copy
+make dist       # test, then package the committed project as build/coding-trainer-<VERSION>.tar.gz
+make clean      # remove build/, cache/, __pycache__/
+```
+
+The version lives in `VERSION`. No target touches your `work/` folder or `progress.json`.
+
 ### Desktop app (native window)
 
 ```
