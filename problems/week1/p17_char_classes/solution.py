@@ -1,0 +1,6 @@
+s = input()
+v = sum(1 for ch in s if ch.lower() in "aeiou")
+c = sum(1 for ch in s if ch.isascii() and ch.isalpha() and ch.lower() not in "aeiou")
+d = sum(1 for ch in s if ch.isdigit())
+sp = s.count(" ")
+print(f"vowels={v} consonants={c} digits={d} spaces={sp}")

@@ -1,0 +1,62 @@
+{
+  "title": "Basics",
+  "level": 1,
+  "days": [
+    {
+      "title": "Setup + I/O and arithmetic",
+      "problems": [
+        "p01_arithmetic",
+        "p02_temperature",
+        "p03_swap"
+      ]
+    },
+    {
+      "title": "Conditionals and loops",
+      "problems": [
+        "p04_fizzbuzz",
+        "p05_leap_year",
+        "p06_reverse_number"
+      ]
+    },
+    {
+      "title": "Number theory with loops",
+      "problems": [
+        "p07_sieve",
+        "p08_gcd_lcm",
+        "p09_fibonacci"
+      ]
+    },
+    {
+      "title": "Functions and recursion",
+      "problems": [
+        "p10_factorial",
+        "p11_fast_power",
+        "p12_hanoi"
+      ]
+    },
+    {
+      "title": "Arrays",
+      "problems": [
+        "p13_array_stats",
+        "p14_reverse_array",
+        "p15_binary_search"
+      ]
+    },
+    {
+      "title": "Strings",
+      "problems": [
+        "p16_palindrome_string",
+        "p17_char_classes",
+        "p18_anagram"
+      ]
+    },
+    {
+      "title": "Structs, 2D arrays, mini-project",
+      "problems": [
+        "p19_matrix_multiply",
+        "p20_student_records",
+        "p21_bank_account"
+      ]
+    }
+  ]
+}
