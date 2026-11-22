@@ -41,9 +41,9 @@ Tested by driving the real widgets from a script and rendering offscreen: Python
 
 The web app (`app.py`, `static/`) stays as a separate option.
 
-## Disk-space reduction: generate large tests instead of storing them
+## Disk-space reduction: generate large tests instead of storing them — done
 
-Large tests (any `.in` over 100 KB) become small generator scripts:
+Large tests (input or output over 100 KB) become small generator scripts:
 
 ```
 problems/week3/p43_two_sum/tests/
@@ -52,20 +52,17 @@ problems/week3/p43_two_sum/tests/
 ```
 
 - At check time, `trainer.py` runs `5.gen.py` to get the input. It runs `solution.py` on that input to get the expected output, and caches both in `cache/` (gitignored). The first check of that problem takes a second longer, and later checks read the cache.
-- The generators come from the existing scratch scripts (`gen_week2-4.py`), using the same seeds, so the tests stay identical. Each converted test is verified byte-for-byte against the current `.in`/`.out` before the old files are deleted.
-- Result: test data goes from about 16.9 MB to about 1 MB in the working tree and in fresh clones of new history.
+- Byte-for-byte reproduction of the old files was not possible: they were drawn from one random sequence shared by a whole week. Each generator has its own fixed seed and the same shape as the test it replaces (identical line and token counts, same value ranges).
+- Verified: every generator prints identical output on repeated runs and on both Pythons (nix 3.13 and system 3.12); all 84 reference solutions pass `check` with the same test counts as before; a cached re-check takes ~0.2 s.
+- P39's large test was random, so the naive O(n²) solution passed it. Its generator is now worst-case (a long descending run), and the naive solution times out as the statement says.
+- Result: `problems/` went from 17 MB to 947 KB. `cache/` holds ~16 MB, but only on machines that run the checks, and it is never committed.
 - `.git` keeps its current 12 MB, because the old large files stay in history. Shrinking it means rewriting history and force-pushing (`git filter-repo`). That is destructive, so it is listed as optional and needs your explicit go-ahead.
 
 ## Steps (one commit each, pushed after each)
 
 1. ✅ **Native window `gui.py`:** replica of the web interface (see above).
-2. **Generated large tests:** `*.gen.py`, the `cache/` folder, `.gitignore`, and byte-for-byte verification; then delete the 20 large `.in`/`.out` pairs.
+2. ✅ **Generated large tests:** 21 `*.gen.py` scripts replace 42 large `.in`/`.out` files; `cache/` is gitignored.
 3. *(Optional, only with explicit approval)* rewrite git history to drop the old large test files, then force-push.
-
-## How the remaining steps are tested
-
-- **Generated tests:** for all 20, generator output equals the old `.in` and the cached expected output equals the old `.out`. All 84 reference solutions still pass `check`.
-- **Size:** report `du -sh problems` before and after.
 
 ## Open questions
 

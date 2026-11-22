@@ -60,4 +60,7 @@ problems/weekN/
     problem.md               statement
     solution.py              reference solution (shown after the week ends)
     tests/1.in, 1.out, ...   test 1 is the sample copied to in.txt
+    tests/5.gen.py           large test: prints its input (fixed random seed)
 ```
+
+Large tests are not stored. `N.gen.py` prints the input and the reference solution produces the expected output; both are generated on the first check and cached in `cache/` (gitignored, ~16 MB once every problem has been checked).
