@@ -2,3 +2,4 @@ work/
 progress.json
 __pycache__/
 cache/
+build/
