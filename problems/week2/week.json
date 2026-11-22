@@ -1,0 +1,62 @@
+{
+  "title": "Pointers, sorting, linked lists, stacks, queues",
+  "level": 2,
+  "days": [
+    {
+      "title": "Pointers and dynamic memory",
+      "problems": [
+        "p22_dynamic_array",
+        "p23_rotate_array",
+        "p24_remove_duplicates"
+      ]
+    },
+    {
+      "title": "Simple sorts",
+      "problems": [
+        "p25_bubble_sort",
+        "p26_selection_sort",
+        "p27_insertion_sort"
+      ]
+    },
+    {
+      "title": "Divide and conquer sorts",
+      "problems": [
+        "p28_merge_sort",
+        "p29_quick_sort",
+        "p30_kth_smallest"
+      ]
+    },
+    {
+      "title": "Linked lists I",
+      "problems": [
+        "p31_linked_list_ops",
+        "p32_reverse_list",
+        "p33_list_middle_kth"
+      ]
+    },
+    {
+      "title": "Linked lists II",
+      "problems": [
+        "p34_merge_sorted_lists",
+        "p35_remove_value",
+        "p36_add_big_numbers"
+      ]
+    },
+    {
+      "title": "Stacks",
+      "problems": [
+        "p37_balanced_brackets",
+        "p38_postfix_eval",
+        "p39_next_greater"
+      ]
+    },
+    {
+      "title": "Queues and a mini-project",
+      "problems": [
+        "p40_circular_queue",
+        "p41_josephus",
+        "p42_browser_history"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+2 7
+enq 1
+enq 2
+enq 3
+deq
+enq 4
+front
+size

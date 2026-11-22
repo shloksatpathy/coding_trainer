@@ -1,0 +1,13 @@
+3 12
+enq 1
+enq 2
+enq 3
+deq
+deq
+enq 4
+enq 5
+enq 6
+deq
+deq
+deq
+size
