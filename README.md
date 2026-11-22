@@ -12,3 +12,32 @@ The week just marks the levels of the problems with level (4 levels)
 
 It should be such that the problems should help someoen who is completly new to the coding world and should also help someone who want to revisit his coding skills as people are loosing the grip and undestanding due to use of coding agents 
 
+
+## Usage
+
+Requires `python3`, `gcc`, `g++` and `rustc`. No other dependencies.
+
+```
+python3 trainer.py start              # begin today (or: start 2026-11-22)
+python3 trainer.py list               # unlocked days + per-language progress
+python3 trainer.py show P01           # read a problem
+python3 trainer.py init P01           # creates work/week1/day01/p01_arithmetic/main.{c,cpp,py,rs} + in.txt
+python3 trainer.py check P01          # compile + run all 4 against the tests (or: check P01 rs)
+python3 trainer.py status             # weekly completion summary
+python3 trainer.py solution P01       # reference solution, only after the week ends
+```
+
+- Day N of week W unlocks on `start + 7*(W-1) + (N-1)` days. Checking works any time after unlock.
+- Week W is level W (4 levels).
+- Your progress is saved in `progress.json`.
+
+## Adding a week
+
+```
+problems/weekN/
+  week.json                  {"title": ..., "level": N, "days": [{"title": ..., "problems": ["p22_name", ...]}, ...]}
+  p22_name/
+    problem.md               statement
+    solution.py              reference solution (shown after the week ends)
+    tests/1.in, 1.out, ...   test 1 is the sample copied to in.txt
+```
