@@ -10,9 +10,9 @@ Give the trainer its own window (no browser, no local web server) that replicate
 | --- | --- |
 | `trainer.py` (CLI + checker) | 246 lines, stdlib only |
 | `app.py` + `static/index.html` (web UI) | 287 lines, needs a browser + local HTTP server |
-| `problems/` | 1,022 files, 17 MB |
+| `problems/` | 1,022 files, 17 MB → **947 KB with generated tests** |
 | └ 20 large test inputs and their outputs | **15.9 MB of the 16.9 MB of test data** |
-| `.git` | 12 MB (history already contains the large tests) |
+| `.git` | 12 MB (history already contains the large tests) → **748 KB after the rewrite** |
 | Python | nix 3.13: no GUI toolkit · system 3.12 (`/usr/bin/python3`): GTK 3.24 via `python3-gi` ✅ |
 | Toolchains | gcc/g++ 15.3 ✅, rustc ⚠️ (`rustup default stable` not run yet) |
 | Editor | `$EDITOR=nvim` |
@@ -56,14 +56,10 @@ problems/week3/p43_two_sum/tests/
 - Verified: every generator prints identical output on repeated runs and on both Pythons (nix 3.13 and system 3.12); all 84 reference solutions pass `check` with the same test counts as before; a cached re-check takes ~0.2 s.
 - P39's large test was random, so the naive O(n²) solution passed it. Its generator is now worst-case (a long descending run), and the naive solution times out as the statement says.
 - Result: `problems/` went from 17 MB to 947 KB. `cache/` holds ~16 MB, but only on machines that run the checks, and it is never committed.
-- `.git` keeps its current 12 MB, because the old large files stay in history. Shrinking it means rewriting history and force-pushing (`git filter-repo`). That is destructive, so it is listed as optional and needs your explicit go-ahead.
+- History rewritten (approved 2026-11-22) with `git filter-branch` to drop the 42 old files from every commit, then force-pushed. Same 18 commits, identical final tree; `.git` went from 16 MB to 748 KB and the largest blob in history is now ~100 KB. A backup of the pre-rewrite repo is in `../coding_trainer-backup-2026-11-22.bundle`.
 
 ## Steps (one commit each, pushed after each)
 
 1. ✅ **Native window `gui.py`:** replica of the web interface (see above).
 2. ✅ **Generated large tests:** 21 `*.gen.py` scripts replace 42 large `.in`/`.out` files; `cache/` is gitignored.
-3. *(Optional, only with explicit approval)* rewrite git history to drop the old large test files, then force-push.
-
-## Open questions
-
-- Should git history be rewritten to reclaim the ~11 MB in `.git` (step 7)?
+3. ✅ **History rewrite:** old large test files removed from all commits; force-pushed.
