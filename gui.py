@@ -8,7 +8,8 @@ import gi
 
 gi.require_version("Gtk", "3.0")
 gi.require_version("Gdk", "3.0")
-from gi.repository import Gdk, Gio, GLib, Gtk, Pango  # noqa: E402
+gi.require_version("GdkPixbuf", "2.0")
+from gi.repository import Gdk, GdkPixbuf, Gio, GLib, Gtk, Pango  # noqa: E402
 
 import trainer  # noqa: E402
 
@@ -58,6 +59,14 @@ textview.result {{ font-family: monospace; font-size: 9pt; }}
 textview.result text {{ background-color: {result_bg}; color: #eeeeee; }}
 textview.result.ok text {{ color: #7ee787; }}
 .result-frame {{ background-color: {result_bg}; border-radius: 4px; }}
+menubar {{ background-color: {panel}; border-bottom: 1px solid {border}; padding: 0; }}
+menubar > menuitem {{ color: {text}; padding: 4px 10px; }}
+menubar > menuitem:hover {{ background-color: {hover}; }}
+menubar > menuitem label {{ color: {text}; }}
+button.icon {{ background-image: none; background-color: transparent; border: none; box-shadow: none;
+               color: {text}; padding: 0 6px; min-height: 0; min-width: 0; }}
+button.icon label {{ color: {text}; font-size: 13pt; }}
+button.icon:hover {{ background-color: {hover}; }}
 combobox button {{ background-image: none; background-color: {panel}; color: {text};
                    border: 1px solid {input_border}; box-shadow: none; padding: 0 4px; min-height: 0; }}
 scrollbar, scrollbar trough {{ background-color: transparent; border: none; }}
@@ -109,18 +118,172 @@ class TrainerWindow(Gtk.Window):
         self.code = {}           # lang -> editor text for the current problem
         self.lang = "c"
         self.rows = {}           # problem id -> (row, [dot labels])
+        self.syncing = False     # True while menus are set from progress.json, so their handlers stay quiet
+        self.accel = Gtk.AccelGroup()
+        self.add_accel_group(self.accel)
 
-        self.stack = Gtk.Stack()
-        self.add(self.stack)
+        outer = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        self.add(outer)
+        outer.add(self.build_menu())
+        self.stack = Gtk.Stack(vexpand=True)
+        outer.add(self.stack)
         self.stack.add_named(self.build_welcome(), "welcome")
         self.stack.add_named(self.build_main(), "main")
         self.apply_theme()
         self.show_all()
+        self.show_screen()
 
-        if not trainer.is_started(trainer.load_progress()):
-            self.stack.set_visible_child_name("welcome")
-        else:
+    def show_screen(self):
+        """Welcome screen before the course starts, the problem view after."""
+        progress = trainer.load_progress()
+        self.sync_menus(progress)
+        if trainer.is_started(progress):
             self.load()
+        else:
+            self.level_pick.set_active_id("1")
+            self.stack.set_visible_child_name("welcome")
+
+    # ---------- menu bar ----------
+
+    def build_menu(self):
+        bar = Gtk.MenuBar()
+
+        def menu(label):
+            item = Gtk.MenuItem(label=label, use_underline=True)
+            sub = Gtk.Menu()
+            item.set_submenu(sub)
+            bar.append(item)
+            return sub
+
+        def radio_group(parent, entries, handler):
+            items, group = {}, None
+            for key, label in entries:
+                item = Gtk.RadioMenuItem.new_with_label_from_widget(group, label)
+                group = item
+                item.connect("toggled", handler, key)
+                parent.append(item)
+                items[key] = item
+            return items
+
+        course = menu("_Course")
+        self.level_item = Gtk.MenuItem(label="Start at level")
+        levels = Gtk.Menu()
+        self.level_item.set_submenu(levels)
+        self.level_items = radio_group(levels, [(n, f"Level {n} · {week['title']}")
+                                                for n, (_d, week) in enumerate(trainer.weeks(), 1)], self.on_level_item)
+        course.append(self.level_item)
+        course.append(Gtk.SeparatorMenuItem())
+        reset = Gtk.MenuItem(label="Reset…")
+        reset.connect("activate", self.on_reset)
+        course.append(reset)
+
+        view = menu("_View")
+        self.sidebar_item = Gtk.CheckMenuItem(label="Problem list")
+        self.sidebar_item.add_accelerator("activate", self.accel, Gdk.KEY_b, Gdk.ModifierType.CONTROL_MASK,
+                                          Gtk.AccelFlags.VISIBLE)
+        self.sidebar_item.connect("toggled", self.on_sidebar_item)
+        view.append(self.sidebar_item)
+        theme = Gtk.MenuItem(label="Theme")
+        themes = Gtk.Menu()
+        theme.set_submenu(themes)
+        self.theme_items = radio_group(themes, [("system", "System"), ("light", "Light"), ("dark", "Dark")],
+                                       self.on_theme_item)
+        view.append(theme)
+
+        help_menu = menu("_Help")
+        about = Gtk.MenuItem(label="About Coding Trainer")
+        about.connect("activate", self.on_about)
+        help_menu.append(about)
+        return bar
+
+    def sync_menus(self, progress):
+        """Set menu marks and the sidebar from progress.json without triggering their handlers."""
+        settings = progress or {}
+        started = trainer.is_started(progress)
+        sidebar_open = settings.get("sidebar", "open") == "open"
+        self.syncing = True
+        self.theme_items[settings.get("theme", "system")].set_active(True)
+        if started:
+            self.level_items[settings.get("level", 1)].set_active(True)
+        self.sidebar_item.set_active(sidebar_open)
+        self.syncing = False
+        self.level_item.set_sensitive(started)
+        self.sidebar_item.set_sensitive(started)
+        self.show_sidebar(sidebar_open)
+
+    def on_level_item(self, item, level):
+        if self.syncing or not item.get_active():
+            return
+        if self.confirm(self.level_dialog(level)):
+            trainer.start_course(level)
+            self.show_screen()
+        else:
+            self.sync_menus(trainer.load_progress())
+
+    def on_theme_item(self, item, key):
+        if self.syncing or not item.get_active():
+            return
+        trainer.set_setting("theme", key)
+        self.apply_theme()
+
+    def on_sidebar_item(self, item):
+        if self.syncing:
+            return
+        trainer.set_setting("sidebar", "open" if item.get_active() else "collapsed")
+        self.show_sidebar(item.get_active())
+
+    def toggle_sidebar(self, *_):
+        self.sidebar_item.set_active(not self.sidebar_item.get_active())
+
+    def show_sidebar(self, visible):
+        self.revealer.set_reveal_child(visible)
+        self.show_list_btn.set_visible(not visible)
+
+    # ---------- dialogs ----------
+
+    def dialog(self, kind, title, text, ok_label, destructive=False):
+        d = Gtk.MessageDialog(transient_for=self, modal=True, message_type=kind, buttons=Gtk.ButtonsType.NONE,
+                              text=title)
+        d.format_secondary_text(text)
+        d.add_button("Cancel", Gtk.ResponseType.CANCEL)
+        ok = d.add_button(ok_label, Gtk.ResponseType.OK)
+        if destructive:
+            ok.get_style_context().add_class("destructive-action")
+        d.set_default_response(Gtk.ResponseType.CANCEL)
+        return d
+
+    def confirm(self, d):
+        answer = d.run()
+        d.destroy()
+        return answer == Gtk.ResponseType.OK
+
+    def level_dialog(self, level):
+        return self.dialog(Gtk.MessageType.QUESTION, f"Start at level {level}?",
+                           f"Level {level} starts today. Levels below {level} will be locked.\n"
+                           "Your passed checks and saved code are kept.", f"Start level {level}")
+
+    def reset_dialog(self):
+        return self.dialog(Gtk.MessageType.WARNING, "Reset Coding Trainer?",
+                           "This permanently deletes:\n"
+                           "  • your progress (start date, level, passed checks)\n"
+                           "  • ALL your saved code in work/\n"
+                           "  • your settings (theme, problem list) and the test cache\n\n"
+                           "It cannot be undone.", "Delete everything", destructive=True)
+
+    def on_reset(self, _item):
+        if self.confirm(self.reset_dialog()):
+            trainer.reset_course()
+            self.current = None
+            self.apply_theme()
+            self.show_screen()
+
+    def on_about(self, _item):
+        logo = GdkPixbuf.Pixbuf.new_from_file_at_size(str(trainer.ROOT / "desktop" / "coding-trainer.svg"), 96, 96)
+        d = Gtk.AboutDialog(transient_for=self, modal=True, program_name="Coding Trainer", version=trainer.VERSION,
+                            comments="Daily coding problems in C, C++, Python and Rust",
+                            website="https://github.com/shloksatpathy/coding_trainer", logo=logo)
+        d.run()
+        d.destroy()
 
     # ---------- layout ----------
 
@@ -132,6 +295,13 @@ class TrainerWindow(Gtk.Window):
         title.set_markup('<span size="xx-large" weight="bold">Coding Trainer</span>')
         box.add(title)
         box.add(Gtk.Label(label="Weekly problem sets in C, C++, Python and Rust. A new day unlocks every day."))
+        pick = Gtk.Box(spacing=8, halign=Gtk.Align.CENTER)
+        pick.add(Gtk.Label(label="Start at level"))
+        self.level_pick = Gtk.ComboBoxText()
+        for n, (_d, week) in enumerate(trainer.weeks(), 1):
+            self.level_pick.append(str(n), f"Level {n} · {week['title']}")
+        pick.add(self.level_pick)
+        box.add(pick)
         start = Gtk.Button(label="Start today", halign=Gtk.Align.CENTER)
         start.get_style_context().add_class("primary")
         start.connect("clicked", self.on_start)
@@ -147,22 +317,20 @@ class TrainerWindow(Gtk.Window):
         side.set_size_request(280, -1)
         side.set_hexpand(False)
         side.get_style_context().add_class("sidebar")
-        head = Gtk.Box(margin=12, margin_bottom=6)
+        head = Gtk.Box(margin=12, margin_start=6, margin_bottom=6, spacing=4)
+        head.add(self.icon_button("☰", "Hide problem list (Ctrl+B)"))
         title = Gtk.Label(label="Coding Trainer", xalign=0, hexpand=True)
         title.get_style_context().add_class("app-title")
         head.add(title)
-        self.theme_box = Gtk.ComboBoxText()
-        for key, label in (("system", "System"), ("light", "Light"), ("dark", "Dark")):
-            self.theme_box.append(key, label)
-        self.theme_box.connect("changed", self.on_theme_changed)
-        head.add(self.theme_box)
         side.add(head)
         self.side_scroll = Gtk.ScrolledWindow(vexpand=True, hscrollbar_policy=Gtk.PolicyType.NEVER)
         self.listbox = Gtk.ListBox()
         self.listbox.connect("row-activated", lambda lb, row: self.open_problem(row.pid))
         self.side_scroll.add(self.listbox)
         side.add(self.side_scroll)
-        root.add(side)
+        self.revealer = Gtk.Revealer(transition_type=Gtk.RevealerTransitionType.SLIDE_RIGHT, transition_duration=150)
+        self.revealer.add(side)
+        root.add(self.revealer)
 
         paned = Gtk.Paned(hexpand=True)
         paned.set_position(500)
@@ -172,7 +340,17 @@ class TrainerWindow(Gtk.Window):
         scroll.get_style_context().add_class("statement")
         self.statement = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10, margin=24, margin_top=20)
         scroll.add(self.statement)
-        paned.pack1(scroll, resize=True, shrink=False)
+        column = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        column.get_style_context().add_class("statement")
+        self.show_list_btn = self.icon_button("☰", "Show problem list (Ctrl+B)")
+        self.show_list_btn.set_halign(Gtk.Align.START)
+        self.show_list_btn.set_margin_start(6)
+        self.show_list_btn.set_margin_top(8)
+        self.show_list_btn.set_no_show_all(True)
+        column.add(self.show_list_btn)
+        scroll.set_vexpand(True)
+        column.add(scroll)
+        paned.pack1(column, resize=True, shrink=False)
 
         # Editor pane
         editor = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8, margin=12)
@@ -226,6 +404,12 @@ class TrainerWindow(Gtk.Window):
         root.add(paned)
         return root
 
+    def icon_button(self, text, tooltip):
+        b = Gtk.Button(label=text, tooltip_text=tooltip)
+        b.get_style_context().add_class("icon")
+        b.connect("clicked", self.toggle_sidebar)
+        return b
+
     # ---------- theme ----------
 
     def theme_choice(self):
@@ -241,21 +425,18 @@ class TrainerWindow(Gtk.Window):
         if self.current:
             self.render_statement()
 
-    def on_theme_changed(self, combo):
-        progress = trainer.load_progress()
-        progress["theme"] = combo.get_active_id()
-        trainer.save_progress(progress)
-        self.apply_theme()
-
     # ---------- data ----------
 
     def on_start(self, _button):
-        trainer.start_course(1)
-        self.load()
+        trainer.start_course(int(self.level_pick.get_active_id()))
+        self.show_screen()
 
     def load(self):
         progress = trainer.load_progress()
-        self.theme_box.set_active_id(progress.get("theme", "system"))
+        for child in self.listbox.get_children():
+            self.listbox.remove(child)
+        self.rows = {}
+        self.current = None
         today = datetime.date.today()
         self.problems = [p for p in trainer.course_problems(progress) if p["unlock"] <= today]
         last_day = None
