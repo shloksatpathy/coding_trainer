@@ -17,6 +17,19 @@ It should be such that the problems should help someoen who is completly new to 
 
 Requires `python3`, `gcc`, `g++` and `rustc`. No other dependencies.
 
+### Menus and layout (desktop apps and web app)
+
+| Menu | Item |
+| --- | --- |
+| **Course** | **Start at level ▸ 1–4**: that level's Day 1 unlocks today; lower levels stay locked; passed checks and saved code are kept · **Reset…** |
+| **View** | **Problem list** (**Ctrl+B**) shows or hides the sidebar; the statement and editor take its space · **Theme ▸** System / Light / Dark |
+| **Help** | **About** (version, link to this repository) |
+
+- The ☰ button next to the title (or above the statement while the list is hidden) does the same as **Ctrl+B**.
+- The welcome screen has a **Start at level** picker next to **Start today**.
+- **Reset…** is a whole reset: after a confirmation (Cancel is the default) it deletes your progress, **all saved code in `work/`**, your settings and the test cache.
+- The desktop apps keep the theme and problem-list state in `progress.json`; the web app keeps them in the browser.
+
 ### Build system
 
 ```
@@ -60,7 +73,7 @@ build clean        remove build\, cache\, __pycache__\
 
 `install-desktop.sh` writes `~/.local/share/applications/coding-trainer.desktop` pointing at this folder (no root needed). Re-run it if you move the folder; remove the app with `rm ~/.local/share/applications/coding-trainer.desktop`.
 
-A GTK 3 window with the same layout as the web app: sidebar with days and progress dots, problem statement, C / C++ / Python / Rust editor tabs, **Check**, **Reference solution**, and the System / Light / Dark theme selector. No browser or server needed. It uses the system Python because that is where GTK's Python bindings live (`python3-gi`, preinstalled on Ubuntu). It shares `work/` and `progress.json` with the CLI and web app; the theme choice is stored in `progress.json`.
+A GTK 3 window with the same layout and menus as the web app: menu bar, collapsible sidebar with days and progress dots, problem statement, C / C++ / Python / Rust editor tabs, **Check** and **Reference solution**. No browser or server needed. It uses the system Python because that is where GTK's Python bindings live (`python3-gi`, preinstalled on Ubuntu). It shares `work/` and `progress.json` with the CLI and web app.
 
 ### Web app
 
@@ -70,12 +83,14 @@ python3 app.py                        # then open http://localhost:8000
 
 Sidebar shows the unlocked days with a dot per language (green = passed). Pick a problem, write code in the C / C++ / Python / Rust tabs, press **Check**. Code is saved to `work/` on every check, so the CLI and the app share the same files and progress.
 
-Theme: pick **System** (follows your OS light/dark setting), **Light** or **Dark** at the top of the sidebar. The choice is remembered in the browser.
+Theme: **View ▸ Theme** — **System** follows your OS light/dark setting. The choice is remembered in the browser.
 
 ### CLI
 
 ```
-python3 trainer.py start              # begin today (or: start 2026-11-22)
+python3 trainer.py start              # begin today at level 1 (or: start 2026-11-22 --level 3)
+python3 trainer.py level 3            # restart the schedule at level 3 today; lower levels lock
+python3 trainer.py reset              # delete progress, settings, ALL saved code and the cache (asks first)
 python3 trainer.py list               # unlocked days + per-language progress
 python3 trainer.py show P01           # read a problem
 python3 trainer.py init P01           # creates work/week1/day01/p01_arithmetic/main.{c,cpp,py,rs} + in.txt
@@ -84,8 +99,7 @@ python3 trainer.py status             # weekly completion summary
 python3 trainer.py solution P01       # reference solution, only after the week ends
 ```
 
-- Day N of week W unlocks on `start + 7*(W-1) + (N-1)` days. Checking works any time after unlock.
-- Week W is level W (4 levels).
+- Week W is level W (4 levels). Starting at level L: day N of week W ≥ L unlocks on `start + 7*(W-L) + (N-1)` days; weeks below L stay locked. Checking works any time after unlock.
 - Your progress is saved in `progress.json`.
 
 ## Adding a week
