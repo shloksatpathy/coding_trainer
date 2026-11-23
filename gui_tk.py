@@ -10,6 +10,7 @@ import subprocess
 import threading
 import tkinter as tk
 from tkinter import font as tkfont
+from tkinter import messagebox
 
 import trainer
 
@@ -26,6 +27,7 @@ PALETTES = {
                  tab_bg="#e6e6e6", tab_fg="#16181c", result_bg="#0d0f12"),
 }
 THEMES = {"System": "system", "Light": "light", "Dark": "dark"}
+LEVELS = [f"Level {n} · {week['title']}" for n, (_d, week) in enumerate(trainer.weeks(), 1)]
 
 
 def system_dark():
@@ -61,6 +63,11 @@ class App:
         self.results = queue.Queue()
         self.frame = None
         self.sidebar_view = None
+        self.theme_var = tk.StringVar()
+        self.level_var = tk.IntVar()
+        self.sidebar_var = tk.BooleanVar()
+        self.build_menu()
+        root.bind_all("<Control-b>", self.on_ctrl_b)
         self.render()
         root.after(2000, self.watch_system_theme)
         root.after(100, self.poll_results)
@@ -75,10 +82,8 @@ class App:
         choice = self.theme_choice()
         return choice == "dark" or (choice == "system" and system_dark())
 
-    def on_theme(self, label):
-        progress = trainer.load_progress()
-        progress["theme"] = THEMES[label]
-        trainer.save_progress(progress)
+    def on_theme(self):
+        trainer.set_setting("theme", self.theme_var.get())
         self.render()
 
     def watch_system_theme(self):
@@ -86,13 +91,111 @@ class App:
             self.render()
         self.root.after(2000, self.watch_system_theme)
 
+    # ---------- menu bar ----------
+
+    def build_menu(self):
+        self.menubar = tk.Menu(self.root)
+        self.course_menu = tk.Menu(self.menubar, tearoff=False)
+        self.level_menu = tk.Menu(self.course_menu, tearoff=False)
+        for n, label in enumerate(LEVELS, 1):
+            self.level_menu.add_radiobutton(label=label, variable=self.level_var, value=n, command=self.on_level)
+        self.course_menu.add_cascade(label="Start at level", menu=self.level_menu)
+        self.course_menu.add_separator()
+        self.course_menu.add_command(label="Reset…", command=self.on_reset)
+        self.view_menu = tk.Menu(self.menubar, tearoff=False)
+        self.view_menu.add_checkbutton(label="Problem list", variable=self.sidebar_var, accelerator="Ctrl+B",
+                                       command=self.on_sidebar)
+        self.theme_menu = tk.Menu(self.view_menu, tearoff=False)
+        for label, key in THEMES.items():
+            self.theme_menu.add_radiobutton(label=label, variable=self.theme_var, value=key, command=self.on_theme)
+        self.view_menu.add_cascade(label="Theme", menu=self.theme_menu)
+        self.help_menu = tk.Menu(self.menubar, tearoff=False)
+        self.help_menu.add_command(label="About Coding Trainer", command=self.on_about)
+        self.menubar.add_cascade(label="Course", menu=self.course_menu)
+        self.menubar.add_cascade(label="View", menu=self.view_menu)
+        self.menubar.add_cascade(label="Help", menu=self.help_menu)
+        self.root.configure(menu=self.menubar)
+
+    def sync_menu(self):
+        """Set menu marks, states and colours from progress.json (Windows draws its menu bar natively)."""
+        progress = trainer.load_progress()
+        settings = progress or {}
+        started = trainer.is_started(progress)
+        self.theme_var.set(settings.get("theme", "system"))
+        self.level_var.set(settings.get("level", 1) if started else 0)
+        self.sidebar_var.set(self.sidebar_open())
+        state = "normal" if started else "disabled"
+        self.course_menu.entryconfigure("Start at level", state=state)
+        self.view_menu.entryconfigure("Problem list", state=state)
+        c = self.c
+        for m in (self.menubar, self.course_menu, self.level_menu, self.view_menu, self.theme_menu, self.help_menu):
+            m.configure(bg=c["panel"], fg=c["text"], activebackground=c["active"], activeforeground=c["text"],
+                        selectcolor=c["text"], relief="flat", bd=0)
+
+    def sidebar_open(self):
+        return (trainer.load_progress() or {}).get("sidebar", "open") == "open"
+
+    def on_sidebar(self):
+        trainer.set_setting("sidebar", "open" if self.sidebar_var.get() else "collapsed")
+        self.show_sidebar(self.sidebar_var.get())
+
+    def show_sidebar(self, visible):
+        """Place or remove only the sidebar, so the editor keeps its cursor and undo history."""
+        if visible:
+            self.show_btn.pack_forget()
+            self.side.pack(side="left", fill="y", before=self.paned)
+            self.side_border.pack(side="left", fill="y", before=self.paned)
+        else:
+            self.side.pack_forget()
+            self.side_border.pack_forget()
+            self.show_btn.pack(anchor="w", padx=6, pady=(8, 0), before=self.statement)
+
+    def toggle_sidebar(self):
+        if trainer.is_started(trainer.load_progress()):
+            self.sidebar_var.set(not self.sidebar_var.get())
+            self.on_sidebar()
+
+    def on_ctrl_b(self, _event):
+        self.toggle_sidebar()
+        return "break"  # in text widgets Ctrl+B would also move the cursor back
+
+    def confirm(self, icon, title, message):
+        return messagebox.askokcancel(title, message, icon=icon, default="cancel", parent=self.root)
+
+    def on_level(self):
+        level = self.level_var.get()
+        if self.confirm("question", f"Start at level {level}?",
+                        f"Level {level} starts today. Levels below {level} will be locked.\n\n"
+                        "Your passed checks and saved code are kept."):
+            trainer.start_course(level)
+            self.current = None
+        self.render()
+
+    def on_reset(self):
+        if self.confirm("warning", "Reset Coding Trainer?",
+                        "This permanently deletes:\n"
+                        "  • your progress (start date, level, passed checks)\n"
+                        "  • ALL your saved code in work/\n"
+                        "  • your settings (theme, problem list) and the test cache\n\n"
+                        "It cannot be undone. Press OK to delete everything."):
+            trainer.reset_course()
+            self.current = None
+            self.code = {}
+            self.render()
+
+    def on_about(self):
+        messagebox.showinfo("About Coding Trainer", f"Coding Trainer {trainer.VERSION}\n\n"
+                            "Daily coding problems in C, C++, Python and Rust.\n\n"
+                            "https://github.com/shloksatpathy/coding_trainer", parent=self.root)
+
     # ---------- layout ----------
 
     def render(self):
         """(Re)build the window in the current theme, keeping the open problem and editor text."""
         if self.current:
             self.code[self.lang] = self.editor_text()
-            self.sidebar_view = self.canvas.yview()[0]
+            if self.side.winfo_ismapped():
+                self.sidebar_view = self.canvas.yview()[0]
         self.dark = self.is_dark()
         self.c = PALETTES["dark" if self.dark else "light"]
         if self.frame:
@@ -104,6 +207,7 @@ class App:
             self.build_welcome()
         else:
             self.build_main()
+        self.sync_menu()
 
     def build_welcome(self):
         c = self.c
@@ -112,6 +216,17 @@ class App:
         tk.Label(box, text="Coding Trainer", font=(self.f_h1[0], 20, "bold"), bg=c["bg"], fg=c["text"]).pack()
         tk.Label(box, text="Weekly problem sets in C, C++, Python and Rust. A new day unlocks every day.",
                  font=self.f_body, bg=c["bg"], fg=c["text"]).pack(pady=8)
+        pick = tk.Frame(box, bg=c["bg"])
+        pick.pack(pady=(0, 10))
+        tk.Label(pick, text="Start at level", font=self.f_body, bg=c["bg"], fg=c["text"]).pack(side="left", padx=(0, 8))
+        self.level_pick = tk.StringVar(value=LEVELS[0])
+        menu = tk.OptionMenu(pick, self.level_pick, *LEVELS)
+        menu.config(font=self.f_body, bg=c["panel"], fg=c["text"], activebackground=c["hover"],
+                    activeforeground=c["text"], relief="flat", bd=0, highlightthickness=1,
+                    highlightbackground=c["input_border"], padx=8)
+        menu["menu"].config(font=self.f_body, bg=c["panel"], fg=c["text"], activebackground=c["active"],
+                            activeforeground=c["text"])
+        menu.pack(side="left")
         self.button(box, "Start today", self.on_start).pack()
 
     def button(self, parent, text, command):
@@ -122,23 +237,14 @@ class App:
 
     def build_main(self):
         c = self.c
-        # Sidebar
-        side = tk.Frame(self.frame, bg=c["panel"], width=280)
-        side.pack(side="left", fill="y")
+        # Sidebar; show_sidebar() places it when the problem list is open
+        side = self.side = tk.Frame(self.frame, bg=c["panel"], width=280)
         side.pack_propagate(False)
-        tk.Frame(self.frame, bg=c["border"], width=1).pack(side="left", fill="y")
+        self.side_border = tk.Frame(self.frame, bg=c["border"], width=1)
         head = tk.Frame(side, bg=c["panel"])
-        head.pack(fill="x", padx=12, pady=(12, 6))
+        head.pack(fill="x", padx=(6, 12), pady=(12, 6))
+        self.icon_button(head, c["panel"]).pack(side="left", padx=(0, 4))
         tk.Label(head, text="Coding Trainer", font=self.f_title, bg=c["panel"], fg=c["text"]).pack(side="left")
-        choice = self.theme_choice()
-        self.theme_var = tk.StringVar(value=next(k for k, v in THEMES.items() if v == choice))
-        menu = tk.OptionMenu(head, self.theme_var, *THEMES, command=self.on_theme)
-        menu.config(font=self.f_body, bg=c["panel"], fg=c["text"], activebackground=c["hover"],
-                    activeforeground=c["text"], relief="flat", bd=0, highlightthickness=1,
-                    highlightbackground=c["input_border"], indicatoron=False, padx=8)
-        menu["menu"].config(font=self.f_body, bg=c["panel"], fg=c["text"], activebackground=c["active"],
-                            activeforeground=c["text"])
-        menu.pack(side="right")
 
         self.canvas = tk.Canvas(side, bg=c["panel"], highlightthickness=0, bd=0)
         self.canvas.pack(fill="both", expand=True)
@@ -153,8 +259,10 @@ class App:
                                sashrelief="flat", opaqueresize=True)
         paned.pack(side="left", fill="both", expand=True)
 
-        # Statement
-        self.statement = tk.Text(paned, wrap="word", bg=c["bg"], fg=c["text"], font=self.f_body, relief="flat",
+        # Statement, with a show-list button above it while the list is collapsed
+        column = tk.Frame(paned, bg=c["bg"])
+        self.show_btn = self.icon_button(column, c["bg"])
+        self.statement = tk.Text(column, wrap="word", bg=c["bg"], fg=c["text"], font=self.f_body, relief="flat",
                                  bd=0, padx=24, pady=20, highlightthickness=0, cursor="arrow",
                                  selectbackground=c["active"], selectforeground=c["text"], spacing3=2)
         self.statement.tag_configure("h1", font=self.f_h1, spacing3=8)
@@ -162,7 +270,9 @@ class App:
         self.statement.tag_configure("code", font=self.f_mono, background=c["code_bg"])
         self.statement.tag_configure("block", font=self.f_mono, background=c["code_bg"], lmargin1=10, lmargin2=10,
                                      rmargin=10, lmargincolor=c["code_bg"], rmargincolor=c["code_bg"])
-        paned.add(self.statement, width=500, minsize=300)
+        self.statement.pack(fill="both", expand=True)
+        paned.add(column, width=500, minsize=300)
+        self.paned = paned
 
         # Editor pane
         pane = tk.Frame(paned, bg=c["bg"])
@@ -198,8 +308,17 @@ class App:
                               selectbackground=c["active"], selectforeground=c["text"])
         self.editor.pack(fill="both", expand=True)
         self.editor.bind("<Tab>", self.on_tab)
+        for text in (self.editor, self.statement, self.result):
+            text.bind("<Control-b>", self.on_ctrl_b)
+        self.show_sidebar(self.sidebar_open())
 
         self.fill_sidebar()
+
+    def icon_button(self, parent, bg):
+        c = self.c
+        return tk.Button(parent, text="☰", font=(self.f_body[0], 13), command=self.toggle_sidebar, bg=bg, fg=c["text"],
+                         activebackground=c["hover"], activeforeground=c["text"], relief="flat", bd=0, padx=6,
+                         highlightthickness=0, cursor="hand2")
 
     def wheel(self, on):
         if on:
@@ -367,7 +486,7 @@ class App:
     # ---------- actions ----------
 
     def on_start(self):
-        trainer.start_course(1)
+        trainer.start_course(LEVELS.index(self.level_pick.get()) + 1)
         self.render()
 
     def on_check(self):
