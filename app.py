@@ -29,11 +29,11 @@ def problem_detail(p):
     code = {}
     for lang in trainer.LANGS:
         f = p["work"] / f"main.{lang}"
-        code[lang] = f.read_text() if f.exists() else trainer.STUBS[lang]
+        code[lang] = f.read_text(encoding="utf-8") if f.exists() else trainer.STUBS[lang]
     solution = None
     if datetime.date.today() >= p["solution_unlock"]:
-        solution = (p["dir"] / "solution.py").read_text()
-    return {"id": p["id"], "statement": (p["dir"] / "problem.md").read_text(), "code": code,
+        solution = (p["dir"] / "solution.py").read_text(encoding="utf-8")
+    return {"id": p["id"], "statement": (p["dir"] / "problem.md").read_text(encoding="utf-8"), "code": code,
             "solution": solution, "solution_unlock": str(p["solution_unlock"])}
 
 
@@ -75,8 +75,8 @@ class Handler(BaseHTTPRequestHandler):
             if datetime.date.today() < p["unlock"]:
                 return self.send_json({"error": f"unlocks on {p['unlock']}"}, 403)
             p["work"].mkdir(parents=True, exist_ok=True)
-            (p["work"] / f"main.{body['lang']}").write_text(body["code"])
-            (p["work"] / "in.txt").write_text((p["dir"] / "tests" / "1.in").read_text())
+            (p["work"] / f"main.{body['lang']}").write_text(body["code"], encoding="utf-8")
+            (p["work"] / "in.txt").write_text((p["dir"] / "tests" / "1.in").read_text(encoding="utf-8"), encoding="utf-8")
             ok, report = trainer.check_lang(p, body["lang"])
             if ok:
                 trainer.record_pass(progress, p, body["lang"])

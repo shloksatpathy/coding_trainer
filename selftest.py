@@ -5,7 +5,6 @@ Runs in a temporary copy of the project, so your work/, progress.json and cache/
 """
 import datetime
 import shutil
-import subprocess
 import sys
 import tempfile
 from pathlib import Path
@@ -22,8 +21,7 @@ with tempfile.TemporaryDirectory() as tmp:
     failed = 0
     gens = sorted(copy.glob("problems/*/*/tests/*.gen.py"))
     for gen in gens:
-        runs = [subprocess.run([sys.executable, str(gen)], capture_output=True, text=True, check=True).stdout
-                for _ in range(2)]
+        runs = [trainer.run_cmd([trainer.PYTHON, str(gen)], check=True).stdout for _ in range(2)]
         if runs[0] != runs[1]:
             print(f"NOT DETERMINISTIC {gen.relative_to(copy)}")
             failed += 1

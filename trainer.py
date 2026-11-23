@@ -2,6 +2,7 @@
 """Coding trainer: weekly problem sets, daily unlocks, submission checker."""
 import datetime
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -13,6 +14,10 @@ WORK = ROOT / "work"
 PROGRESS = ROOT / "progress.json"
 CACHE = ROOT / "cache"
 LANGS = ["c", "cpp", "py", "rs"]
+WINDOWS = os.name == "nt"
+# Child Python must be python.exe: when the window app is started with pythonw.exe, sys.executable is pythonw.
+PYTHON = str(Path(sys.executable).with_name("python.exe")) if WINDOWS else sys.executable
+EXE = "p.exe" if WINDOWS else "p"
 
 STUBS = {
     "c": '#include <stdio.h>\n\nint main(void) {\n    // read from stdin, print to stdout\n    return 0;\n}\n',
@@ -25,17 +30,17 @@ STUBS = {
 def load_progress():
     if not PROGRESS.exists():
         return None
-    return json.loads(PROGRESS.read_text())
+    return json.loads(PROGRESS.read_text(encoding="utf-8"))
 
 
 def save_progress(progress):
-    PROGRESS.write_text(json.dumps(progress, indent=2))
+    PROGRESS.write_text(json.dumps(progress, indent=2), encoding="utf-8")
 
 
 def weeks():
     """List of (week_dir, week_data), ordered by week number."""
     dirs = sorted(PROBLEMS.glob("week*"), key=lambda d: int(d.name[4:]))
-    return [(d, json.loads((d / "week.json").read_text())) for d in dirs]
+    return [(d, json.loads((d / "week.json").read_text(encoding="utf-8"))) for d in dirs]
 
 
 def all_problems(start):
@@ -98,7 +103,7 @@ def cmd_list(progress, args):
 def cmd_show(progress, args):
     p = find_problem(progress, args[0])
     require_unlocked(p)
-    print((p["dir"] / "problem.md").read_text())
+    print((p["dir"] / "problem.md").read_text(encoding="utf-8"))
 
 
 def cmd_init(progress, args):
@@ -108,22 +113,28 @@ def cmd_init(progress, args):
     for lang in LANGS:
         f = p["work"] / f"main.{lang}"
         if not f.exists():
-            f.write_text(STUBS[lang])
+            f.write_text(STUBS[lang], encoding="utf-8")
     sample = p["dir"] / "tests" / "1.in"
-    (p["work"] / "in.txt").write_text(sample.read_text())
+    (p["work"] / "in.txt").write_text(sample.read_text(encoding="utf-8"), encoding="utf-8")
     print(f"Workspace ready: {p['work'].relative_to(ROOT)}")
+
+
+def run_cmd(cmd, stdin=None, **kwargs):
+    """Run a command with UTF-8 text I/O; on Windows without flashing a console window."""
+    return subprocess.run(cmd, input=stdin, capture_output=True, encoding="utf-8", errors="replace",
+                          creationflags=subprocess.CREATE_NO_WINDOW if WINDOWS else 0, **kwargs)
 
 
 def run(lang, src, build, stdin):
     if lang == "py":
-        cmd = [sys.executable, str(src)]
+        cmd = [PYTHON, str(src)]
     else:
-        cmd = [str(build / "p")]
-    return subprocess.run(cmd, input=stdin, capture_output=True, text=True, timeout=10)
+        cmd = [str(build / EXE)]
+    return run_cmd(cmd, stdin, timeout=10)
 
 
 def compile_src(lang, src, build):
-    out = str(build / "p")
+    out = str(build / EXE)
     cmds = {
         "c": ["gcc", "-Wall", "-O2", "-o", out, str(src), "-lm"],
         "cpp": ["g++", "-std=c++17", "-Wall", "-O2", "-o", out, str(src)],
@@ -131,7 +142,7 @@ def compile_src(lang, src, build):
     }
     if lang == "py":
         return None
-    return subprocess.run(cmds[lang], capture_output=True, text=True)
+    return run_cmd(cmds[lang])
 
 
 def normalize(text):
@@ -154,13 +165,12 @@ def test_cases(p):
             inp, out = cached / f"{name}.in", cached / f"{name}.out"
             if not out.exists():
                 cached.mkdir(parents=True, exist_ok=True)
-                inp.write_text(subprocess.run([sys.executable, str(gen)], capture_output=True, text=True,
-                                              check=True).stdout)
-                out.write_text(subprocess.run([sys.executable, str(p["dir"] / "solution.py")], input=inp.read_text(),
-                                              capture_output=True, text=True, check=True).stdout)
+                inp.write_text(run_cmd([PYTHON, str(gen)], check=True).stdout, encoding="utf-8")
+                out.write_text(run_cmd([PYTHON, str(p["dir"] / "solution.py")], inp.read_text(encoding="utf-8"),
+                                       check=True).stdout, encoding="utf-8")
         else:
             inp, out = tests / f"{name}.in", tests / f"{name}.out"
-        cases.append((name, inp.read_text(), out.read_text()))
+        cases.append((name, inp.read_text(encoding="utf-8"), out.read_text(encoding="utf-8")))
     return cases
 
 
@@ -212,7 +222,7 @@ def cmd_solution(progress, args):
     p = find_problem(progress, args[0])
     if datetime.date.today() < p["solution_unlock"]:
         sys.exit(f"Solution for {p['id'].upper()} unlocks on {p['solution_unlock']} (end of week {p['week']})")
-    print((p["dir"] / "solution.py").read_text())
+    print((p["dir"] / "solution.py").read_text(encoding="utf-8"))
 
 
 def cmd_status(progress, args):
