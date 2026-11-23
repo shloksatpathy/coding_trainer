@@ -17,11 +17,28 @@
     --dot: #444a52; --ok: #3fb950; --tab-bg: #e6e6e6; --tab-fg: #16181c; --result-bg: #0d0f12;
   }
   * { box-sizing: border-box; }
-  body { margin: 0; font: 14px/1.5 system-ui, sans-serif; display: flex; height: 100vh; color: var(--text); background: var(--bg); }
-  nav { width: 280px; overflow-y: auto; border-right: 1px solid var(--border); background: var(--panel); padding: 12px; }
-  .nav-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  [hidden] { display: none !important; }
+  body { margin: 0; font: 14px/1.5 system-ui, sans-serif; display: flex; flex-direction: column; height: 100vh; color: var(--text); background: var(--bg); }
+  #menubar { display: flex; gap: 2px; padding: 2px 6px; background: var(--panel); border-bottom: 1px solid var(--border); font-size: 13px; flex-shrink: 0; position: relative; z-index: 10; }
+  .menu { position: relative; }
+  .menu summary { list-style: none; padding: 3px 10px; cursor: pointer; border-radius: 4px; }
+  .menu summary::-webkit-details-marker { display: none; }
+  .menu summary:hover, .menu[open] summary { background: var(--hover); }
+  .menu-items { position: absolute; top: 100%; left: 0; min-width: 300px; background: var(--panel); border: 1px solid var(--border); border-radius: 6px; box-shadow: 0 4px 16px rgba(0, 0, 0, .25); padding: 4px; }
+  .menu-items button { display: flex; justify-content: space-between; width: 100%; text-align: left; background: none; border: 0; color: var(--text); padding: 5px 10px; border-radius: 4px; cursor: pointer; font: inherit; }
+  .menu-items button:hover:not(:disabled) { background: var(--active); }
+  .menu-items button:disabled { color: var(--muted); cursor: default; }
+  .menu-items hr { border: 0; border-top: 1px solid var(--border); margin: 4px 0; }
+  .menu-label { padding: 4px 10px 2px; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; }
+  .kbd { color: var(--muted); }
+  #app { flex: 1; display: flex; overflow: hidden; min-height: 0; }
+  nav { width: 280px; flex-shrink: 0; overflow-y: auto; border-right: 1px solid var(--border); background: var(--panel); padding: 12px; }
+  body.collapsed nav { display: none; }
+  .nav-head { display: flex; align-items: center; gap: 4px; margin: 0 0 12px -6px; }
   nav h1 { font-size: 16px; margin: 0; }
-  select { background: var(--panel); color: var(--text); border: 1px solid var(--input-border); border-radius: 4px; padding: 2px 4px; }
+  .icon { background: none; border: 0; color: var(--text); font-size: 18px; line-height: 1.4; cursor: pointer; padding: 0 6px; border-radius: 4px; }
+  .icon:hover { background: var(--hover); }
+  select { background: var(--panel); color: var(--text); border: 1px solid var(--input-border); border-radius: 4px; padding: 2px 4px; font: inherit; }
   .day { margin-bottom: 14px; }
   .day h2 { font-size: 12px; font-weight: 600; color: var(--muted); margin: 0 0 4px; text-transform: uppercase; letter-spacing: .03em; }
   .day.today h2 { color: var(--accent); }
@@ -32,12 +49,15 @@
   .dots { white-space: nowrap; flex-shrink: 0; margin-left: 6px; }
   .dots span { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-left: 3px; background: var(--dot); }
   .dots span.ok { background: var(--ok); }
-  main { flex: 1; display: flex; overflow: hidden; }
-  #statement { width: 45%; overflow-y: auto; padding: 20px 24px; }
+  main { flex: 1; display: flex; overflow: hidden; min-width: 0; }
+  #left { width: 45%; display: flex; flex-direction: column; min-width: 0; }
+  #show-list { display: none; align-self: flex-start; margin: 8px 0 0 6px; }
+  body.collapsed #show-list { display: inline-block; }
+  #statement { flex: 1; overflow-y: auto; padding: 20px 24px; }
   #statement pre { background: var(--code-bg); padding: 8px 10px; border-radius: 4px; overflow-x: auto; }
   #statement code { background: var(--code-bg); padding: 1px 4px; border-radius: 3px; }
   #statement pre code { padding: 0; }
-  #editor { flex: 1; display: flex; flex-direction: column; border-left: 1px solid var(--border); padding: 12px; gap: 8px; }
+  #editor { flex: 1; display: flex; flex-direction: column; border-left: 1px solid var(--border); padding: 12px; gap: 8px; min-width: 0; }
   .tabs button { border: 1px solid var(--input-border); background: var(--panel); color: var(--text); padding: 4px 12px; border-radius: 4px; cursor: pointer; }
   .tabs button.active { background: var(--tab-bg); color: var(--tab-fg); border-color: var(--tab-bg); }
   textarea { flex: 1; font: 13px/1.45 ui-monospace, monospace; padding: 10px; border: 1px solid var(--input-border); border-radius: 4px; resize: none; tab-size: 4; background: var(--panel); color: var(--text); }
@@ -48,7 +68,17 @@
   #result { height: 30%; overflow: auto; margin: 0; padding: 10px; background: var(--result-bg); color: #eee; border-radius: 4px; font: 12px/1.4 ui-monospace, monospace; white-space: pre-wrap; }
   #result.ok { color: #7ee787; }
   #welcome { margin: auto; text-align: center; }
+  #welcome .pick { margin: 0 0 14px; }
   #welcome button { padding: 8px 20px; font-size: 15px; border: 0; border-radius: 4px; background: var(--accent); color: #fff; cursor: pointer; }
+  dialog { background: var(--panel); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 20px 24px; max-width: 480px; }
+  dialog::backdrop { background: rgba(0, 0, 0, .45); }
+  dialog h3 { margin: 0 0 8px; }
+  dialog p { white-space: pre-line; margin: 0; }
+  dialog a { color: var(--accent); }
+  dialog .buttons { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+  dialog button { padding: 6px 16px; border-radius: 4px; border: 1px solid var(--input-border); background: var(--panel); color: var(--text); cursor: pointer; font: inherit; }
+  dialog button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  dialog button.danger { background: #c62828; border-color: #c62828; color: #fff; }
 </style>
 <script>
 // Theme: "system" follows the OS setting; the choice is kept in localStorage.
@@ -67,39 +97,64 @@ applyTheme();
 </script>
 </head>
 <body>
-<div id="welcome" hidden>
-  <h1>Coding Trainer</h1>
-  <p>Weekly problem sets in C, C++, Python and Rust. A new day unlocks every day.</p>
-  <button onclick="start()">Start today</button>
-</div>
-<nav hidden>
-  <div class="nav-head">
+<header id="menubar">
+  <details class="menu"><summary>Course</summary><div class="menu-items" id="menu-course"></div></details>
+  <details class="menu"><summary>View</summary><div class="menu-items" id="menu-view"></div></details>
+  <details class="menu"><summary>Help</summary><div class="menu-items">
+    <button onclick="closeMenus(); about()">About Coding Trainer</button>
+  </div></details>
+</header>
+<div id="app">
+  <div id="welcome" hidden>
     <h1>Coding Trainer</h1>
-    <select id="theme" onchange="setTheme(this.value)" title="Theme">
-      <option value="system">System</option>
-      <option value="light">Light</option>
-      <option value="dark">Dark</option>
-    </select>
+    <p>Weekly problem sets in C, C++, Python and Rust. A new day unlocks every day.</p>
+    <p class="pick">Start at level <select id="level-pick"></select></p>
+    <button onclick="start()">Start today</button>
   </div>
-  <div id="days"></div>
-</nav>
-<main hidden>
-  <section id="statement"></section>
-  <section id="editor">
-    <div class="tabs"></div>
-    <textarea id="code" spellcheck="false"></textarea>
-    <div class="actions">
-      <button id="check" onclick="check()">Check</button>
-      <button id="solution" onclick="showSolution()">Reference solution</button>
-      <span id="hint"></span>
+  <nav hidden>
+    <div class="nav-head">
+      <button class="icon" onclick="toggleSidebar()" title="Hide problem list (Ctrl+B)">☰</button>
+      <h1>Coding Trainer</h1>
     </div>
-    <pre id="result"></pre>
-  </section>
-</main>
+    <div id="days"></div>
+  </nav>
+  <main hidden>
+    <div id="left">
+      <button id="show-list" class="icon" onclick="toggleSidebar()" title="Show problem list (Ctrl+B)">☰</button>
+      <section id="statement"></section>
+    </div>
+    <section id="editor">
+      <div class="tabs"></div>
+      <textarea id="code" spellcheck="false"></textarea>
+      <div class="actions">
+        <button id="check" onclick="check()">Check</button>
+        <button id="solution" onclick="showSolution()">Reference solution</button>
+        <span id="hint"></span>
+      </div>
+      <pre id="result"></pre>
+    </section>
+  </main>
+</div>
+<dialog id="confirm">
+  <form method="dialog">
+    <h3></h3>
+    <p></p>
+    <div class="buttons"><button value="cancel" autofocus>Cancel</button><button value="ok"></button></div>
+  </form>
+</dialog>
+<dialog id="about">
+  <form method="dialog">
+    <h3>Coding Trainer <span id="version"></span></h3>
+    <p>Daily coding problems in C, C++, Python and Rust.
+      <a href="https://github.com/shloksatpathy/coding_trainer" target="_blank" rel="noopener">github.com/shloksatpathy/coding_trainer</a></p>
+    <div class="buttons"><button value="ok" class="primary" autofocus>Close</button></div>
+  </form>
+</dialog>
 <script>
 const LANGS = ["c", "cpp", "py", "rs"];
 const NAMES = { c: "C", cpp: "C++", py: "Python", rs: "Rust" };
-let current = null, lang = "c";
+const THEMES = [["system", "System"], ["light", "Light"], ["dark", "Dark"]];
+let current = null, lang = "c", state = null;
 
 function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 
@@ -120,14 +175,108 @@ async function api(path, body) {
   return r.json();
 }
 
-async function start() { await api("/api/start", {}); load(); }
+// ---------- menu bar ----------
+
+function closeMenus() {
+  document.querySelectorAll("details.menu[open]").forEach(d => d.open = false);
+}
+
+document.addEventListener("click", e => {
+  document.querySelectorAll("details.menu[open]").forEach(d => { if (!d.contains(e.target)) d.open = false; });
+});
+
+function renderMenus() {
+  const started = state.started, mark = on => on ? "◉" : "○";
+  const theme = localStorage.theme || "system";
+  document.getElementById("menu-course").innerHTML = `<div class="menu-label">Start at level</div>` +
+    state.levels.map((label, i) =>
+      `<button ${started ? "" : "disabled"} onclick="closeMenus(); changeLevel(${i + 1})">${mark(started && state.level === i + 1)} ${label}</button>`).join("") +
+    `<hr><button onclick="closeMenus(); resetAll()">Reset…</button>`;
+  document.getElementById("menu-view").innerHTML =
+    `<button ${started ? "" : "disabled"} onclick="closeMenus(); toggleSidebar()"><span>${sidebarOpen() ? "☑" : "☐"} Problem list</span><span class="kbd">Ctrl+B</span></button>` +
+    `<hr><div class="menu-label">Theme</div>` +
+    THEMES.map(([key, label]) => `<button onclick="closeMenus(); pickTheme('${key}')">${mark(theme === key)} ${label}</button>`).join("");
+}
+
+function pickTheme(key) { setTheme(key); renderMenus(); }
+
+function sidebarOpen() { return localStorage.sidebar !== "collapsed"; }
+
+function applySidebar() { document.body.classList.toggle("collapsed", !sidebarOpen()); }
+
+function toggleSidebar() {
+  if (!state.started) return;
+  localStorage.sidebar = sidebarOpen() ? "collapsed" : "open";
+  applySidebar();
+  renderMenus();
+}
+
+document.addEventListener("keydown", e => {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "b") {
+    e.preventDefault();
+    toggleSidebar();
+  }
+});
+
+function ask(title, message, okLabel, danger) {
+  const d = document.getElementById("confirm");
+  d.querySelector("h3").textContent = title;
+  d.querySelector("p").textContent = message;
+  const ok = d.querySelector("[value=ok]");
+  ok.textContent = okLabel;
+  ok.className = danger ? "danger" : "primary";
+  d.returnValue = "";
+  d.showModal();
+  return new Promise(resolve => d.addEventListener("close", () => resolve(d.returnValue === "ok"), { once: true }));
+}
+
+async function changeLevel(level) {
+  if (!await ask(`Start at level ${level}?`,
+                 `Level ${level} starts today. Levels below ${level} will be locked.\nYour passed checks and saved code are kept.`,
+                 `Start level ${level}`)) return;
+  await api("/api/level", { level });
+  current = null;
+  load();
+}
+
+async function resetAll() {
+  if (!await ask("Reset Coding Trainer?",
+                 "This permanently deletes:\n• your progress (start date, level, passed checks)\n• ALL your saved code in work/\n" +
+                 "• your settings (theme, problem list) and the test cache\n\nIt cannot be undone.",
+                 "Delete everything", true)) return;
+  await api("/api/reset", {});
+  localStorage.removeItem("theme");
+  localStorage.removeItem("sidebar");
+  applyTheme();
+  applySidebar();
+  current = null;
+  load();
+}
+
+function about() {
+  document.getElementById("version").textContent = state.version;
+  document.getElementById("about").showModal();
+}
+
+// ---------- course ----------
+
+async function start() {
+  await api("/api/start", { level: +document.getElementById("level-pick").value });
+  load();
+}
 
 async function load() {
-  const state = await api("/api/state");
+  state = await api("/api/state");
   document.getElementById("welcome").hidden = state.started;
   document.querySelector("nav").hidden = !state.started;
   document.querySelector("main").hidden = !state.started;
-  if (!state.started) return;
+  applySidebar();
+  renderMenus();
+  if (!state.started) {
+    document.getElementById("level-pick").innerHTML =
+      state.levels.map((label, i) => `<option value="${i + 1}">${label}</option>`).join("");
+    return;
+  }
   document.getElementById("days").innerHTML = state.days.map(d => `
     <div class="day ${d.today ? "today" : ""}">
       <h2>W${d.week} · L${d.level} · Day ${d.day} · ${d.date}${d.today ? " · today" : ""}</h2>
@@ -191,7 +340,6 @@ document.getElementById("code").addEventListener("keydown", e => {
   t.selectionStart = t.selectionEnd = s + 4;
 });
 
-document.getElementById("theme").value = localStorage.theme || "system";
 load();
 </script>
 </body>
