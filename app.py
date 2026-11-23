@@ -7,6 +7,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 import trainer
 
 INDEX = (trainer.ROOT / "static" / "index.html").read_bytes()
+LEVELS = [f"Level {n} · {week['title']}" for n, (_d, week) in enumerate(trainer.weeks(), 1)]
 
 
 def problems_state(progress):
@@ -21,7 +22,7 @@ def problems_state(progress):
                          "today": p["unlock"] == today, "problems": []})
         days[-1]["problems"].append({"id": p["id"], "name": p["name"][4:],
                                      "passed": list(progress["passed"].get(p["id"], {}))})
-    return {"start": progress["start"], "days": days}
+    return {"start": progress["start"], "level": progress.get("level", 1), "days": days}
 
 
 def problem_detail(p):
@@ -52,10 +53,11 @@ class Handler(BaseHTTPRequestHandler):
             self.wfile.write(INDEX)
             return
         progress = trainer.load_progress()
+        about = {"levels": LEVELS, "version": trainer.VERSION}
         if not trainer.is_started(progress):
-            return self.send_json({"started": False})
+            return self.send_json({"started": False, **about})
         if self.path == "/api/state":
-            return self.send_json({"started": True, **problems_state(progress)})
+            return self.send_json({"started": True, **about, **problems_state(progress)})
         if self.path.startswith("/api/problem/"):
             p = trainer.find_problem(progress, self.path.rsplit("/", 1)[1])
             if datetime.date.today() < p["unlock"]:
@@ -65,8 +67,11 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
-        if self.path == "/api/start":
-            trainer.start_course(1)
+        if self.path in ("/api/start", "/api/level"):
+            trainer.start_course(body["level"])
+            return self.send_json({"ok": True})
+        if self.path == "/api/reset":
+            trainer.reset_course()
             return self.send_json({"ok": True})
         if self.path == "/api/check":
             progress = trainer.load_progress()
