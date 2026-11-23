@@ -30,6 +30,27 @@ make clean      # remove build/, cache/, __pycache__/
 
 The version lives in `VERSION`. No target touches your `work/` folder or `progress.json`.
 
+### Windows
+
+Install, and make sure each is on `PATH`:
+- **Python 3** from python.org — includes the `py` / `pyw` launchers and tkinter, which the Windows window uses
+- **gcc / g++** — MinGW-w64, e.g. from winlibs.com or MSYS2
+- **Rust** via rustup (rustup.rs)
+- **Git** — only for `build dist`
+
+```
+build              list targets
+build run          desktop app (gui_tk.py, a tkinter replica of the GTK window)
+build web          web app on http://localhost:8000
+build install      add "Coding Trainer" (with icon) to the Start menu
+build uninstall    remove it from the Start menu
+build test         all 84 reference solutions + generators, in a temp copy
+build dist         test, then package the committed project as build\coding-trainer-<VERSION>.zip
+build clean        remove build\, cache\, __pycache__\
+```
+
+`build.cmd` runs `build.ps1` without changing PowerShell's execution policy. Set `PYTHON` / `GUI_PYTHON` to use other interpreters than `py` / `pyw`. No target touches `work\` or `progress.json`.
+
 ### Desktop app (native window)
 
 ```
