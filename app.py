@@ -10,12 +10,11 @@ INDEX = (trainer.ROOT / "static" / "index.html").read_bytes()
 
 
 def problems_state(progress):
-    start = datetime.date.fromisoformat(progress["start"])
     today = datetime.date.today()
     days = []
-    for p in trainer.all_problems(start):
+    for p in trainer.course_problems(progress):
         if p["unlock"] > today:
-            break
+            continue
         if not days or (days[-1]["week"], days[-1]["day"]) != (p["week"], p["day"]):
             days.append({"week": p["week"], "day": p["day"], "level": p["level"],
                          "date": str(p["unlock"]), "title": p["day_title"],
@@ -53,27 +52,27 @@ class Handler(BaseHTTPRequestHandler):
             self.wfile.write(INDEX)
             return
         progress = trainer.load_progress()
-        if progress is None:
+        if not trainer.is_started(progress):
             return self.send_json({"started": False})
         if self.path == "/api/state":
             return self.send_json({"started": True, **problems_state(progress)})
         if self.path.startswith("/api/problem/"):
             p = trainer.find_problem(progress, self.path.rsplit("/", 1)[1])
             if datetime.date.today() < p["unlock"]:
-                return self.send_json({"error": f"unlocks on {p['unlock']}"}, 403)
+                return self.send_json({"error": trainer.lock_message(p)}, 403)
             return self.send_json(problem_detail(p))
         self.send_json({"error": "not found"}, 404)
 
     def do_POST(self):
         body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
         if self.path == "/api/start":
-            trainer.save_progress({"start": datetime.date.today().isoformat(), "passed": {}})
+            trainer.start_course(1)
             return self.send_json({"ok": True})
         if self.path == "/api/check":
             progress = trainer.load_progress()
             p = trainer.find_problem(progress, body["id"])
             if datetime.date.today() < p["unlock"]:
-                return self.send_json({"error": f"unlocks on {p['unlock']}"}, 403)
+                return self.send_json({"error": trainer.lock_message(p)}, 403)
             p["work"].mkdir(parents=True, exist_ok=True)
             (p["work"] / f"main.{body['lang']}").write_text(body["code"], encoding="utf-8")
             (p["work"] / "in.txt").write_text((p["dir"] / "tests" / "1.in").read_text(encoding="utf-8"), encoding="utf-8")

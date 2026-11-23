@@ -105,7 +105,7 @@ class TrainerWindow(Gtk.Window):
         self.desktop = Gio.Settings.new("org.gnome.desktop.interface")
         self.desktop.connect("changed::color-scheme", lambda *a: self.apply_theme())
 
-        self.current = None      # problem dict from trainer.all_problems
+        self.current = None      # problem dict from trainer.course_problems
         self.code = {}           # lang -> editor text for the current problem
         self.lang = "c"
         self.rows = {}           # problem id -> (row, [dot labels])
@@ -117,7 +117,7 @@ class TrainerWindow(Gtk.Window):
         self.apply_theme()
         self.show_all()
 
-        if trainer.load_progress() is None:
+        if not trainer.is_started(trainer.load_progress()):
             self.stack.set_visible_child_name("welcome")
         else:
             self.load()
@@ -250,15 +250,14 @@ class TrainerWindow(Gtk.Window):
     # ---------- data ----------
 
     def on_start(self, _button):
-        trainer.save_progress({"start": datetime.date.today().isoformat(), "passed": {}})
+        trainer.start_course(1)
         self.load()
 
     def load(self):
         progress = trainer.load_progress()
         self.theme_box.set_active_id(progress.get("theme", "system"))
-        start = datetime.date.fromisoformat(progress["start"])
         today = datetime.date.today()
-        self.problems = [p for p in trainer.all_problems(start) if p["unlock"] <= today]
+        self.problems = [p for p in trainer.course_problems(progress) if p["unlock"] <= today]
         last_day = None
         today_header = None
         for p in self.problems:

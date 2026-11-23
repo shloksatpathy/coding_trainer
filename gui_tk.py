@@ -54,7 +54,7 @@ class App:
         self.f_title, self.f_h1 = (ui, 12, "bold"), (ui, 16, "bold")
         self.f_mono, self.f_mono_small = (mono, 10), (mono, 9)
 
-        self.current = None      # problem dict from trainer.all_problems
+        self.current = None      # problem dict from trainer.course_problems
         self.code = {}           # lang -> editor text for the current problem
         self.lang = "c"
         self.result_state = ("", False)
@@ -100,7 +100,7 @@ class App:
         self.root.configure(bg=self.c["bg"])
         self.frame = tk.Frame(self.root, bg=self.c["bg"])
         self.frame.pack(fill="both", expand=True)
-        if trainer.load_progress() is None:
+        if not trainer.is_started(trainer.load_progress()):
             self.build_welcome()
         else:
             self.build_main()
@@ -215,9 +215,8 @@ class App:
     def fill_sidebar(self):
         c = self.c
         progress = trainer.load_progress()
-        start = datetime.date.fromisoformat(progress["start"])
         today = datetime.date.today()
-        self.problems = [p for p in trainer.all_problems(start) if p["unlock"] <= today]
+        self.problems = [p for p in trainer.course_problems(progress) if p["unlock"] <= today]
         self.rows = {}
         today_header = None
         last_day = None
@@ -368,7 +367,7 @@ class App:
     # ---------- actions ----------
 
     def on_start(self):
-        trainer.save_progress({"start": datetime.date.today().isoformat(), "passed": {}})
+        trainer.start_course(1)
         self.render()
 
     def on_check(self):
