@@ -1,4 +1,4 @@
-# PLAN: collapsible problem list, menu bar, start level, reset
+# PLAN: collapsible problem list, menu bar, start level, reset — done
 
 ## Goal
 
@@ -145,11 +145,11 @@ Settings can be changed on the welcome screen, before any start date exists, so 
 
 ## Steps (one commit each, pushed after each)
 
-1. **`trainer.py`:** `level` in `all_problems`, `course_problems`, `start_course`, `reset_course`, `set_setting`; welcome-screen check based on `"start"`; CLI `start --level`, `level`, `reset`.
-2. **GTK:** menu bar, Revealer sidebar with ☰ and Ctrl+B, level picker on the welcome screen, level and reset dialogs, theme moved to View; uses `course_problems` so lower levels are locked.
-3. **tkinter:** the same features.
-4. **Web:** the same features plus the three endpoints.
-5. **Docs:** README sections, and this plan marked done.
+1. ✅ **`trainer.py`:** `level` in `all_problems`, `course_problems`, `start_course`, `reset_course`, `set_setting`; welcome-screen check based on `"start"`; CLI `start --level`, `level`, `reset`.
+2. ✅ **GTK:** menu bar, Revealer sidebar with ☰ and Ctrl+B, level picker on the welcome screen, level and reset dialogs, theme moved to View; uses `course_problems` so lower levels are locked.
+3. ✅ **tkinter:** the same features.
+4. ✅ **Web:** the same features plus the three endpoints.
+5. ✅ **Docs:** README sections, and this plan marked done.
 6. **Release v0.2.0:** bump `VERSION`, `make dist` + `build dist`, tag, GitHub release with notes.
 
 ## Testing
@@ -181,3 +181,13 @@ Settings can be changed on the welcome screen, before any start date exists, so 
 1. Starting at a higher level keeps the **lower levels locked**.
 2. Reset is a **whole reset**: progress, all saved code, settings and cache are deleted.
 3. The **web app** gets all of these features too.
+
+## Results (2026-11-23)
+
+- **`trainer.py`:** `selftest.py` checks every level's schedule (lower levels locked, week N from today), v0.1.0 progress files (no `level`), settings before start, and that reset removes exactly `progress.json`, `work/` and `cache/`. Breaking the lock makes 126 checks fail, so the tests catch it.
+- **GTK:** 23 scripted checks pass. Collapse widens statement + editor by exactly 280 px, keeping their ratio (500/619 → 625/774). The state survives a restart. Cancelling a level change restores the ◉ mark. Reset → welcome screen with System theme.
+- **tkinter:** 22 checks pass on Xvfb. Ctrl+B inside the editor toggles the list without moving the cursor. Toggling only places or removes the sidebar, so the editor keeps its undo history.
+- **Web** (Chrome): welcome level picker → level 3, real Ctrl+B (+280 px, state kept after reload), ☰ to reopen, Enter on the level dialog cancels, level 2 applied, Light theme, Reset → welcome with `work/`, `cache/` and browser settings gone. No console errors.
+- **Found and fixed while testing:**
+  - The web welcome screen also showed the empty editor (`display: flex` overrode `hidden`; present since v0.1.0).
+  - `selftest.py` didn't copy `VERSION`.
