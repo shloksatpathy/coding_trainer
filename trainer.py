@@ -19,6 +19,7 @@ WINDOWS = os.name == "nt"
 # Child Python must be python.exe: when the window app is started with pythonw.exe, sys.executable is pythonw.
 PYTHON = str(Path(sys.executable).with_name("python.exe")) if WINDOWS else sys.executable
 EXE = "p.exe" if WINDOWS else "p"
+VERSION = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
 LOCKED = datetime.date.max  # unlock date of levels below the chosen start level
 
 STUBS = {
