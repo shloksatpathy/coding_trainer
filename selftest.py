@@ -14,6 +14,7 @@ ROOT = Path(__file__).parent
 with tempfile.TemporaryDirectory() as tmp:
     copy = Path(tmp)
     shutil.copy(ROOT / "trainer.py", copy)
+    shutil.copy(ROOT / "VERSION", copy)
     shutil.copytree(ROOT / "problems", copy / "problems")
     sys.path.insert(0, str(copy))
     import trainer
