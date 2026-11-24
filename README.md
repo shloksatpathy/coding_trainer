@@ -6,7 +6,7 @@ For now the coding languages included are
     - Python
     - Rust
 
-Each week presents a set of problems with daily submission the problems checker works always but the solution is provided only at the end of the problem set that is at the end of the week
+A new problem set is released every 3 days. The checker works any time after a set is released; the reference solutions of a set are released together with the next set.
 
 The week just marks the levels of the problems with level (4 levels) 
 
@@ -21,7 +21,7 @@ Requires `python3`, `gcc`, `g++` and `rustc`. No other dependencies.
 
 | Menu | Item |
 | --- | --- |
-| **Course** | **Start at level ▸ 1–4**: that level's Day 1 unlocks today; lower levels stay locked; passed checks and saved code are kept · **Reset…** |
+| **Course** | **Start at level ▸ 1–4**: that level's Set 1 is released today; lower levels stay locked; passed checks and saved code are kept · **Reset…** |
 | **View** | **Problem list** (**Ctrl+B**) shows or hides the sidebar; the statement and editor take its space · **Theme ▸** System / Light / Dark |
 | **Help** | **About** (version, link to this repository) |
 
@@ -83,7 +83,7 @@ build clean        remove build\, cache\, __pycache__\
 
 `install-desktop.sh` writes `~/.local/share/applications/coding-trainer.desktop` pointing at this folder (no root needed). Re-run it if you move the folder; remove the app with `rm ~/.local/share/applications/coding-trainer.desktop`.
 
-A GTK 3 window with the same layout and menus as the web app: menu bar, collapsible sidebar with days and progress dots, problem statement, C / C++ / Python / Rust editor tabs, **Check** and **Reference solution**. No browser or server needed. It uses the system Python because that is where GTK's Python bindings live (`python3-gi`, preinstalled on Ubuntu). It shares `work/` and `progress.json` with the CLI and web app.
+A GTK 3 window with the same layout and menus as the web app: menu bar, collapsible sidebar with problem sets and progress dots, problem statement, C / C++ / Python / Rust editor tabs, **Check** and **Reference solution**. No browser or server needed. It uses the system Python because that is where GTK's Python bindings live (`python3-gi`, preinstalled on Ubuntu). It shares `work/` and `progress.json` with the CLI and web app.
 
 ### Web app
 
@@ -91,7 +91,7 @@ A GTK 3 window with the same layout and menus as the web app: menu bar, collapsi
 python3 app.py                        # then open http://localhost:8000
 ```
 
-Sidebar shows the unlocked days with a dot per language (green = passed). Pick a problem, write code in the C / C++ / Python / Rust tabs, press **Check**. Code is saved to `work/` on every check, so the CLI and the app share the same files and progress.
+Sidebar shows the released problem sets with a dot per language (green = passed). Pick a problem, write code in the C / C++ / Python / Rust tabs, press **Check**. Code is saved to `work/` on every check, so the CLI and the app share the same files and progress.
 
 Theme: **View ▸ Theme** — **System** follows your OS light/dark setting. The choice is remembered in the browser.
 
@@ -101,26 +101,28 @@ Theme: **View ▸ Theme** — **System** follows your OS light/dark setting. The
 python3 trainer.py start              # begin today at level 1 (or: start 2026-11-22 --level 3)
 python3 trainer.py level 3            # restart the schedule at level 3 today; lower levels lock
 python3 trainer.py reset              # delete progress, settings, ALL saved code and the cache (asks first)
-python3 trainer.py list               # unlocked days + per-language progress
+python3 trainer.py list               # released problem sets + per-language progress
 python3 trainer.py show P01           # read a problem
 python3 trainer.py init P01           # creates work/week1/day01/p01_arithmetic/main.{c,cpp,py,rs} + in.txt
 python3 trainer.py check P01          # compile + run all 4 against the tests (or: check P01 rs)
 python3 trainer.py hint P01 py        # hint 1 for your current failure in Python (or: hint P01 py 2)
 python3 trainer.py status             # weekly completion summary
-python3 trainer.py solution P01       # reference solution, only after the week ends
+python3 trainer.py solution P01       # reference solution, released with the next problem set
 ```
 
-- Week W is level W (4 levels). Starting at level L: day N of week W ≥ L unlocks on `start + 7*(W-L) + (N-1)` days; weeks below L stay locked. Checking works any time after unlock.
+- Week W is level W (4 levels), 7 problem sets each. Starting at level L: set N of week W ≥ L is released on `start + 3*(7*(W-L) + N-1)` days, and its solutions 3 days later with the next set; weeks below L stay locked. Checking works any time after release.
+- The sidebar and `list` mark the current set (released, solutions not out yet). `status` counts passes made before the solutions came out.
+- Saved code lives in `work/weekW/dayNN/` (NN = set number; the folder name is kept from the old daily sets).
 - Your progress is saved in `progress.json`.
 
 ## Adding a week
 
 ```
 problems/weekN/
-  week.json                  {"title": ..., "level": N, "days": [{"title": ..., "problems": ["p22_name", ...]}, ...]}
+  week.json                  {"title": ..., "level": N, "sets": [{"title": ..., "problems": ["p22_name", ...]}, ...]}
   p22_name/
     problem.md               statement
-    solution.py              reference solution (shown after the week ends)
+    solution.py              reference solution (shown with the next problem set)
     tests/1.in, 1.out, ...   test 1 is the sample copied to in.txt
     tests/5.gen.py           large test: prints its input (fixed random seed)
     hints.json               hint 2 per failed test: {"tests": {"3": ...}, "timeout": ..., "runtime": ..., "wrong": ..., "hints": 1|2}
