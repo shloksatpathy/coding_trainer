@@ -564,7 +564,7 @@ class TrainerWindow(Gtk.Window):
         self.set_result(f"Checking {NAMES[lang]}...", False)
 
         def work():
-            ok, report = trainer.check_lang(p, lang)
+            ok, report, _failure = trainer.check_lang(p, lang)
             GLib.idle_add(self.check_done, p, lang, ok, report)
 
         threading.Thread(target=work, daemon=True).start()

@@ -81,7 +81,7 @@ class Handler(BaseHTTPRequestHandler):
             p["work"].mkdir(parents=True, exist_ok=True)
             (p["work"] / f"main.{body['lang']}").write_text(body["code"], encoding="utf-8")
             (p["work"] / "in.txt").write_text((p["dir"] / "tests" / "1.in").read_text(encoding="utf-8"), encoding="utf-8")
-            ok, report = trainer.check_lang(p, body["lang"])
+            ok, report, failure = trainer.check_lang(p, body["lang"])
             if ok:
                 trainer.record_pass(progress, p, body["lang"])
             return self.send_json({"ok": ok, "report": report})

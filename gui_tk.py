@@ -501,7 +501,7 @@ class App:
 
     def poll_results(self):
         while not self.results.empty():
-            p, lang, ok, report = self.results.get()
+            p, lang, ok, report, _failure = self.results.get()
             progress = trainer.load_progress()
             if ok:
                 trainer.record_pass(progress, p, lang)
