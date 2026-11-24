@@ -54,7 +54,7 @@ button.primary {{ background-image: none; background-color: {accent}; border: no
                   padding: 4px 16px; box-shadow: none; }}
 button.primary label {{ color: #ffffff; }}
 button.primary:disabled {{ background-color: {disabled}; }}
-.hint {{ color: {muted}; }}
+.note {{ color: {muted}; }}
 textview.result {{ font-family: monospace; font-size: 9pt; }}
 textview.result text {{ background-color: {result_bg}; color: #eeeeee; }}
 textview.result.ok text {{ color: #7ee787; }}
@@ -384,11 +384,16 @@ class TrainerWindow(Gtk.Window):
         self.solution_btn = Gtk.Button(label="Reference solution")
         self.solution_btn.get_style_context().add_class("primary")
         self.solution_btn.connect("clicked", self.on_solution)
-        self.hint = Gtk.Label()
-        self.hint.get_style_context().add_class("hint")
+        self.hint_btn = Gtk.Button(label="Hint")
+        self.hint_btn.get_style_context().add_class("primary")
+        self.hint_btn.connect("clicked", self.on_hint)
+        self.solution_note = Gtk.Label()
+        self.solution_note.get_style_context().add_class("note")
         actions.add(self.check_btn)
         actions.add(self.solution_btn)
-        actions.add(self.hint)
+        actions.add(self.hint_btn)
+        actions.add(self.solution_note)
+        self.set_hints([])
         editor.add(actions)
 
         out = Gtk.ScrolledWindow()
@@ -508,7 +513,8 @@ class TrainerWindow(Gtk.Window):
         self.set_result("", False)
         unlocked = datetime.date.today() >= self.current["solution_unlock"]
         self.solution_btn.set_sensitive(unlocked)
-        self.hint.set_text("" if unlocked else f"Solution unlocks {self.current['solution_unlock']}")
+        self.solution_note.set_text("" if unlocked else f"Solution unlocks {self.current['solution_unlock']}")
+        self.set_hints([])
         self.editor.get_buffer().set_text(self.code[self.lang])
         self.mark_tab()
 
@@ -529,6 +535,7 @@ class TrainerWindow(Gtk.Window):
         self.lang = lang
         self.editor.get_buffer().set_text(self.code[lang])
         self.mark_tab()
+        self.set_hints([])
 
     def mark_tab(self):
         for lang, b in self.tab_buttons.items():
@@ -562,25 +569,42 @@ class TrainerWindow(Gtk.Window):
         (p["work"] / "in.txt").write_text((p["dir"] / "tests" / "1.in").read_text())
         self.check_btn.set_sensitive(False)
         self.set_result(f"Checking {NAMES[lang]}...", False)
+        self.set_hints([])
 
         def work():
-            ok, report, _failure = trainer.check_lang(p, lang)
-            GLib.idle_add(self.check_done, p, lang, ok, report)
+            ok, report, failure = trainer.check_lang(p, lang)
+            GLib.idle_add(self.check_done, p, lang, ok, report, failure)
 
         threading.Thread(target=work, daemon=True).start()
 
-    def check_done(self, p, lang, ok, report):
+    def check_done(self, p, lang, ok, report, failure):
         progress = trainer.load_progress()
         if ok:
             trainer.record_pass(progress, p, lang)
         self.update_dots(progress)
         if self.current is p and self.lang == lang:
             self.set_result(report, ok)
+            self.set_hints(trainer.hints(p, failure))
         self.check_btn.set_sensitive(True)
 
     def on_solution(self, _button):
         solution = (self.current["dir"] / "solution.py").read_text()
         self.set_result("# Reference solution (Python)\n\n" + solution, False)
+        self.set_hints([])
+
+    def set_hints(self, hints, shown=0):
+        """Hints for the last failed check; they are only shown one at a time on click."""
+        self.hints, self.shown = hints, shown
+        self.hint_btn.set_label(f"Hint {shown}/{len(hints)}" if hints else "Hint")
+        self.hint_btn.set_sensitive(shown < len(hints))
+
+    def on_hint(self, _button):
+        buf = self.result.get_buffer()
+        k = self.shown + 1
+        buf.insert(buf.get_end_iter(), f"\n\n── Hint {k}/{len(self.hints)} ──\n{self.hints[k - 1]}")
+        buf.place_cursor(buf.get_end_iter())
+        self.result.scroll_to_mark(buf.get_insert(), 0, False, 0, 0)
+        self.set_hints(self.hints, k)
 
 
 if __name__ == "__main__":
