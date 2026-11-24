@@ -64,7 +64,7 @@
   .actions { display: flex; gap: 8px; align-items: center; }
   .actions button { padding: 6px 16px; border: 0; border-radius: 4px; background: var(--accent); color: #fff; cursor: pointer; }
   .actions button:disabled { background: var(--disabled); }
-  #hint { color: var(--muted); }
+  #solution-note { color: var(--muted); }
   #result { height: 30%; overflow: auto; margin: 0; padding: 10px; background: var(--result-bg); color: #eee; border-radius: 4px; font: 12px/1.4 ui-monospace, monospace; white-space: pre-wrap; }
   #result.ok { color: #7ee787; }
   #welcome { margin: auto; text-align: center; }
@@ -129,7 +129,8 @@ applyTheme();
       <div class="actions">
         <button id="check" onclick="check()">Check</button>
         <button id="solution" onclick="showSolution()">Reference solution</button>
-        <span id="hint"></span>
+        <button id="hint" onclick="showHint()" disabled>Hint</button>
+        <span id="solution-note"></span>
       </div>
       <pre id="result"></pre>
     </section>
@@ -155,6 +156,7 @@ const LANGS = ["c", "cpp", "py", "rs"];
 const NAMES = { c: "C", cpp: "C++", py: "Python", rs: "Rust" };
 const THEMES = [["system", "System"], ["light", "Light"], ["dark", "Dark"]];
 let current = null, lang = "c", state = null;
+let hints = [], shown = 0;  // hints for the last failed check, and how many are shown
 
 function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 
@@ -299,7 +301,7 @@ async function openProblem(id) {
   document.getElementById("statement").innerHTML = markdown(current.statement);
   document.getElementById("result").textContent = "";
   document.getElementById("solution").disabled = !current.solution;
-  document.getElementById("hint").textContent = current.solution ? "" : `Solution unlocks ${current.solution_unlock}`;
+  document.getElementById("solution-note").textContent = current.solution ? "" : `Solution unlocks ${current.solution_unlock}`;
   document.getElementById("code").value = "";
   selectLang(lang);
   load();
@@ -311,6 +313,7 @@ function selectLang(l) {
   document.querySelector(".tabs").innerHTML = LANGS.map(x =>
     `<button class="${x === lang ? "active" : ""}" onclick="selectLang('${x}')">${NAMES[x]}</button>`).join(" ");
   document.getElementById("code").value = current.code[lang];
+  setHints([]);
 }
 
 async function check() {
@@ -319,9 +322,12 @@ async function check() {
   btn.disabled = true;
   out.className = "";
   out.textContent = `Checking ${NAMES[lang]}...`;
-  const r = await api("/api/check", { id: current.id, lang, code: current.code[lang] });
+  setHints([]);
+  const id = current.id, l = lang;
+  const r = await api("/api/check", { id, lang, code: current.code[lang] });
   out.className = r.ok ? "ok" : "";
   out.textContent = r.report;
+  if (current.id === id && lang === l) setHints(r.hints);
   btn.disabled = false;
   load();
 }
@@ -330,6 +336,22 @@ function showSolution() {
   const out = document.getElementById("result");
   out.className = "";
   out.textContent = "# Reference solution (Python)\n\n" + current.solution;
+  setHints([]);
+}
+
+function setHints(list, n = 0) {
+  hints = list;
+  shown = n;
+  const btn = document.getElementById("hint");
+  btn.textContent = hints.length ? `Hint ${shown}/${hints.length}` : "Hint";
+  btn.disabled = shown >= hints.length;
+}
+
+function showHint() {
+  const out = document.getElementById("result");
+  out.textContent += `\n\n── Hint ${shown + 1}/${hints.length} ──\n${hints[shown]}`;
+  out.scrollTop = out.scrollHeight;
+  setHints(hints, shown + 1);
 }
 
 document.getElementById("code").addEventListener("keydown", e => {

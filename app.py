@@ -84,7 +84,7 @@ class Handler(BaseHTTPRequestHandler):
             ok, report, failure = trainer.check_lang(p, body["lang"])
             if ok:
                 trainer.record_pass(progress, p, body["lang"])
-            return self.send_json({"ok": ok, "report": report})
+            return self.send_json({"ok": ok, "report": report, "hints": trainer.hints(p, failure)})
         self.send_json({"error": "not found"}, 404)
 
 
