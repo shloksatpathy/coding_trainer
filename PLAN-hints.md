@@ -6,7 +6,8 @@ Add a **Hint** button to the action row, next to **Check** and **Reference solut
 
 - **Nothing is shown until the learner asks.** A failed Check doesn't reveal any hint. The button only lights up.
 - Each failure has **1 or 2 hints**. How many depends on the kind of error and the problem's difficulty.
-- The hints are **about this failure**. They are built from what went wrong in the learner's code: which compiler error, which exception, which test, which output line differed. They are not a general tip for the problem.
+- The hints are **about this failure**. They are built from what went wrong in the learner's code: which exception, which test, which output line differed. They are not a general tip for the problem.
+- **Compile errors get no hints.** Reading compiler output is a skill the learner has to build, so the trainer never explains or rephrases it. After a compile error the Hint button stays disabled.
 
 This applies to all four front ends, which share `trainer.py`: GTK (`gui.py`), tkinter (`gui_tk.py`), web (`app.py` + `static/index.html`) and the CLI.
 
@@ -37,7 +38,7 @@ This applies to all four front ends, which share `trainer.py`: GTK (`gui.py`), t
 ```
 
 **Hint button**
-- **Disabled** before any Check, after a PASS, and after switching problem or language. In those states the label is plain `Hint`.
+- **Disabled** before any Check, after a PASS, after a compile error, and after switching problem or language. In those states the label is plain `Hint`.
 - After a failed Check it becomes `Hint 0/N`, where N is 1 or 2.
 - Each click appends the next hint under the report in the result pane (`── Hint k/N ──`) and updates the label to `Hint k/N`.
 - At `N/N` the button is disabled again.
@@ -70,7 +71,6 @@ They live in `trainer.diagnose(failure)` and are checked in this order. The firs
 
 | Kind | Detected from | Hint 1 says (filled with real values) |
 | --- | --- | --- |
-| compile | first `file:LINE:COL: error: MSG` (gcc/g++) or `error[E…]: MSG --> file:LINE` (rustc) | "Line 12: `expected ';' before 'return'`. The line above it is probably missing a `;`." A small table maps common messages (missing `;`, undeclared name, type mismatch, missing `#include`, Rust borrow and `mut`) to a plain-English sentence. If no entry matches, the hint gives the line and the message. |
 | runtime (Python) | the last traceback line, `ExceptionType: msg`, and its `line N` | "`IndexError` on line 7 on test 4 (input shown). An index went past the end of a list." One sentence for each common exception: `ValueError` from `int()`, `ZeroDivisionError`, `RecursionError`, `IndexError`, `KeyError`. |
 | runtime (C/C++) | return code −11 / −6 / −8 (SIGSEGV / SIGABRT / SIGFPE) | "Segfault on test 4: an out-of-range array index or a bad pointer." With SIGFPE: "division by zero". |
 | runtime (Rust) | `panicked at … :LINE` plus the message | "Panic on line 9: `index out of bounds`." The same applies to `attempt to add with overflow` and `called unwrap() on Err`. |
@@ -102,14 +102,15 @@ They live in `trainer.diagnose(failure)` and are checked in this order. The firs
 The nudge is chosen by:
 1. `tests[failed test]`, for a wrong answer or a runtime error on that test.
 2. Otherwise `timeout`, `runtime` or `wrong`, matching the kind of failure.
-3. Compile errors get no nudge. They are about the language, not the problem, so there is only hint 1.
+3. Compile errors get no hints at all: no diagnosis and no nudge. The compiler output in the report is all the learner gets.
 
 Writing these is the bulk of the work: about one sentence per test, for 84 problems. The tests were written for specific edge cases, so most sentences follow directly from what each test checks. A file may leave entries out, and the problem then gets only hint 1 for that failure.
 
 ### How many hints: 1 or 2
 
 ```
-N = 1   for a compile error, a missing file, or a format-only / empty-output diagnosis
+N = 0   for a compile error (the button stays disabled)
+N = 1   for a missing file, or a format-only / empty-output diagnosis
         (hint 1 already points at the fix)
 N = 1   for level-1 problems, unless the failure is a timeout or a runtime error
 N = 2   otherwise, when hints.json has a nudge for this failure
@@ -124,7 +125,7 @@ The difficulty comes from the problem's `level` (from `week.json`). An optional 
 def check_lang(p, lang):           # -> (ok, report, failure); adds RUNTIME ERROR via returncode
 def diagnose(failure):             # -> hint 1 string (rules table above)
 def nudge(p, failure):             # -> hint 2 string from hints.json, or None
-def hints(p, failure):             # -> [hint1] or [hint1, hint2], applying the 1-or-2 rule
+def hints(p, failure):             # -> [] for compile errors, else [hint1] or [hint1, hint2]
 ```
 
 About 150 lines in total. Everything uses the standard library only (`re`, `json`), and all of it runs locally.
@@ -148,7 +149,7 @@ About 150 lines in total. Everything uses the standard library only (`re`, `json
 
 **CLI (`trainer.py`)**
 - `check` prints `  (hints available: trainer.py hint P01 py)` after a failure. It does not print the hints themselves.
-- `trainer.py hint P01 py [k]` re-runs the check for that language and prints hint k (default 1).
+- `trainer.py hint P01 py [k]` re-runs the check for that language and prints hint k (default 1). After a compile error it prints only `No hints for compile errors.`
 
 ## Steps (one commit each, pushed after each)
 
@@ -165,14 +166,14 @@ About 150 lines in total. Everything uses the standard library only (`re`, `json
 **`trainer.py`** (added to `selftest.py`, running in its temporary copy):
 - Deliberately broken solutions trigger each diagnosis rule, and the expected wording comes back:
   - P01 in Python with `//`: test 1, and a sign or off-by-one diagnosis
-  - a missing `;` in C: compile, with the right line number
+  - a missing `;` in C: a compile error, which returns no hints
   - `int(input())` on two numbers: a `ValueError`
   - a C out-of-bounds write: a segfault
   - an O(n²) three-sum: a timeout
   - a leftover debug print: an extra line
   - 32-bit `int` on a big sum: overflow
 - **The hints depend on the error:** two different wrong P01 solutions that fail on different tests get different hint 1 and hint 2.
-- The count rule: level 1 + wrong gives 1 hint, level 3 + wrong gives 2, a compile error gives 1, and a problem with no `hints.json` gives 1.
+- The count rule: level 1 + wrong gives 1 hint, level 3 + wrong gives 2, a compile error gives 0, and a problem with no `hints.json` gives 1.
 - Every `hints.json` parses, and its keys name tests that exist.
 - No hint contains a line of `solution.py`, so a hint never leaks the solution.
 
@@ -189,7 +190,6 @@ About 150 lines in total. Everything uses the standard library only (`re`, `json
 - About 150 lines in `trainer.py` and about 30 per UI, plus 84 small `hints.json` files. No new dependencies, and nothing leaves the machine.
 - **`check_lang` now returns 3 values.** Every caller is updated in step 1, and `selftest.py` catches any that are missed.
 - **The new `RUNTIME ERROR` outcome** changes the report text for crashing solutions, which were shown as `WRONG` before. Passing solutions are unaffected.
-- **Compiler message parsing** depends on the gcc, g++ and rustc output formats. If a message isn't recognised, hint 1 is the raw first error line, which is still specific to the learner's code.
 
 ## Open decisions
 
