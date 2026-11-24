@@ -1,0 +1,9 @@
+{
+  "tests": {
+    "2": "S and E are adjacent: 1 step.",
+    "3": "E is walled off: print -1.",
+    "4": "Count steps, not cells visited: the start has distance 0."
+  },
+  "runtime": "Check the bounds before looking at a neighbour cell.",
+  "timeout": "Set a cell's distance when it's queued, and never queue a cell that already has one."
+}

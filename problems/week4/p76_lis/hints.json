@@ -1,0 +1,8 @@
+{
+  "tests": {
+    "3": "Decreasing input: the longest increasing subsequence has length 1.",
+    "4": "Strictly increasing: equal values don't extend a subsequence. Use the lower bound, not the upper bound.",
+    "1": "A subsequence doesn't have to be contiguous."
+  },
+  "timeout": "Keep the smallest tail for each length and binary-search where each new value goes: O(n log n)."
+}

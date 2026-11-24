@@ -1,0 +1,8 @@
+{
+  "tests": {
+    "2": "All characters equal: the answer is 1.",
+    "4": "A single character: length 1.",
+    "5": "In abba, the second a's earlier position is before the window: never move the window's start backwards."
+  },
+  "timeout": "Remember each character's last position and jump the window's start past it, instead of restarting."
+}

@@ -1,0 +1,8 @@
+{
+  "tests": {
+    "2": "No common characters: 0.",
+    "4": "A subsequence keeps the order but can skip characters; uppercase letters count as given."
+  },
+  "timeout": "Fill the dp table iteratively; recursion without memoization is exponential.",
+  "runtime": "Recursion over long strings exceeds the recursion limit: fill the table bottom-up."
+}

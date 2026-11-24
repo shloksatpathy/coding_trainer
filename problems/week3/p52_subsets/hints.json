@@ -1,0 +1,7 @@
+{
+  "tests": {
+    "1": "Print the current subset when entering the recursion (if non-empty), then extend it with each larger element.",
+    "2": "n = 1 has exactly one non-empty subset."
+  },
+  "timeout": "There are 2^n - 1 subsets; generate each once by only adding elements larger than the last one."
+}

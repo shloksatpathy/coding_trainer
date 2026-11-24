@@ -1,0 +1,9 @@
+{
+  "tests": {
+    "1": "Print each distinct triplet once: after a match, skip equal neighbours on both pointers.",
+    "2": "0 0 0 is a valid triplet.",
+    "3": "No triplet sums to 0: print None.",
+    "4": "Many zeros: skip equal values for the fixed element as well, or 0 0 0 appears more than once."
+  },
+  "timeout": "Sort, fix the first element, then move two pointers inward over the rest: O(n²)."
+}

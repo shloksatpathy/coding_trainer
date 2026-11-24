@@ -1,0 +1,8 @@
+{
+  "tests": {
+    "2": "One negative element: the answer is that element, not 0.",
+    "3": "All negative: the best subarray is the largest single element.",
+    "4": "All positive: the whole array."
+  },
+  "timeout": "Kadane's scan is O(n): at each element, either extend the current sum or start over."
+}

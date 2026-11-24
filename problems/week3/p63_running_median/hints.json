@@ -1,0 +1,8 @@
+{
+  "tests": {
+    "1": "With an even count, the median is the average of the two middle values.",
+    "3": "1.5: the average must be computed as a decimal, not with integer division.",
+    "4": "Negative averages: -1.5 must not round toward an integer."
+  },
+  "timeout": "Keep a max-heap for the lower half and a min-heap for the upper half, sizes differing by at most one."
+}

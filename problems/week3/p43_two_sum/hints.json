@@ -1,0 +1,8 @@
+{
+  "tests": {
+    "2": "Negative values: the complement target - a[i] can be negative too.",
+    "4": "The same value appears twice: look up the complement before storing the current index, so an element isn't paired with itself.",
+    "3": "Print the smaller index first."
+  },
+  "timeout": "For each element, ask a hash map whether its complement was already seen: one pass, O(n)."
+}

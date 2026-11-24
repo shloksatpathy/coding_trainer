@@ -1,0 +1,9 @@
+{
+  "tests": {
+    "1": "A longer path in edges can be shorter in weight: relax every edge out of the vertex you take from the heap.",
+    "3": "Unreachable vertices print INF.",
+    "4": "Zero-weight edges and a source other than 1."
+  },
+  "wrong": "Distances can exceed 2^31: use 64-bit integers.",
+  "timeout": "Use a heap, and skip a popped entry whose distance is larger than the best known one."
+}

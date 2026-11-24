@@ -1,0 +1,8 @@
+{
+  "tests": {
+    "2": "A single node: height=1.",
+    "3": "A chain: every level has one node, so the height equals the number of nodes.",
+    "1": "Process the queue in batches of its current size to know where each level ends."
+  },
+  "runtime": "Only real nodes (not N) get children when parsing."
+}

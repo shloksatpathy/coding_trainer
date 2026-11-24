@@ -1,0 +1,9 @@
+{
+  "tests": {
+    "2": "Comparing a node only with its children isn't enough: every value in a subtree must respect all ancestors.",
+    "3": "3 sits in 5's right subtree: pass down an allowed (low, high) range.",
+    "5": "Strict: a duplicate value makes the tree Invalid.",
+    "6": "Each node only needs to be inside the range set by its ancestors."
+  },
+  "runtime": "A deep tree can exceed Python's recursion limit: raise it, or check iteratively."
+}

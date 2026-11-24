@@ -1,0 +1,8 @@
+{
+  "tests": {
+    "1": "Sort by end time, then take each activity that starts no earlier than the last chosen one ends.",
+    "3": "An activity may start exactly when the previous one ends: compare with >=.",
+    "4": "Sorting by start time picks the long 1..10 activity first; sort by end time."
+  },
+  "timeout": "Sort once, then make a single pass."
+}

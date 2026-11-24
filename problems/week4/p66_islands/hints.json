@@ -1,0 +1,9 @@
+{
+  "tests": {
+    "2": "Only water: 0 islands.",
+    "4": "Diagonal cells are not connected: only up, down, left and right.",
+    "5": "A ring of land around water is one island."
+  },
+  "runtime": "Check the row and column bounds before reading a neighbour cell; deep recursive flood fill can also exceed the recursion limit.",
+  "timeout": "Mark each land cell visited as soon as it's discovered, so it's never processed twice."
+}

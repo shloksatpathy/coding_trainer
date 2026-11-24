@@ -1,0 +1,9 @@
+{
+  "tests": {
+    "1": "Sort each adjacency list so neighbours are visited in increasing order.",
+    "2": "One vertex and no edges: the order is just the start.",
+    "3": "The graph is disconnected: print only the vertices reachable from s.",
+    "4": "The start isn't vertex 1: begin from the last line's vertex."
+  },
+  "timeout": "Mark a vertex visited when it is added to the queue, not when it is taken out, so it's queued once."
+}

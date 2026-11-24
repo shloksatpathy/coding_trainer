@@ -1,0 +1,8 @@
+{
+  "tests": {
+    "2": "One node: the diameter is 0 edges, not 1.",
+    "3": "A chain: the longest path goes from the root to the bottom.",
+    "4": "The longest path need not pass through the root: track the best left height + right height at every node."
+  },
+  "runtime": "A deep tree can exceed Python's recursion limit: raise it, or compute heights iteratively."
+}

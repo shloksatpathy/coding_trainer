@@ -1,0 +1,8 @@
+{
+  "tests": {
+    "2": "No subarray reaches s: print 0.",
+    "3": "One element can be the whole answer when it alone is >= s.",
+    "4": "The whole array is needed: the window grows to n."
+  },
+  "timeout": "Grow the window on the right, and shrink it from the left while the sum is still >= s: each index enters and leaves once."
+}

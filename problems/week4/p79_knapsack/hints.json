@@ -1,0 +1,9 @@
+{
+  "tests": {
+    "1": "Each item at most once: iterate the capacity downwards for each item.",
+    "2": "An item heavier than W can't be taken.",
+    "4": "W = 0: nothing fits.",
+    "5": "Iterating the capacity upwards reuses items: go from W down to the item's weight."
+  },
+  "timeout": "Use the O(n · W) table; trying all subsets is exponential."
+}

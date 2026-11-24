@@ -1,0 +1,10 @@
+{
+  "tests": {
+    "2": "A single open cell has one path.",
+    "3": "A blocked corner gives 0 paths.",
+    "4": "Blocked cells contribute 0, and both neighbours of the start are blocked here.",
+    "5": "The first row and column can only be reached in a straight line."
+  },
+  "wrong": "Take the result modulo 1,000,000,007 after every addition.",
+  "timeout": "Fill the table row by row; recursion without memoization is exponential."
+}

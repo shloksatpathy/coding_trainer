@@ -1,0 +1,9 @@
+{
+  "tests": {
+    "2": "The answer can be negative: don't start the maximum at 0.",
+    "3": "k = n: there is one window, the whole array.",
+    "4": "All negative: start the maximum at the first window's sum.",
+    "5": "Window sums can exceed 2^31: use 64-bit integers."
+  },
+  "timeout": "Slide the window: add the entering element and subtract the leaving one, instead of re-summing k elements."
+}

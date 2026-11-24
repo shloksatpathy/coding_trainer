@@ -1,0 +1,9 @@
+{
+  "tests": {
+    "1": "Deleting a node with two children: copy the inorder successor's value into it, then delete the successor from the right subtree.",
+    "2": "Deleting the only node leaves an empty tree: print Empty.",
+    "3": "A key that isn't in the tree changes nothing.",
+    "4": "Deleting the root: the new subtree must be linked back as the root."
+  },
+  "runtime": "After deleting, link the returned subtree back into the parent."
+}

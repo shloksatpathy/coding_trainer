@@ -1,0 +1,8 @@
+{
+  "tests": {
+    "1": "Count all letters in a first pass, then find the first index whose count is 1 in a second pass.",
+    "3": "No letter appears exactly once: print -1.",
+    "4": "A single letter is unique: index 0."
+  },
+  "timeout": "Counting each character with a scan of the whole word is O(n²); a 26-slot count array is O(n)."
+}

@@ -1,0 +1,8 @@
+{
+  "tests": {
+    "1": "Count components over the whole graph: start a new search from every unvisited vertex, including isolated ones.",
+    "3": "No edges: every vertex is its own component.",
+    "4": "Visit neighbours in increasing order, and recurse into a neighbour before looking at the next one."
+  },
+  "runtime": "Deep recursion on a long path can exceed the recursion limit: raise it, or use an explicit stack."
+}

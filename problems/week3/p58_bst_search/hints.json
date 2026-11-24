@@ -1,0 +1,7 @@
+{
+  "tests": {
+    "2": "A query can be missing from the tree: the search ends when it reaches an empty child.",
+    "3": "Duplicates are ignored on insert, so each value appears once in the inorder output."
+  },
+  "runtime": "Stop searching when the child you'd move to is empty."
+}

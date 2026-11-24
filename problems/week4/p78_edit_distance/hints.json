@@ -1,0 +1,9 @@
+{
+  "tests": {
+    "1": "Fill row 0 and column 0 with 0..n and 0..m first: turning a prefix into an empty word costs its length.",
+    "3": "Equal words: distance 0.",
+    "4": "Replacing each character is cheaper than deleting and inserting."
+  },
+  "timeout": "Fill the dp table iteratively; recursion without memoization is exponential.",
+  "runtime": "Recursion over long words exceeds the recursion limit: fill the table bottom-up."
+}

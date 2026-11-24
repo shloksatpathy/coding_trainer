@@ -1,0 +1,8 @@
+{
+  "tests": {
+    "2": "A single bar holds no water.",
+    "3": "Water above a bar is the smaller of the highest bars on its left and right, minus its own height.",
+    "5": "Increasing bars: there's never a higher bar on the right, so nothing is trapped."
+  },
+  "timeout": "Keep running maxima from both ends with two pointers instead of searching left and right for every bar."
+}

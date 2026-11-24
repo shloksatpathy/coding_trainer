@@ -1,0 +1,7 @@
+{
+  "tests": {
+    "1": "Sort the input first, then try the unused elements in increasing order at each position.",
+    "2": "One element: one permutation.",
+    "3": "Negative values sort before positive ones."
+  }
+}

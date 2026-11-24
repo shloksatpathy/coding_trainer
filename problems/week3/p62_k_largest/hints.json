@@ -1,0 +1,8 @@
+{
+  "tests": {
+    "2": "k = 1 with one element.",
+    "3": "k = n: every value, in descending order.",
+    "4": "Duplicates count as separate values."
+  },
+  "timeout": "Scanning for the maximum k times is O(n·k): keep a min-heap of size k instead, popping when it holds more than k."
+}

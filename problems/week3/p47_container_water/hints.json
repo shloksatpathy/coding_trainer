@@ -1,0 +1,8 @@
+{
+  "tests": {
+    "2": "Two lines: the width is j - i = 1.",
+    "3": "All heights 0: the area is 0.",
+    "4": "The best pair isn't the widest one: keep the maximum over all the pairs you visit."
+  },
+  "timeout": "Start with the widest pair and move the shorter side inward: O(n)."
+}

@@ -1,0 +1,7 @@
+{
+  "tests": {
+    "1": "Loop over coins on the outside and amounts on the inside, so each combination is counted once.",
+    "2": "Impossible amount: 0 ways.",
+    "3": "Amount 0 has exactly one way: take no coins."
+  }
+}

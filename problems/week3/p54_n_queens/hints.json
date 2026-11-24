@@ -1,0 +1,9 @@
+{
+  "tests": {
+    "1": "Count all solutions, but print the first one found when trying columns in increasing order.",
+    "2": "n = 1: one queen, one solution.",
+    "3": "n = 2 has no solution: print 0 and None.",
+    "5": "Check both diagonals: r + c identifies one direction, r - c the other."
+  },
+  "timeout": "Keep used columns and diagonals in boolean arrays so each check is O(1), instead of scanning the board."
+}

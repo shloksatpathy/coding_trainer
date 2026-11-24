@@ -1,0 +1,8 @@
+{
+  "tests": {
+    "2": "A single node: all three traversals are just that node.",
+    "3": "N marks a missing child but still takes a position in the level order; only real nodes get children from the input.",
+    "1": "Preorder visits the node before its children, inorder between them, postorder after."
+  },
+  "runtime": "When building the tree, attach children only to real nodes, and stop when the input runs out."
+}

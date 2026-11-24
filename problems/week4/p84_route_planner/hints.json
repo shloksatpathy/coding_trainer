@@ -1,0 +1,8 @@
+{
+  "tests": {
+    "1": "A city that has no roads can still be queried: it has no route, but don't fail on it. A query to itself prints 0: City.",
+    "2": "Roads are two-way: add both directions.",
+    "3": "The direct road isn't always shortest: run Dijkstra by kilometres, not BFS by edges."
+  },
+  "runtime": "Look up a city that has no roads safely: it may not be in your map at all."
+}

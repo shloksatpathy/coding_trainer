@@ -1,0 +1,8 @@
+{
+  "tests": {
+    "1": "Sort by count, highest first; equal counts go alphabetically.",
+    "3": "Equal counts: the tie-break is the word in alphabetical order.",
+    "4": "Count every occurrence, then sort the distinct words with two keys."
+  },
+  "timeout": "Look words up in a hash map instead of scanning a list for each word."
+}

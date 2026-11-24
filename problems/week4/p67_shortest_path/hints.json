@@ -1,0 +1,9 @@
+{
+  "tests": {
+    "1": "Each vertex's parent is the vertex that first discovered it; follow parents from t back to s and reverse.",
+    "2": "t is unreachable: print -1 and nothing else.",
+    "3": "s equals t: length 0, and the path is just that vertex.",
+    "4": "Edges are undirected: add each edge in both directions."
+  },
+  "timeout": "Use BFS with a queue and a visited array; each vertex is processed once."
+}

@@ -1,0 +1,8 @@
+{
+  "tests": {
+    "2": "A triangle is an odd cycle: No.",
+    "4": "The graph is disconnected: start a new colouring from every uncoloured vertex.",
+    "5": "The odd cycle is in a component that doesn't contain vertex 1."
+  },
+  "runtime": "Deep recursion can exceed the recursion limit: colour with BFS instead."
+}

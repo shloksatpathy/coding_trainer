@@ -1,0 +1,8 @@
+{
+  "tests": {
+    "1": "Build the heap bottom-up from index n/2 - 1 down to 0, and print it before sorting.",
+    "2": "One element: the heap and the sorted array are the same.",
+    "4": "Swap only when the larger child is strictly larger; on equal children take the left one."
+  },
+  "timeout": "sift_down must keep moving down after each swap, and the heap shrinks by one each round: O(n log n)."
+}

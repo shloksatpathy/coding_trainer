@@ -1,0 +1,9 @@
+{
+  "tests": {
+    "2": "An amount that can't be made: keep an 'impossible' marker and print -1.",
+    "3": "Taking the biggest coin first fails here: use DP over every amount.",
+    "4": "Amount 0 needs 0 coins.",
+    "6": "Large amount: an O(k · amount) loop is fine, recursion isn't."
+  },
+  "runtime": "Recursion over amounts this large exceeds the recursion limit: fill an array bottom-up."
+}

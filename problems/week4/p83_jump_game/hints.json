@@ -1,0 +1,9 @@
+{
+  "tests": {
+    "2": "Index 3 has jump 0 and blocks the way: if the farthest reach stops growing, print -1.",
+    "3": "n = 1: you're already at the end, 0 jumps.",
+    "4": "a[0] = 0 and n > 1: stuck at the start.",
+    "5": "Count a jump each time you pass the end of the current reach."
+  },
+  "timeout": "Track the current reach and the farthest reachable index in one pass, instead of trying every jump."
+}

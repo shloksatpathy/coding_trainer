@@ -1,0 +1,9 @@
+{
+  "tests": {
+    "2": "A single vertex is connected, with total weight 0.",
+    "3": "Fewer than n-1 edges were added: the graph is Disconnected.",
+    "4": "Equal weights: any of them may be chosen, but never an edge that closes a cycle."
+  },
+  "wrong": "The total weight can exceed 2^31: use a 64-bit sum.",
+  "timeout": "Union-find needs path compression (and union by size), or the find chains get long."
+}

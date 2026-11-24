@@ -1,0 +1,8 @@
+{
+  "tests": {
+    "2": "n = 1: one way.",
+    "3": "n = 2: two ways (1+1 or 2).",
+    "5": "The answer for 90 needs 64 bits."
+  },
+  "timeout": "Plain recursion recomputes the same values exponentially often: keep the last two values in a loop, or memoize."
+}

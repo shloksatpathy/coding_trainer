@@ -1,0 +1,9 @@
+{
+  "tests": {
+    "1": "Always take the smallest-numbered vertex with in-degree 0: use a min-priority queue, not a plain queue.",
+    "2": "A cycle: fewer than n vertices come out of the queue. Print Cycle.",
+    "3": "No edges still prints every vertex.",
+    "4": "No edges: all vertices are free at once, so they come out in increasing order."
+  },
+  "timeout": "Decrease the in-degree of each neighbour when a vertex is taken; don't rescan all vertices each round."
+}
