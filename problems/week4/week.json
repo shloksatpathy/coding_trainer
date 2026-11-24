@@ -1,7 +1,7 @@
 {
   "title": "Graphs, dynamic programming, greedy",
   "level": 4,
-  "days": [
+  "sets": [
     {
       "title": "Graph traversal",
       "problems": [

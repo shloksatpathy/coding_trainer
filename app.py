@@ -12,17 +12,17 @@ LEVELS = [f"Level {n} · {week['title']}" for n, (_d, week) in enumerate(trainer
 
 def problems_state(progress):
     today = datetime.date.today()
-    days = []
+    sets = []
     for p in trainer.course_problems(progress):
         if p["unlock"] > today:
             continue
-        if not days or (days[-1]["week"], days[-1]["day"]) != (p["week"], p["day"]):
-            days.append({"week": p["week"], "day": p["day"], "level": p["level"],
-                         "date": str(p["unlock"]), "title": p["day_title"],
-                         "today": p["unlock"] == today, "problems": []})
-        days[-1]["problems"].append({"id": p["id"], "name": p["name"][4:],
+        if not sets or (sets[-1]["week"], sets[-1]["set"]) != (p["week"], p["set"]):
+            sets.append({"week": p["week"], "set": p["set"], "level": p["level"],
+                         "date": str(p["unlock"]), "title": p["set_title"],
+                         "current": today < p["solution_unlock"], "problems": []})
+        sets[-1]["problems"].append({"id": p["id"], "name": p["name"][4:],
                                      "passed": list(progress["passed"].get(p["id"], {}))})
-    return {"start": progress["start"], "level": progress.get("level", 1), "days": days}
+    return {"start": progress["start"], "level": progress.get("level", 1), "sets": sets}
 
 
 def problem_detail(p):

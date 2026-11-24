@@ -37,18 +37,18 @@ with tempfile.TemporaryDirectory() as tmp:
         if not ok:
             failed += 1
 
-    # Start level: week N starts on the start date, later weeks every 7 days, lower weeks locked.
+    # Start level: week N's first set on the start date, then a set every 3 days; a set's solutions
+    # unlock with the next set; lower weeks locked. Every week has 7 sets.
     day0 = datetime.date(2030, 1, 7)
-    week = datetime.timedelta(days=7)
     levels = len(trainer.weeks())
     for level in range(1, levels + 1):
         for p in trainer.all_problems(day0, level):
             if p["week"] < level:
                 ok = p["unlock"] == p["solution_unlock"] == trainer.LOCKED
             else:
-                week_start = day0 + (p["week"] - level) * week
-                ok = (p["unlock"] == week_start + datetime.timedelta(days=p["day"] - 1)
-                      and p["solution_unlock"] == week_start + week)
+                n = 7 * (p["week"] - level) + p["set"] - 1
+                ok = (p["unlock"] == day0 + datetime.timedelta(days=3 * n)
+                      and p["solution_unlock"] == day0 + datetime.timedelta(days=3 * (n + 1)))
             if not ok:
                 print(f"LEVEL {level} WRONG SCHEDULE {p['id']}: {p['unlock']} / {p['solution_unlock']}")
                 failed += 1

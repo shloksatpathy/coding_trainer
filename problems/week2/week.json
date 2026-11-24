@@ -1,7 +1,7 @@
 {
   "title": "Pointers, sorting, linked lists, stacks, queues",
   "level": 2,
-  "days": [
+  "sets": [
     {
       "title": "Pointers and dynamic memory",
       "problems": [

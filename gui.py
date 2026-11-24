@@ -31,9 +31,9 @@ window, .main {{ background-color: {bg}; color: {text}; }}
 .sidebar, .sidebar list, .sidebar row {{ background-color: {panel}; color: {text}; }}
 .sidebar {{ border-right: 1px solid {border}; }}
 .app-title {{ font-weight: bold; font-size: 12pt; }}
-.day-header {{ color: {muted}; font-size: 8pt; font-weight: 600; }}
-.day-header.today {{ color: {accent}; }}
-.day-title {{ color: {muted}; font-size: 8pt; }}
+.set-header {{ color: {muted}; font-size: 8pt; font-weight: 600; }}
+.set-header.current {{ color: {accent}; }}
+.set-title {{ color: {muted}; font-size: 8pt; }}
 .sidebar row.prob {{ border-radius: 4px; }}
 .sidebar row.prob:hover {{ background-color: {hover}; }}
 .sidebar row.prob:selected {{ background-color: {active}; color: {text}; }}
@@ -294,7 +294,7 @@ class TrainerWindow(Gtk.Window):
         title = Gtk.Label()
         title.set_markup('<span size="xx-large" weight="bold">Coding Trainer</span>')
         box.add(title)
-        box.add(Gtk.Label(label="Weekly problem sets in C, C++, Python and Rust. A new day unlocks every day."))
+        box.add(Gtk.Label(label="Weekly problem sets in C, C++, Python and Rust. A new set every 3 days, with the solutions to the previous one."))
         pick = Gtk.Box(spacing=8, halign=Gtk.Align.CENTER)
         pick.add(Gtk.Label(label="Start at level"))
         self.level_pick = Gtk.ComboBoxText()
@@ -444,22 +444,22 @@ class TrainerWindow(Gtk.Window):
         self.current = None
         today = datetime.date.today()
         self.problems = [p for p in trainer.course_problems(progress) if p["unlock"] <= today]
-        last_day = None
-        today_header = None
+        last_set = None
+        current_header = None
         for p in self.problems:
-            if (p["week"], p["day"]) != last_day:
-                last_day = (p["week"], p["day"])
-                is_today = p["unlock"] == today
+            if (p["week"], p["set"]) != last_set:
+                last_set = (p["week"], p["set"])
+                is_current = today < p["solution_unlock"]
                 header = Gtk.ListBoxRow(selectable=False, activatable=False)
                 box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, margin_top=10)
-                label = Gtk.Label(xalign=0, label=f"W{p['week']} · L{p['level']} · DAY {p['day']} · {p['unlock']}"
-                                  + (" · TODAY" if is_today else ""))
-                label.get_style_context().add_class("day-header")
-                if is_today:
-                    label.get_style_context().add_class("today")
-                    today_header = header
-                title = Gtk.Label(xalign=0, label=p["day_title"])
-                title.get_style_context().add_class("day-title")
+                label = Gtk.Label(xalign=0, label=f"W{p['week']} · L{p['level']} · SET {p['set']} · {p['unlock']}"
+                                  + (" · CURRENT" if is_current else ""))
+                label.get_style_context().add_class("set-header")
+                if is_current:
+                    label.get_style_context().add_class("current")
+                    current_header = header
+                title = Gtk.Label(xalign=0, label=p["set_title"])
+                title.get_style_context().add_class("set-title")
                 box.add(label)
                 box.add(title)
                 header.add(box)
@@ -483,8 +483,8 @@ class TrainerWindow(Gtk.Window):
         self.listbox.show_all()
         self.stack.set_visible_child_name("main")
         last = self.problems[-1]
-        self.open_problem(next(p["id"] for p in self.problems if (p["week"], p["day"]) == (last["week"], last["day"])))
-        GLib.idle_add(self.scroll_to, today_header or self.rows[last["id"]][0])
+        self.open_problem(next(p["id"] for p in self.problems if (p["week"], p["set"]) == (last["week"], last["set"])))
+        GLib.idle_add(self.scroll_to, current_header or self.rows[last["id"]][0])
 
     def scroll_to(self, row):
         alloc = row.get_allocation()

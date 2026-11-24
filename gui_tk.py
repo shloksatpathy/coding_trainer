@@ -215,7 +215,7 @@ class App:
         box = tk.Frame(self.frame, bg=c["bg"])
         box.place(relx=0.5, rely=0.5, anchor="center")
         tk.Label(box, text="Coding Trainer", font=(self.f_h1[0], 20, "bold"), bg=c["bg"], fg=c["text"]).pack()
-        tk.Label(box, text="Weekly problem sets in C, C++, Python and Rust. A new day unlocks every day.",
+        tk.Label(box, text="Weekly problem sets in C, C++, Python and Rust. A new set every 3 days, with the solutions to the previous one.",
                  font=self.f_body, bg=c["bg"], fg=c["text"]).pack(pady=8)
         pick = tk.Frame(box, bg=c["bg"])
         pick.pack(pady=(0, 10))
@@ -340,21 +340,21 @@ class App:
         today = datetime.date.today()
         self.problems = [p for p in trainer.course_problems(progress) if p["unlock"] <= today]
         self.rows = {}
-        today_header = None
-        last_day = None
+        current_header = None
+        last_set = None
         for p in self.problems:
-            if (p["week"], p["day"]) != last_day:
-                last_day = (p["week"], p["day"])
-                is_today = p["unlock"] == today
+            if (p["week"], p["set"]) != last_set:
+                last_set = (p["week"], p["set"])
+                is_current = today < p["solution_unlock"]
                 header = tk.Frame(self.list, bg=c["panel"])
                 header.pack(fill="x", padx=12, pady=(12, 2))
-                text = f"W{p['week']} · L{p['level']} · DAY {p['day']} · {p['unlock']}" + (" · TODAY" if is_today else "")
+                text = f"W{p['week']} · L{p['level']} · SET {p['set']} · {p['unlock']}" + (" · CURRENT" if is_current else "")
                 tk.Label(header, text=text, font=self.f_small_bold, bg=c["panel"],
-                         fg=c["accent"] if is_today else c["muted"], anchor="w").pack(fill="x")
-                tk.Label(header, text=p["day_title"], font=self.f_small, bg=c["panel"], fg=c["muted"],
+                         fg=c["accent"] if is_current else c["muted"], anchor="w").pack(fill="x")
+                tk.Label(header, text=p["set_title"], font=self.f_small, bg=c["panel"], fg=c["muted"],
                          anchor="w").pack(fill="x")
-                if is_today:
-                    today_header = header
+                if is_current:
+                    current_header = header
             row = tk.Frame(self.list, bg=c["panel"], cursor="hand2")
             row.pack(fill="x", padx=8)
             name = tk.Label(row, text=f"{p['id'].upper()} {p['name'][4:].replace('_', ' ')}", font=self.f_body,
@@ -376,9 +376,9 @@ class App:
             self.root.after_idle(self.restore_sidebar)
         else:
             last = self.problems[-1]
-            first_today = next(p for p in self.problems if (p["week"], p["day"]) == (last["week"], last["day"]))
-            self.open_problem(first_today["id"])
-            target = today_header or self.rows[last["id"]][0]
+            first_current = next(p for p in self.problems if (p["week"], p["set"]) == (last["week"], last["set"]))
+            self.open_problem(first_current["id"])
+            target = current_header or self.rows[last["id"]][0]
             self.root.after_idle(lambda: self.scroll_to(target))
 
     def restore_sidebar(self):

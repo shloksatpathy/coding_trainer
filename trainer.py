@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Coding trainer: weekly problem sets, daily unlocks, submission checker."""
+"""Coding trainer: a problem set every 3 days, the previous set's solutions with it, submission checker."""
 import datetime
 import json
 import os
@@ -23,6 +23,7 @@ PYTHON = str(Path(sys.executable).with_name("python.exe")) if WINDOWS else sys.e
 EXE = "p.exe" if WINDOWS else "p"
 VERSION = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
 LOCKED = datetime.date.max  # unlock date of levels below the chosen start level
+SET_DAYS = 3  # a new problem set every 3 days; it also releases the previous set's solutions
 
 STUBS = {
     "c": '#include <stdio.h>\n\nint main(void) {\n    // read from stdin, print to stdout\n    return 0;\n}\n',
@@ -80,25 +81,29 @@ def weeks():
 def all_problems(start, level=1):
     """Yield dicts describing every problem with its unlock date.
 
-    Week `level` starts on `start`; later weeks follow every 7 days. Weeks below `level` are locked.
+    Sets of week `level` and later are released one every SET_DAYS days from `start`; a set's
+    solutions unlock with the next set. Weeks below `level` are locked.
     """
+    n = 0  # sets released before this one
     for w, (wdir, week) in enumerate(weeks()):
         locked = w + 1 < level
-        week_start = start + datetime.timedelta(days=7 * (w + 1 - level))
-        for d, day in enumerate(week["days"]):
-            for name in day["problems"]:
+        for s, pset in enumerate(week["sets"]):
+            unlock = start + datetime.timedelta(days=SET_DAYS * n)
+            for name in pset["problems"]:
                 yield {
                     "id": name.split("_")[0],
                     "name": name,
                     "dir": wdir / name,
                     "week": w + 1,
                     "level": week["level"],
-                    "day": d + 1,
-                    "day_title": day["title"],
-                    "unlock": LOCKED if locked else week_start + datetime.timedelta(days=d),
-                    "solution_unlock": LOCKED if locked else week_start + datetime.timedelta(days=7),
-                    "work": WORK / wdir.name / f"day{d + 1:02d}" / name,
+                    "set": s + 1,
+                    "set_title": pset["title"],
+                    "unlock": LOCKED if locked else unlock,
+                    "solution_unlock": LOCKED if locked else unlock + datetime.timedelta(days=SET_DAYS),
+                    "work": WORK / wdir.name / f"day{s + 1:02d}" / name,  # folder name kept from daily sets
                 }
+            if not locked:
+                n += 1
 
 
 def course_problems(progress):
@@ -141,7 +146,7 @@ def cmd_start(args):
         args = args[:i] + args[i + 2:]
     start = datetime.date.fromisoformat(args[0]) if args else None
     progress = start_course(level, start)
-    print(f"Started level {level} on {progress['start']}. Run `trainer.py list` to see today's problems.")
+    print(f"Started level {level} on {progress['start']}. Run `trainer.py list` to see the current problem set.")
 
 
 def cmd_level(progress, args):
@@ -167,10 +172,10 @@ def cmd_list(progress, args):
     for p in course_problems(progress):
         if p["unlock"] > today:
             continue
-        if (p["week"], p["day"]) != current:
-            current = (p["week"], p["day"])
-            mark = "  <- today" if p["unlock"] == today else ""
-            print(f"\nWeek {p['week']} (level {p['level']}) · Day {p['day']} · {p['unlock']} · {p['day_title']}{mark}")
+        if (p["week"], p["set"]) != current:
+            current = (p["week"], p["set"])
+            mark = "  <- current" if today < p["solution_unlock"] else ""
+            print(f"\nWeek {p['week']} (level {p['level']}) · Set {p['set']} · {p['unlock']} · {p['set_title']}{mark}")
         done = progress["passed"].get(p["id"], {})
         langs = " ".join(f"{l}:{'✅' if l in done else '☐'}" for l in LANGS)
         print(f"  {p['id'].upper()}  {p['name'][4:]:<22} {langs}")
@@ -462,7 +467,7 @@ def cmd_solution(progress, args):
     if p["solution_unlock"] == LOCKED:
         sys.exit(lock_message(p))
     if datetime.date.today() < p["solution_unlock"]:
-        sys.exit(f"Solution for {p['id'].upper()} unlocks on {p['solution_unlock']} (end of week {p['week']})")
+        sys.exit(f"Solution for {p['id'].upper()} unlocks on {p['solution_unlock']}, with the next problem set")
     print((p["dir"] / "solution.py").read_text(encoding="utf-8"))
 
 
@@ -479,9 +484,9 @@ def cmd_status(progress, args):
         done = sum(len(progress["passed"].get(p["id"], {})) for p in probs)
         on_time = sum(
             1 for p in probs for d in progress["passed"].get(p["id"], {}).values()
-            if datetime.date.fromisoformat(d) == p["unlock"]
+            if datetime.date.fromisoformat(d) < p["solution_unlock"]
         )
-        print(f"Week {w + 1} · {week['title']} (level {week['level']}): {done}/{total} solutions ({100 * done // total}%), {on_time} on the day")
+        print(f"Week {w + 1} · {week['title']} (level {week['level']}): {done}/{total} solutions ({100 * done // total}%), {on_time} before the solutions")
         for lang in LANGS:
             n = sum(1 for p in probs if lang in progress["passed"].get(p["id"], {}))
             print(f"  {lang:<4} {n}/{len(probs)}")
@@ -502,12 +507,12 @@ USAGE = """usage: trainer.py <command>
   start [YYYY-MM-DD] [--level N]  begin the course at level N (default: today, level 1)
   level N                restart the schedule at level N today (lower levels lock)
   reset                  delete progress, settings, all saved code and the cache
-  list                   unlocked days and per-language progress
+  list                   released problem sets and per-language progress
   show P01               print a problem
   init P01               create work folder with main.c/.cpp/.py/.rs and in.txt
   check P01 [c cpp py rs] run your solutions against the tests
   hint P01 py [k]        hint k (default 1) for your current failure in one language
-  solution P01           reference solution (after the week ends)
+  solution P01           reference solution (released with the next problem set)
   status                 weekly completion summary"""
 
 

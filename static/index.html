@@ -39,10 +39,10 @@
   .icon { background: none; border: 0; color: var(--text); font-size: 18px; line-height: 1.4; cursor: pointer; padding: 0 6px; border-radius: 4px; }
   .icon:hover { background: var(--hover); }
   select { background: var(--panel); color: var(--text); border: 1px solid var(--input-border); border-radius: 4px; padding: 2px 4px; font: inherit; }
-  .day { margin-bottom: 14px; }
-  .day h2 { font-size: 12px; font-weight: 600; color: var(--muted); margin: 0 0 4px; text-transform: uppercase; letter-spacing: .03em; }
-  .day.today h2 { color: var(--accent); }
-  .day-title { font-size: 12px; color: var(--muted); margin-bottom: 2px; }
+  .set { margin-bottom: 14px; }
+  .set h2 { font-size: 12px; font-weight: 600; color: var(--muted); margin: 0 0 4px; text-transform: uppercase; letter-spacing: .03em; }
+  .set.current h2 { color: var(--accent); }
+  .set-title { font-size: 12px; color: var(--muted); margin-bottom: 2px; }
   .prob { display: flex; justify-content: space-between; padding: 4px 6px; border-radius: 4px; cursor: pointer; }
   .prob:hover { background: var(--hover); }
   .prob.active { background: var(--active); }
@@ -107,7 +107,7 @@ applyTheme();
 <div id="app">
   <div id="welcome" hidden>
     <h1>Coding Trainer</h1>
-    <p>Weekly problem sets in C, C++, Python and Rust. A new day unlocks every day.</p>
+    <p>Weekly problem sets in C, C++, Python and Rust. A new set every 3 days, with the solutions to the previous one.</p>
     <p class="pick">Start at level <select id="level-pick"></select></p>
     <button onclick="start()">Start today</button>
   </div>
@@ -116,7 +116,7 @@ applyTheme();
       <button class="icon" onclick="toggleSidebar()" title="Hide problem list (Ctrl+B)">☰</button>
       <h1>Coding Trainer</h1>
     </div>
-    <div id="days"></div>
+    <div id="sets"></div>
   </nav>
   <main hidden>
     <div id="left">
@@ -279,10 +279,10 @@ async function load() {
       state.levels.map((label, i) => `<option value="${i + 1}">${label}</option>`).join("");
     return;
   }
-  document.getElementById("days").innerHTML = state.days.map(d => `
-    <div class="day ${d.today ? "today" : ""}">
-      <h2>W${d.week} · L${d.level} · Day ${d.day} · ${d.date}${d.today ? " · today" : ""}</h2>
-      <div class="day-title">${d.title}</div>
+  document.getElementById("sets").innerHTML = state.sets.map(d => `
+    <div class="set ${d.current ? "current" : ""}">
+      <h2>W${d.week} · L${d.level} · Set ${d.set} · ${d.date}${d.current ? " · current" : ""}</h2>
+      <div class="set-title">${d.title}</div>
       ${d.problems.map(p => `
         <div class="prob ${current && current.id === p.id ? "active" : ""}" onclick="openProblem('${p.id}')">
           <span>${p.id.toUpperCase()} ${p.name.replace(/_/g, " ")}</span>
@@ -290,9 +290,9 @@ async function load() {
         </div>`).join("")}
     </div>`).join("");
   if (!current) {
-    const last = state.days[state.days.length - 1];
+    const last = state.sets[state.sets.length - 1];
     openProblem(last.problems[0].id);
-    document.querySelector(".day:last-child").scrollIntoView();
+    document.querySelector(".set:last-child").scrollIntoView();
   }
 }
 
