@@ -1,0 +1,7 @@
+{
+  "tests": {
+    "2": "If c1 differs from r2, print Invalid and nothing else.",
+    "3": "A 1x3 times a 3x1 gives a single value: the result is r1 x c2.",
+    "4": "Entry (i, j) sums A[i][k] * B[k][j] over k = 0..c1-1, with negatives too."
+  }
+}

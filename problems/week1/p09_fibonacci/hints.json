@@ -1,0 +1,8 @@
+{
+  "tests": {
+    "2": "n = 1 prints only F0. Don't print the first two values before checking n.",
+    "3": "n = 2 prints exactly F0 and F1.",
+    "4": "F93 is close to 2^64: use an unsigned 64-bit type for the sequence. For the second line, stop when the next addition would overflow (Rust: checked_add)."
+  },
+  "runtime": "In Rust, a + b panics on overflow in debug builds: check before adding."
+}

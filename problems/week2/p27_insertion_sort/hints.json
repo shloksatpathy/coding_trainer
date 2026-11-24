@@ -1,0 +1,7 @@
+{
+  "tests": {
+    "1": "A shift moves one element one place right; count those, not the insertions.",
+    "2": "Nothing to shift on sorted input: shifts=0, but the array is still printed after every i.",
+    "4": "Shift only elements strictly greater than the key, so equal elements keep their order."
+  }
+}

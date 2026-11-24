@@ -1,0 +1,7 @@
+{
+  "tests": {
+    "1": "Sort by marks, highest first.",
+    "2": "60 is exactly on a boundary: use >= for each grade.",
+    "3": "Equal marks are ordered by roll number ascending: sort on two keys."
+  }
+}

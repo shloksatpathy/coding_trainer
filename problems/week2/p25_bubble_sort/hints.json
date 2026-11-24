@@ -1,0 +1,8 @@
+{
+  "tests": {
+    "2": "With n = 1 there are no pairs to compare, so no pass runs at all: passes=0.",
+    "3": "An already sorted array still takes one pass, which makes no swaps and stops.",
+    "4": "Reverse order: passes stop after pass n-2 at the latest.",
+    "5": "Swap only when a[j] > a[j+1], not >=, so equal values are not swapped."
+  }
+}

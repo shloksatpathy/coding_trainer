@@ -1,0 +1,8 @@
+{
+  "tests": {
+    "2": "With one element, min, max and average are all that element.",
+    "3": "All negative: starting min/max at 0 gives a wrong max. Start them at the first element.",
+    "4": "The sum and the average: divide as floating point, not integer division."
+  },
+  "runtime": "n numbers follow on the next line; read them all from that line."
+}

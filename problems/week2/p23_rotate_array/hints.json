@@ -1,0 +1,10 @@
+{
+  "tests": {
+    "1": "Rotating right by k: reverse the whole array, then the first k elements, then the rest.",
+    "2": "k = 0 must leave the array unchanged.",
+    "3": "k is larger than n: rotating by n changes nothing, so reduce k modulo n first.",
+    "4": "With n = 1, k mod n is 0."
+  },
+  "runtime": "k can exceed n: reduce it modulo n before using it as an index.",
+  "timeout": "Rotating one step at a time is O(n·k); the three reversals are O(n)."
+}

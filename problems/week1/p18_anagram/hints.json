@@ -1,0 +1,6 @@
+{
+  "tests": {
+    "4": "Different lengths are never anagrams.",
+    "6": "Same letters, different counts: compare how often each letter appears, not only which letters appear."
+  }
+}

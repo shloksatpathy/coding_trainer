@@ -1,0 +1,8 @@
+{
+  "tests": {
+    "1": "Digits and spaces are counted separately from letters.",
+    "2": "Uppercase vowels are vowels too.",
+    "3": "Punctuation is none of the four classes, and y is a consonant here.",
+    "4": "The trailing newline that fgets/read_line keeps isn't a space or a letter."
+  }
+}

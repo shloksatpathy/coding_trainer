@@ -1,0 +1,7 @@
+{
+  "tests": {
+    "3": "Decreasing input: nothing to the right is greater, so every answer is -1.",
+    "4": "Strictly greater: equal values are not an answer."
+  },
+  "timeout": "Keep a stack of indices still waiting for an answer; each index is pushed and popped once."
+}

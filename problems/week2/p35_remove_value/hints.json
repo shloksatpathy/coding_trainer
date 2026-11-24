@@ -1,0 +1,8 @@
+{
+  "tests": {
+    "2": "Every node is removed, so the list becomes empty and the output is Empty.",
+    "3": "The head itself has the value: a dummy node before the head handles this.",
+    "5": "Removing the only node."
+  },
+  "runtime": "After unlinking a node, don't step to it: stay on the previous node and check the new next."
+}

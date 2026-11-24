@@ -1,0 +1,7 @@
+{
+  "tests": {
+    "1": "A withdrawal larger than the balance prints Insufficient and leaves the balance as it was.",
+    "2": "B before any deposit prints the starting balance of 0.",
+    "3": "Lines after Q must not be processed: stop reading at Q. Withdrawing exactly the balance is allowed."
+  }
+}

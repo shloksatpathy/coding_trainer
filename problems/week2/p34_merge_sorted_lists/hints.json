@@ -1,0 +1,8 @@
+{
+  "tests": {
+    "2": "The first list is empty, so its line is blank: reading numbers from it must give nothing.",
+    "3": "The second list is empty: the result is the first list.",
+    "4": "When one list runs out, attach the rest of the other in one step."
+  },
+  "runtime": "An empty list comes as an empty line; parsing it must not fail."
+}

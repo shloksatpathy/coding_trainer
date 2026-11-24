@@ -1,0 +1,8 @@
+{
+  "tests": {
+    "2": "With one node, the middle and the k-th from the end are both that node.",
+    "3": "Even length: the second middle. Check the fast pointer's stop condition.",
+    "4": "k = 1 is the last node: start the second pointer k steps ahead."
+  },
+  "runtime": "The fast pointer moves two steps: check both steps exist before taking them."
+}

@@ -1,0 +1,7 @@
+{
+  "tests": {
+    "1": "A full queue prints Full and the element is dropped.",
+    "2": "On an empty queue, deq and front both print Empty.",
+    "3": "The tail wraps around: it is (head + count) mod k."
+  }
+}

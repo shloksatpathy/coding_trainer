@@ -1,0 +1,8 @@
+{
+  "tests": {
+    "2": "One disk goes straight from the source to the target.",
+    "3": "With 2 disks the smallest goes to the helper first. Recursively: move n-1 to the helper, disk n to the target, then n-1 onto it."
+  },
+  "runtime": "The recursion's base case is n = 0 (or 1); every call must move toward it.",
+  "wrong": "Check the order of the rod arguments in each recursive call: the helper and target swap roles."
+}

@@ -1,0 +1,10 @@
+{
+  "tests": {
+    "2": "A missing target: the loop must end when lo passes hi, and then print -1.",
+    "3": "The first element: check that lo/hi updates don't skip index 0.",
+    "4": "The last element: hi must start at n-1 (or n with a half-open range) and still be reachable.",
+    "6": "One element, not the target: the loop must still end.",
+    "7": "A target smaller than everything, with negative values."
+  },
+  "timeout": "Each step must shrink the range: mid is already checked, so leave it out of the next range."
+}

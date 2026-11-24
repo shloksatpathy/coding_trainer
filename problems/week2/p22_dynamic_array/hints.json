@@ -1,0 +1,8 @@
+{
+  "tests": {
+    "1": "Copies count each element moved when the capacity doubles: growing 1→2→4→8 copies 1 + 2 + 4 elements.",
+    "2": "One element fits in the starting capacity of 1: no growth, no copies.",
+    "3": "The second push fills capacity 1, so it doubles once and copies 1 element.",
+    "4": "Grow only when the array is full before a push, not after it becomes full."
+  }
+}

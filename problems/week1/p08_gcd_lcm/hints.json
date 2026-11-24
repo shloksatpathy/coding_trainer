@@ -1,0 +1,10 @@
+{
+  "tests": {
+    "2": "Coprime numbers have gcd 1 and lcm a*b.",
+    "4": "1 and 1: the loop must stop when the remainder is 0.",
+    "5": "a*b is about 10^18 here: divide by the gcd before multiplying, and use 64-bit integers.",
+    "6": "3000000000 doesn't even fit in a 32-bit int: read the inputs as 64-bit too."
+  },
+  "runtime": "Euclid's step uses a % b; it must stop when b becomes 0, before dividing by it.",
+  "timeout": "Use the remainder step, not repeated subtraction, so the loop stays short for big inputs."
+}

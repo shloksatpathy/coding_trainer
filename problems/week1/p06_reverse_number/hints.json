@@ -1,0 +1,7 @@
+{
+  "tests": {
+    "2": "A trailing zero disappears when reversed: 1230 becomes 321. Compare the reverse with the original number, not with a string.",
+    "3": "0 must still produce a reverse of 0; a loop that runs while n > 0 never runs for it."
+  },
+  "timeout": "Each loop step must make the number smaller (divide by 10), or the loop never ends."
+}

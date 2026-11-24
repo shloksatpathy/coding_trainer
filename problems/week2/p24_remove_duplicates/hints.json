@@ -1,0 +1,8 @@
+{
+  "tests": {
+    "1": "The write pointer moves only when the read pointer finds a value different from the last one written.",
+    "3": "All values equal: exactly one stays.",
+    "4": "No duplicates: every value is kept, including the first."
+  },
+  "timeout": "Removing an element by shifting the rest is O(n) per removal; overwrite with a write pointer instead."
+}

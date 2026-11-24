@@ -1,0 +1,7 @@
+{
+  "tests": {
+    "1": "back with no history stays on the same page; visit clears the forward stack.",
+    "2": "On home with no history, both back and forward stay on home.",
+    "3": "visit after going back clears the forward history, so forward stays put."
+  }
+}

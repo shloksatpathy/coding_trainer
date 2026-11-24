@@ -1,0 +1,7 @@
+{
+  "tests": {
+    "2": "One element: the two pointers start equal and nothing moves.",
+    "3": "Two elements: swap while the left pointer is strictly before the right one.",
+    "4": "An even count: stop when the pointers cross, not when they meet."
+  }
+}

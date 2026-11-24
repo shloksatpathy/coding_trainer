@@ -1,0 +1,8 @@
+{
+  "tests": {
+    "1": "After the last digit there can still be a carry: it becomes a new leading digit.",
+    "2": "0 + 0 prints a single 0.",
+    "3": "The numbers have different lengths: keep going while either list or the carry remains.",
+    "4": "A carry that ripples through many digits."
+  }
+}

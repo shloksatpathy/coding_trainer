@@ -1,0 +1,9 @@
+{
+  "tests": {
+    "1": "A negative a with a positive b: truncating toward zero gives -3, flooring gives -4. Which one does your language's / do?",
+    "3": "A negative divisor: the C remainder keeps the sign of a, not of b. Derive it from a - b*q with the truncated q.",
+    "4": "Both negative: -9 / -4 truncates to 2, and the remainder is a - b*q.",
+    "6": "Zero divided by anything is 0 with remainder 0, with no sign to fix."
+  },
+  "runtime": "The two numbers are on one line: split the line before converting."
+}

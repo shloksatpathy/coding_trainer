@@ -1,0 +1,8 @@
+{
+  "tests": {
+    "1": "k is 1-based: the 2nd smallest is at index 1 after sorting.",
+    "4": "With many duplicates, a partition must still make progress."
+  },
+  "timeout": "Quickselect recurses into one side only; with a random pivot the average is O(n).",
+  "runtime": "Sorted or duplicate-heavy input can make a fixed pivot recurse too deep: pick it at random."
+}

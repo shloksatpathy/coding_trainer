@@ -1,0 +1,7 @@
+{
+  "tests": {
+    "2": "n itself is included: mark and print up to n inclusive.",
+    "3": "With n = 3 the inner marking loop for 2 starts beyond n; make sure 3 is still printed."
+  },
+  "timeout": "Start crossing out at i*i and only loop i while i*i <= n; testing each number by trial division is too slow."
+}

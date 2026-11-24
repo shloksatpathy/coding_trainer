@@ -1,0 +1,7 @@
+{
+  "tests": {
+    "1": "Print the array after every pass, including the last one.",
+    "3": "A pass where the minimum is already in place is still printed.",
+    "4": "On ties, take the leftmost minimum: compare with <, not <=."
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "tests": {
+    "1": "In C and C++, 9/5 between two ints is 1. Make one side of the division a floating-point number.",
+    "3": "-40 is where both scales meet: the formula needs no special case for negatives.",
+    "5": "The input can have a decimal point: read it as a floating-point number, not an int.",
+    "6": "Round only when printing, to exactly two decimals."
+  },
+  "runtime": "The input can be a decimal such as 36.6, so an integer parse fails on it."
+}

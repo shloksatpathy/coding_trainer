@@ -1,0 +1,6 @@
+{
+  "tests": {
+    "1": "15 is a multiple of both 3 and 5: check the combined case before either single case.",
+    "4": "Every number from 1 to n gets its own line, and only the non-multiples print the number."
+  }
+}

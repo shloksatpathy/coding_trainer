@@ -1,0 +1,9 @@
+{
+  "tests": {
+    "1": "When the right half's element is taken first, it is smaller than every remaining element of the left half: count them all at once.",
+    "4": "Equal values are not inversions: take from the left half when the two are equal.",
+    "5": "The inversion count on 50,000 numbers can exceed 2^31: use a 64-bit counter."
+  },
+  "timeout": "Counting pairs with a double loop is O(n²); count during the merge instead.",
+  "runtime": "The recursion must stop at ranges of length 0 or 1."
+}

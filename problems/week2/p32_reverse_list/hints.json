@@ -1,0 +1,9 @@
+{
+  "tests": {
+    "1": "Keep the next node before relinking cur.next, or the rest of the list is lost.",
+    "2": "One node: the reversed list is the same node.",
+    "3": "After reversing, the old head is the new tail: its next must become empty."
+  },
+  "runtime": "The recursive reverse needs a base case for the last node; the iterative one stops when cur is empty.",
+  "timeout": "A loop that never ends usually means a node still points back into the list: set the old head's next to empty."
+}

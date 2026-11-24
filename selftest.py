@@ -80,6 +80,22 @@ with tempfile.TemporaryDirectory() as tmp:
             failed += 1
     print(f"{len(checks)} start/reset checks")
 
+    # Every hints.json: known keys, tests that exist, and no line of the reference solution.
+    for p in problems:
+        data = trainer.problem_hints(p)
+        names = {f.name.split(".")[0] for f in (p["dir"] / "tests").iterdir()}
+        code = [line.strip() for line in (p["dir"] / "solution.py").read_text(encoding="utf-8").splitlines()]
+        texts = list(data.get("tests", {}).values()) + [data[k] for k in ("timeout", "runtime", "wrong") if k in data]
+        problems_found = [
+            set(data) - {"tests", "timeout", "runtime", "wrong", "hints"},
+            set(data.get("tests", {})) - names,
+            {line for line in code if len(line) >= 12 for text in texts if line in text},
+        ]
+        if any(problems_found):
+            print(f"BAD HINTS {p['id']}: {problems_found}")
+            failed += 1
+    print(f"{sum(1 for p in problems if (p['dir'] / 'hints.json').exists())} hints.json files checked")
+
     # Hints: each broken solution gets the diagnosis for its own error (hint 1).
     by_id = {p["id"]: p for p in problems}
 

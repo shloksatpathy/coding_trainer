@@ -1,0 +1,8 @@
+{
+  "tests": {
+    "1": "Skip every character that isn't a letter or a digit, and compare letters case-insensitively.",
+    "4": "The quotes and spaces are skipped; only letters and digits count.",
+    "5": "Digits are kept and compared: '0' and 'p' differ."
+  },
+  "timeout": "When skipping non-alphanumeric characters, make sure each pointer still moves on every step."
+}

@@ -1,0 +1,6 @@
+{
+  "tests": {
+    "1": "A function that receives copies can't swap the caller's variables: pass addresses/references, or return both values.",
+    "3": "Equal values must still come out unchanged; a swap trick based on arithmetic or XOR can break when both refer to the same place."
+  }
+}

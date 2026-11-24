@@ -1,0 +1,8 @@
+{
+  "tests": {
+    "2": "One person is the only one to leave.",
+    "3": "k = 1: people leave in order, without any rotation.",
+    "4": "After someone leaves, counting starts from the next person, not from the start."
+  },
+  "timeout": "Use a queue: rotate k-1 people to the back and remove the front."
+}

@@ -1,0 +1,8 @@
+{
+  "tests": {
+    "2": "0! is 1: the empty product. Your base case must cover 0, not only 1.",
+    "4": "20! needs 64 bits; a 32-bit int overflows from 13! on.",
+    "5": "13! = 6227020800 is the first factorial that doesn't fit in 32 bits."
+  },
+  "runtime": "The recursion must stop at 0 (or 1); otherwise it never reaches a base case."
+}

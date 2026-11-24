@@ -1,0 +1,8 @@
+{
+  "tests": {
+    "2": "Every operation on an empty list prints Empty.",
+    "3": "Popping the only node must leave both head and tail empty.",
+    "4": "pop_back needs the node before the tail: walk to it and make it the new tail."
+  },
+  "runtime": "After removing the last node, head and tail must both be reset; using the old tail crashes."
+}

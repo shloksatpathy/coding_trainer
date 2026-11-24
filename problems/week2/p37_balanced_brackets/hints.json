@@ -1,0 +1,9 @@
+{
+  "tests": {
+    "2": "A closing bracket must match the most recently opened one, not just any open bracket.",
+    "3": "Brackets still open at the end mean Not balanced.",
+    "5": "A closing bracket with an empty stack is Not balanced.",
+    "6": "Ignore every character that isn't a bracket."
+  },
+  "runtime": "Check that the stack isn't empty before popping."
+}

@@ -1,0 +1,9 @@
+{
+  "tests": {
+    "1": "The first printed line is the array right after the very first partition call, before any recursion.",
+    "2": "With one element partition is never called: partitions=0.",
+    "3": "Count every partition call, including those on ranges of size 2.",
+    "4": "Elements equal to the pivot go left: compare with <=."
+  },
+  "runtime": "Only recurse when lo < hi, and leave out the pivot's final position from both sides."
+}

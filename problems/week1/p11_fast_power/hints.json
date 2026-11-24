@@ -1,0 +1,9 @@
+{
+  "tests": {
+    "2": "Anything to the power 0 is 1 (mod m).",
+    "3": "With m = 1 every result is 0, including the initial 1: reduce mod m at the start too.",
+    "4": "Reduce x mod m before each multiplication so the product of two values below 10^9 fits in 64 bits.",
+    "5": "x is larger than m: reduce it first."
+  },
+  "timeout": "n can be 10^18: square the base and halve the exponent each step instead of multiplying n times."
+}

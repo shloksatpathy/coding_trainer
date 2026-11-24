@@ -1,0 +1,9 @@
+{
+  "tests": {
+    "1": "The operator pops b first, then a, and pushes a op b: the order matters for - and /.",
+    "2": "A single number is the whole expression.",
+    "3": "-2 is a number, not an operator: a token is an operator only if it is exactly one of + - * /.",
+    "6": "-7 / 2 truncates toward zero to -3."
+  },
+  "runtime": "A token like -3 is a number: check for the operators by comparing the whole token."
+}

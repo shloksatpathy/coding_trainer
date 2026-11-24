@@ -1,0 +1,8 @@
+{
+  "tests": {
+    "1": "1900 is divisible by 4 but is a century not divisible by 400.",
+    "2": "2000 is a century, but it is divisible by 400, which overrides the century rule.",
+    "5": "2100 is a century not divisible by 400.",
+    "6": "1600 is divisible by 400."
+  }
+}
