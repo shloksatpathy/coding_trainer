@@ -30,6 +30,16 @@ Requires `python3`, `gcc`, `g++` and `rustc`. No other dependencies.
 - **Reset…** is a whole reset: after a confirmation (Cancel is the default) it deletes your progress, **all saved code in `work/`**, your settings and the test cache.
 - The desktop apps keep the theme and problem-list state in `progress.json`; the web app keeps them in the browser.
 
+### Hints
+
+After a failed **Check**, the **Hint** button next to **Reference solution** lights up as `Hint 0/N`. Nothing is shown until you click it; each click adds one hint under the report.
+
+- **Hint 1** describes your actual failure: the exception and its line, the crash signal, a timeout on a small or a large test, or what is off in your output (nothing printed, layout only, an extra or missing line, wrong sign, off by one, 32-bit overflow, wrong order, or the first differing value).
+- **Hint 2** points toward the idea that fixes it on this problem, chosen by the test that failed. It never contains solution code.
+- **Compile errors get no hints.** Reading compiler output is part of the training. Python syntax errors count as compile errors.
+- A failure gets 1 or 2 hints: level-1 wrong answers, simple output problems and failures with no matching nudge get 1; the rest get 2.
+- A new check, another language or another problem replaces the hints. Crashes are now reported as `RUNTIME ERROR` (they used to show as `WRONG`).
+
 ### Build system
 
 ```
@@ -95,6 +105,7 @@ python3 trainer.py list               # unlocked days + per-language progress
 python3 trainer.py show P01           # read a problem
 python3 trainer.py init P01           # creates work/week1/day01/p01_arithmetic/main.{c,cpp,py,rs} + in.txt
 python3 trainer.py check P01          # compile + run all 4 against the tests (or: check P01 rs)
+python3 trainer.py hint P01 py        # hint 1 for your current failure in Python (or: hint P01 py 2)
 python3 trainer.py status             # weekly completion summary
 python3 trainer.py solution P01       # reference solution, only after the week ends
 ```
@@ -112,6 +123,7 @@ problems/weekN/
     solution.py              reference solution (shown after the week ends)
     tests/1.in, 1.out, ...   test 1 is the sample copied to in.txt
     tests/5.gen.py           large test: prints its input (fixed random seed)
+    hints.json               hint 2 per failed test: {"tests": {"3": ...}, "timeout": ..., "runtime": ..., "wrong": ..., "hints": 1|2}
 ```
 
 Large tests are not stored. `N.gen.py` prints the input and the reference solution produces the expected output; both are generated on the first check and cached in `cache/` (gitignored, ~16 MB once every problem has been checked).

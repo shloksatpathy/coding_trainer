@@ -1,4 +1,4 @@
-# PLAN: on-demand hints based on the learner's actual error
+# PLAN: on-demand hints based on the learner's actual error — done
 
 ## Goal
 
@@ -153,13 +153,13 @@ About 150 lines in total. Everything uses the standard library only (`re`, `json
 
 ## Steps (one commit each, pushed after each)
 
-1. **`trainer.py`:** structured `failure`, the `RUNTIME ERROR` outcome, `diagnose`, `nudge`, `hints`, and the CLI `hint` command. All existing callers are updated for the 3-tuple (`gui.py`, `gui_tk.py`, `app.py`, `selftest.py`).
-2. **`hints.json` for weeks 1–2:** one sentence per test, plus `timeout`/`runtime` where they apply.
-3. **`hints.json` for weeks 3–4.**
-4. **GTK:** the Hint button, the reveal on click, and the reset on problem or language change. The `hint` label is renamed `solution_note`.
-5. **tkinter:** the same.
-6. **Web:** `hints` in the `/api/check` response, and the button.
-7. **Docs:** a README section, and this plan marked done.
+1. ✅ **`trainer.py`:** structured `failure`, the `RUNTIME ERROR` outcome, `diagnose`, `nudge`, `hints`, and the CLI `hint` command. All existing callers are updated for the 3-tuple (`gui.py`, `gui_tk.py`, `app.py`, `selftest.py`).
+2. ✅ **`hints.json` for weeks 1–2:** one sentence per test, plus `timeout`/`runtime` where they apply.
+3. ✅ **`hints.json` for weeks 3–4.**
+4. ✅ **GTK:** the Hint button, the reveal on click, and the reset on problem or language change. The `hint` label is renamed `solution_note`.
+5. ✅ **tkinter:** the same.
+6. ✅ **Web:** `hints` in the `/api/check` response, and the button.
+7. ✅ **Docs:** a README section, and this plan marked done.
 
 ## Testing
 
@@ -195,3 +195,26 @@ About 150 lines in total. Everything uses the standard library only (`re`, `json
 
 1. **Local rules (this plan) or an LLM (e.g. Claude) to write the hints.** An LLM would read the learner's code and give freer feedback. It would also need an API key and network access, it costs money per hint, and it breaks the "fully local" goal from `PLAN.md`. Recommended: **local rules**. An LLM could be added later as an optional third hint.
 2. **Whether to count hint use in `trainer.py status`** (e.g. "3 problems solved without hints"). It is left out for now to keep the feature minimal.
+
+## Results (2026-11-24)
+
+- **`trainer.py`:** `selftest.py` gets 15 broken solutions, and each one gives the expected hint 1:
+  - P01 floor division (test 1), a negative divisor (test 3), a wrong sign, a debug print, layout only, and empty output
+  - `ValueError`, a C null-pointer write (segfault), an infinite loop (small-test timeout) and an O(n³) three-sum (large-test timeout)
+  - wrong order (P03), off by one (P09), and 32-bit overflow in C (P09)
+  - a Python syntax error and a missing `;` in C, which get no hints
+
+  It also checks:
+  - 6 hint-count cases
+  - that two different P01 errors get different hints
+  - that all 84 `hints.json` files use known keys and name tests that exist
+  - that no hint contains a line of `solution.py`. This caught a real leak in P15's timeout nudge, which was then reworded.
+- **GTK** (offscreen): 11 checks pass.
+  - The button is disabled before a check, shows `Hint 0/2` after a failure, and shows nothing until clicked. It reveals the hints one at a time and is then disabled.
+  - A different error gives a different hint.
+  - Switching language or problem clears the hints, and compile errors, Python syntax errors and passes give none.
+  - Screenshots in light and dark. The result pane scrolls to each new hint.
+- **tkinter** (Xvfb): the same 11 checks pass. They include that the hints and the revealed text survive the window rebuild on a theme change.
+- **Web** (Chrome): 9 checks pass, with no console errors. `/api/check` returns `hints`, which is empty for compile errors.
+- **Not tested here:** Rust panics, because `rustc` has no default toolchain on this machine (`rustup default stable` was never run), and the Windows crash codes.
+- **Change from the plan:** Python syntax errors are now checked with `compile()` before the tests run and reported as `COMPILE ERROR`, so they get no hints, the same as C, C++ and Rust compile errors.
