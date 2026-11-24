@@ -60,6 +60,7 @@ class App:
         self.code = {}           # lang -> editor text for the current problem
         self.lang = "c"
         self.result_state = ("", False)
+        self.hints, self.shown = [], 0   # hints for the last failed check, and how many are shown
         self.results = queue.Queue()
         self.frame = None
         self.sidebar_view = None
@@ -298,8 +299,10 @@ class App:
         self.check_btn.pack(side="left")
         self.solution_btn = self.button(actions, "Reference solution", self.on_solution)
         self.solution_btn.pack(side="left", padx=8)
-        self.hint = tk.Label(actions, font=self.f_body, bg=c["bg"], fg=c["muted"])
-        self.hint.pack(side="left")
+        self.hint_btn = self.button(actions, "Hint", self.on_hint)
+        self.hint_btn.pack(side="left")
+        self.solution_note = tk.Label(actions, font=self.f_body, bg=c["bg"], fg=c["muted"])
+        self.solution_note.pack(side="left", padx=8)
 
         border = tk.Frame(pane, bg=c["input_border"], padx=1, pady=1)
         border.pack(side="top", fill="both", expand=True, padx=12)
@@ -415,11 +418,13 @@ class App:
                 f = self.current["work"] / f"main.{lang}"
                 self.code[lang] = f.read_text(encoding="utf-8") if f.exists() else trainer.STUBS[lang]
             self.set_result("", False)
+            self.hints, self.shown = [], 0
         self.render_statement()
         unlocked = datetime.date.today() >= self.current["solution_unlock"]
         self.solution_btn.configure(state="normal" if unlocked else "disabled",
                                     bg=self.c["accent"] if unlocked else self.c["disabled"])
-        self.hint.configure(text="" if unlocked else f"Solution unlocks {self.current['solution_unlock']}")
+        self.solution_note.configure(text="" if unlocked else f"Solution unlocks {self.current['solution_unlock']}")
+        self.set_hints(self.hints, self.shown)
         self.set_editor(self.code[self.lang])
         self.mark_tabs()
 
@@ -463,6 +468,7 @@ class App:
         self.lang = lang
         self.set_editor(self.code[lang])
         self.mark_tabs()
+        self.set_hints([])
 
     def mark_tabs(self):
         c = self.c
@@ -497,23 +503,40 @@ class App:
         (p["work"] / "in.txt").write_text((p["dir"] / "tests" / "1.in").read_text(encoding="utf-8"), encoding="utf-8")
         self.check_btn.configure(state="disabled", bg=self.c["disabled"])
         self.set_result(f"Checking {NAMES[lang]}...", False)
+        self.set_hints([])
         threading.Thread(target=lambda: self.results.put((p, lang, *trainer.check_lang(p, lang))), daemon=True).start()
 
     def poll_results(self):
         while not self.results.empty():
-            p, lang, ok, report, _failure = self.results.get()
+            p, lang, ok, report, failure = self.results.get()
             progress = trainer.load_progress()
             if ok:
                 trainer.record_pass(progress, p, lang)
             self.update_dots(progress)
             if self.current["id"] == p["id"] and self.lang == lang:
                 self.set_result(report, ok)
+                self.set_hints(trainer.hints(p, failure))
             self.check_btn.configure(state="normal", bg=self.c["accent"])
         self.root.after(100, self.poll_results)
 
     def on_solution(self):
         solution = (self.current["dir"] / "solution.py").read_text(encoding="utf-8")
         self.set_result("# Reference solution (Python)\n\n" + solution, False)
+        self.set_hints([])
+
+    def set_hints(self, hints, shown=0):
+        """Hints for the last failed check; they are only shown one at a time on click."""
+        self.hints, self.shown = hints, shown
+        on = shown < len(hints)
+        self.hint_btn.configure(text=f"Hint {shown}/{len(hints)}" if hints else "Hint", state="normal" if on else "disabled",
+                                bg=self.c["accent"] if on else self.c["disabled"])
+
+    def on_hint(self):
+        k = self.shown + 1
+        text, ok = self.result_state
+        self.set_result(f"{text}\n\n── Hint {k}/{len(self.hints)} ──\n{self.hints[k - 1]}", ok)
+        self.result.see("end")
+        self.set_hints(self.hints, k)
 
 
 if __name__ == "__main__":
