@@ -1,0 +1,4 @@
+{
+  "wrong": "Check each escape: `\\c` and `\\m` are not one backslash followed by a letter. A backslash in the output needs two in the code.",
+  "hints": 2
+}

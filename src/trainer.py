@@ -13,6 +13,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).parent.parent
 PROBLEMS = ROOT / "problems"
+CAPSULE = PROBLEMS / "capsule"
 LANGS = ["c", "cpp", "py", "rs"]
 WINDOWS = os.name == "nt"
 # Your data lives in a per-user folder, so the program folder can be replaced or read-only.
@@ -495,6 +496,132 @@ def cmd_status(progress, args):
             print(f"  {lang:<4} {n}/{len(probs)}")
 
 
+def capsule(progress):
+    """The capsule's part of progress.json: default language, passes and attempts per language."""
+    return progress.setdefault("capsule", {"lang": "py", "passed": {}, "attempted": {}})
+
+
+def capsule_problems(lang):
+    """The capsule's questions in order. Each language has its own work folder and its own chain of locks."""
+    data = json.loads((CAPSULE / "capsule.json").read_text(encoding="utf-8"))
+    names = [(m + 1, module["title"], name) for m, module in enumerate(data["modules"]) for name in module["problems"]]
+    return [{"id": name.split("_")[0], "name": name, "title": name.split("_", 1)[1], "dir": CAPSULE / name,
+             "level": 1, "module": m, "module_title": title, "work": WORK / "capsule" / lang / name,
+             "prev": names[i - 1][2].split("_")[0] if i else None}
+            for i, (m, title, name) in enumerate(names)]
+
+
+def capsule_find(lang, pid):
+    for p in capsule_problems(lang):
+        if p["id"] == pid.lower():
+            return p
+    sys.exit(f"No capsule question {pid}")
+
+
+def capsule_passed(progress, lang):
+    return capsule(progress)["passed"].get(lang, {})
+
+
+def capsule_attempted(progress, p, lang):
+    return p["id"] in capsule(progress)["attempted"].get(lang, [])
+
+
+def capsule_open(progress, p, lang):
+    """A question opens once the previous one is passed in the same language."""
+    return p["prev"] is None or p["prev"] in capsule_passed(progress, lang)
+
+
+def capsule_statement(p, lang):
+    """problem.md with the language's Learn section (if the question has one) under the title."""
+    title, body = (p["dir"] / "problem.md").read_text(encoding="utf-8").split("\n\n", 1)
+    learn = p["dir"] / f"learn.{lang}.md"
+    if learn.exists():
+        return f"{title}\n\n{learn.read_text(encoding='utf-8').rstrip()}\n\n**Task**\n\n{body}"
+    return f"{title}\n\n{body}"
+
+
+def capsule_check(progress, p, lang):
+    """check_lang, then record the attempt and a pass in this language."""
+    ok, report, failure = check_lang(p, lang)
+    c = capsule(progress)
+    if failure is None or failure["kind"] != "missing":
+        attempted = c["attempted"].setdefault(lang, [])
+        if p["id"] not in attempted:
+            attempted.append(p["id"])
+    if ok:
+        c["passed"].setdefault(lang, {}).setdefault(p["id"], datetime.date.today().isoformat())
+    save_progress(progress)
+    return ok, report, failure
+
+
+def capsule_solution(progress, p, lang):
+    """The reference solution in this language, or None before the first check of this question in it."""
+    if not capsule_attempted(progress, p, lang):
+        return None
+    return (p["dir"] / f"solution.{lang}").read_text(encoding="utf-8")
+
+
+def parse_lang(text):
+    if text not in LANGS:
+        sys.exit(f"Language must be one of: {' '.join(LANGS)}")
+    return text
+
+
+def cmd_capsule(args):
+    progress = load_progress() or {}
+    if len(args) <= 1:
+        lang = parse_lang(args[0] if args else capsule(progress)["lang"])
+        questions = capsule_problems(lang)
+        passed = capsule_passed(progress, lang)
+        print(f"Proficiency · {lang}  {len(passed)}/{len(questions)}")
+        for i, p in enumerate(questions):
+            if i == 0 or p["module"] != questions[i - 1]["module"]:
+                module = [q for q in questions if q["module"] == p["module"]]
+                done = sum(1 for q in module if q["id"] in passed)
+                print(f"\nModule {p['module']} · {p['module_title']}  {done}/{len(module)}")
+            mark = "✅" if p["id"] in passed else "▶ " if capsule_open(progress, p, lang) else "🔒"
+            print(f"  {mark} {p['id'].upper()}  {p['title']}")
+        return
+    if len(args) < 3 or args[0] not in ("show", "init", "check", "hint", "solution"):
+        sys.exit(USAGE)
+    action, lang = args[0], parse_lang(args[2])
+    p = capsule_find(lang, args[1])
+    if not capsule_open(progress, p, lang):
+        sys.exit(f"{p['id'].upper()} is locked: pass {p['prev'].upper()} in {lang} first")
+    if action == "show":
+        print(capsule_statement(p, lang))
+    elif action == "init":
+        p["work"].mkdir(parents=True, exist_ok=True)
+        f = p["work"] / f"main.{lang}"
+        if not f.exists():
+            f.write_text(STUBS[lang], encoding="utf-8")
+        (p["work"] / "in.txt").write_text((p["dir"] / "tests" / "1.in").read_text(encoding="utf-8"), encoding="utf-8")
+        print(f"Workspace ready: {f}")
+    elif action == "check":
+        ok, report, failure = capsule_check(progress, p, lang)
+        print(report)
+        if ok and p["id"] != capsule_problems(lang)[-1]["id"]:
+            print("Next question unlocked.")
+        elif hints(p, failure):
+            print(f"(hints available: trainer.py capsule hint {p['id'].upper()} {lang})")
+    elif action == "hint":
+        k = int(args[3]) if len(args) > 3 else 1
+        ok, report, failure = check_lang(p, lang)
+        if ok:
+            sys.exit(report)
+        if failure["kind"] == "compile":
+            sys.exit("No hints for compile errors.")
+        found = hints(p, failure)
+        if not 1 <= k <= len(found):
+            sys.exit(f"This failure has {len(found)} hint(s).")
+        print(f"Hint {k}/{len(found)}: {found[k - 1]}")
+    else:
+        solution = capsule_solution(progress, p, lang)
+        if solution is None:
+            sys.exit(f"Check {p['id'].upper()} in {lang} at least once to unlock its solution.")
+        print(solution)
+
+
 COMMANDS = {
     "level": cmd_level,
     "list": cmd_list,
@@ -516,7 +643,15 @@ USAGE = """usage: trainer.py <command>
   check P01 [c cpp py rs] run your solutions against the tests
   hint P01 py [k]        hint k (default 1) for your current failure in one language
   solution P01           reference solution (released with the next problem set)
-  status                 weekly completion summary"""
+  status                 weekly completion summary
+
+Proficiency capsule (150 questions, one chain per language; no course start needed):
+  capsule [c|cpp|py|rs]  modules and progress in one language
+  capsule show C001 py   print a question (with its Learn section)
+  capsule init C001 py   create work/capsule/py/c001_.../main.py and in.txt
+  capsule check C001 py  run your solution; a pass unlocks the next question
+  capsule hint C001 py [k]  hint k for your current failure
+  capsule solution C001 py  reference solution, after your first check"""
 
 
 def main():
@@ -527,6 +662,8 @@ def main():
         return cmd_start(args)
     if cmd == "reset":
         return cmd_reset(args)
+    if cmd == "capsule":
+        return cmd_capsule(args)
     progress = load_progress()
     if not is_started(progress):
         sys.exit("Run `trainer.py start` first.")

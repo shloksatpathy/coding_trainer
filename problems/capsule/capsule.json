@@ -1,0 +1,20 @@
+{
+  "title": "Proficiency",
+  "modules": [
+    {
+      "title": "Hello, output",
+      "problems": [
+        "c001_hello_world",
+        "c002_three_lines",
+        "c003_quotes_and_backslashes",
+        "c004_blank_line",
+        "c005_same_line",
+        "c006_numbers",
+        "c007_expressions",
+        "c008_one_print",
+        "c009_columns",
+        "c010_banner"
+      ]
+    }
+  ]
+}
