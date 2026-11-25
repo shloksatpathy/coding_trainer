@@ -210,6 +210,21 @@
         "c139_longest_distinct_run",
         "c140_most_frequent"
       ]
+    },
+    {
+      "title": "Putting it together",
+      "problems": [
+        "c141_brackets",
+        "c142_undo",
+        "c143_queue",
+        "c144_coins",
+        "c145_stairs",
+        "c146_best_run",
+        "c147_calculator",
+        "c148_csv_totals",
+        "c149_cheapest_path",
+        "c150_adventure"
+      ]
     }
   ]
 }

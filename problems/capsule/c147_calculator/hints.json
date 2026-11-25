@@ -1,0 +1,7 @@
+{
+  "tests": {
+    "2": "Subtraction goes left to right: 10 - 6 - 1 is 3. Keep a minus sign with the term that follows it.",
+    "1": "Working strictly left to right gives (2 + 3) * 4 = 20. Hold back a sum until the multiplications after it are done."
+  },
+  "hints": 2
+}
