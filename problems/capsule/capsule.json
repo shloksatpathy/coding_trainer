@@ -15,6 +15,21 @@
         "c009_columns",
         "c010_banner"
       ]
+    },
+    {
+      "title": "Variables and input",
+      "problems": [
+        "c011_read_a_number",
+        "c012_use_it_again",
+        "c013_two_numbers",
+        "c014_greeting",
+        "c015_whole_line",
+        "c016_swap",
+        "c017_constants",
+        "c018_step_by_step",
+        "c019_three_answers",
+        "c020_profile"
+      ]
     }
   ]
 }

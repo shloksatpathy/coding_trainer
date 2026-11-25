@@ -1,0 +1,5 @@
+name = input()
+city = input()
+year = int(input())
+print(f"{name} from {city}, since {year}")
+print(f"That is {2026 - year} years before 2026.")

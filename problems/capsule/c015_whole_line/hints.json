@@ -1,0 +1,6 @@
+{
+  "tests": {
+    "4": "The leading spaces are part of the line. Reading a word skips them; read the whole line instead."
+  },
+  "hints": 2
+}
