@@ -1,0 +1,6 @@
+{
+  "tests": {
+    "4": "10 to the power 18 needs 64 bits: the result variable and the return type must both be 64-bit."
+  },
+  "hints": 2
+}

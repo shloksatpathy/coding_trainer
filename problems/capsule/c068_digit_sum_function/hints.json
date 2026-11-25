@@ -1,0 +1,6 @@
+{
+  "tests": {
+    "1": "19 and 55 both have digit sum 10. Keep the first: replace the best only when a sum is strictly larger."
+  },
+  "hints": 2
+}

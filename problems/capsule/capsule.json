@@ -90,6 +90,21 @@
         "c059_hollow_square",
         "c060_diamond"
       ]
+    },
+    {
+      "title": "Functions",
+      "problems": [
+        "c061_greet_function",
+        "c062_square_function",
+        "c063_max3_from_max2",
+        "c064_is_between",
+        "c065_distance",
+        "c066_area_and_box",
+        "c067_classify",
+        "c068_digit_sum_function",
+        "c069_power_function",
+        "c070_primes_in_range"
+      ]
     }
   ]
 }
