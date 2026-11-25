@@ -1,0 +1,6 @@
+{
+  "tests": {
+    "5": "Equal neighbours are not in the wrong order: swap only when the left one is strictly larger."
+  },
+  "hints": 2
+}

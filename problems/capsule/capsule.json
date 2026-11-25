@@ -180,6 +180,21 @@
         "c119_fractions",
         "c120_inventory_report"
       ]
+    },
+    {
+      "title": "Sorting and searching",
+      "problems": [
+        "c121_first_position",
+        "c122_bubble_sort",
+        "c123_insertion_steps",
+        "c124_library_sort",
+        "c125_sort_words",
+        "c126_binary_search",
+        "c127_pair_sums",
+        "c128_distinct_sorted",
+        "c129_closest_values",
+        "c130_merge"
+      ]
     }
   ]
 }

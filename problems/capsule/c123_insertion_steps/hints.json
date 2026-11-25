@@ -1,0 +1,4 @@
+{
+  "runtime": "The inner loop must stop at the start of the array: check the index before reading `a[j]`.",
+  "hints": 2
+}

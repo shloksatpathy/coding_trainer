@@ -1,0 +1,4 @@
+{
+  "runtime": "When one list is used up, keep taking from the other one; check `i < n` and `j < m` before reading `a[i]` or `b[j]`.",
+  "hints": 2
+}
