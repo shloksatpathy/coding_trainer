@@ -2,7 +2,7 @@
 # Add Coding Trainer to the current user's application menu (no root needed).
 # Remove it again with: rm ~/.local/share/applications/coding-trainer.desktop
 set -e
-DIR="$(cd "$(dirname "$0")" && pwd)"
+DIR="$(cd "$(dirname "$0")/.." && pwd)"
 APPS="$HOME/.local/share/applications"
 mkdir -p "$APPS"
 cat > "$APPS/coding-trainer.desktop" <<EOF

@@ -608,7 +608,7 @@ class TrainerWindow(Gtk.Window):
 
 
 if __name__ == "__main__":
-    # Matches StartupWMClass in the launcher written by install-desktop.sh, so the dock groups the window.
+    # Matches StartupWMClass in the launcher written by scripts/install-desktop.sh, so the dock groups the window.
     Gdk.set_program_class("coding-trainer")
     GLib.set_application_name("Coding Trainer")
     Gtk.Window.set_default_icon_from_file(str(trainer.ROOT / "assets" / "coding-trainer.svg"))

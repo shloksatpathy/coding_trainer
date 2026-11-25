@@ -9,7 +9,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-ROOT = Path(__file__).parent
+ROOT = Path(__file__).parent.parent
 
 with tempfile.TemporaryDirectory() as tmp:
     copy = Path(tmp)

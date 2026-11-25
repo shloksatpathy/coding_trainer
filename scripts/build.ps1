@@ -3,7 +3,8 @@
 # Never touches your own files: work\ (your solutions) and progress.json.
 param([string]$Target = "help")
 $ErrorActionPreference = "Stop"
-Set-Location $PSScriptRoot
+$Root = Split-Path $PSScriptRoot
+Set-Location $Root
 
 # Python launchers from the python.org installer; override with $env:PYTHON / $env:GUI_PYTHON.
 $Python = if ($env:PYTHON) { $env:PYTHON } else { "py" }
@@ -34,17 +35,17 @@ switch ($Target) {
         $shortcut = Get-Shortcut
         $link = (New-Object -ComObject WScript.Shell).CreateShortcut($shortcut)
         $link.TargetPath = (Get-Command $GuiPython).Source
-        $link.Arguments = "`"$PSScriptRoot\src\gui_tk.py`""
-        $link.WorkingDirectory = $PSScriptRoot
-        $link.IconLocation = "$PSScriptRoot\assets\coding-trainer.ico"
+        $link.Arguments = "`"$Root\src\gui_tk.py`""
+        $link.WorkingDirectory = $Root
+        $link.IconLocation = "$Root\assets\coding-trainer.ico"
         $link.Description = "Daily coding problems in C, C++, Python and Rust"
         $link.Save()
         "Installed $shortcut"
     }
     "uninstall" { Remove-Item (Get-Shortcut) -Force -ErrorAction Ignore }
-    "test" { Invoke-Native $Python @("selftest.py") }
+    "test" { Invoke-Native $Python @("scripts\selftest.py") }
     "dist" {
-        Invoke-Native $Python @("selftest.py")
+        Invoke-Native $Python @("scripts\selftest.py")
         New-Item -ItemType Directory -Force build | Out-Null
         Invoke-Native git @("archive", "--format=zip", "--prefix=coding-trainer-$Version/", "-o", $Dist, "HEAD")
         "Built $Dist ($([math]::Round((Get-Item $Dist).Length / 1KB)) KB)"

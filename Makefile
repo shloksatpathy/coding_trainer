@@ -26,13 +26,13 @@ web:
 	$(PYTHON) src/app.py
 
 install:
-	./install-desktop.sh
+	scripts/install-desktop.sh
 
 uninstall:
 	rm -f $(HOME)/.local/share/applications/coding-trainer.desktop
 
 test:
-	$(PYTHON) selftest.py
+	$(PYTHON) scripts/selftest.py
 
 dist: test
 	mkdir -p build
