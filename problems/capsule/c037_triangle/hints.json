@@ -1,0 +1,7 @@
+{
+  "tests": {
+    "5": "1 + 2 is exactly 3: the triangle is flat. \"At least as long\" includes equal.",
+    "7": "Check every side against the other two, not only the last one."
+  },
+  "hints": 2
+}

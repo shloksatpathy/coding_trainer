@@ -45,6 +45,21 @@
         "c029_digit_sum",
         "c030_clock"
       ]
+    },
+    {
+      "title": "Conditionals",
+      "problems": [
+        "c031_even_or_odd",
+        "c032_sign",
+        "c033_max_of_two",
+        "c034_max_of_three",
+        "c035_in_range",
+        "c036_weekend",
+        "c037_triangle",
+        "c038_ticket_price",
+        "c039_quadrant",
+        "c040_grade"
+      ]
     }
   ]
 }

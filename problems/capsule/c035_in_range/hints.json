@@ -1,0 +1,6 @@
+{
+  "tests": {
+    "2": "1 and 100 are inside. Check that both ends of the range are included."
+  },
+  "hints": 2
+}
