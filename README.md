@@ -17,6 +17,41 @@ It should be such that the problems should help someoen who is completly new to 
 
 Requires `python3`, `gcc`, `g++` and `rustc`. No other dependencies.
 
+### Project layout
+
+```
+coding_trainer/
+├── README.md  VERSION  Makefile  build.cmd     entry points: `make <target>` (Linux), `build <target>` (Windows)
+├── src/                                        the program
+│   ├── trainer.py                              CLI and checker (used by all the UIs)
+│   ├── gui.py                                  GTK desktop window (Linux)
+│   ├── gui_tk.py                               tkinter desktop window (Windows)
+│   ├── app.py                                  web app
+│   └── static/index.html                       web app page
+├── problems/week1..week4/                      problems, tests, hints, reference solutions
+├── assets/                                     app icons (svg, png, ico)
+├── scripts/                                    build.ps1 (Windows build), install-desktop.sh, selftest.py
+├── docs/                                       plans and notes (not shipped by `dist`)
+└── build/                                      `dist` output (gitignored)
+```
+
+### Your data
+
+Your progress, settings, saved code and the test cache live outside the program folder, so the program can be replaced by a new version or installed in a read-only place:
+
+| OS | Folder |
+| --- | --- |
+| Linux | `~/.local/share/coding-trainer/` |
+| Windows | `%APPDATA%\coding-trainer\` |
+
+It holds `progress.json`, `work/` (your code) and `cache/` (generated large tests). The CLI, desktop apps and web app all share it.
+
+### Building on another machine
+
+1. Install the compilers and Python (see **Windows** below for the Windows list; on Ubuntu: `sudo apt install python3 gcc g++` and Rust via rustup, then `rustup default stable`).
+2. Get the program: `git clone` this repository, or copy `build/coding-trainer-<VERSION>.tar.gz` / `.zip` made by `make dist` / `build dist` and extract it anywhere.
+3. In that folder: `make test` (or `build test`) to check the toolchain, then `make install` (or `build install`) to add it to the app grid / Start menu.
+
 ### Menus and layout (desktop apps and web app)
 
 | Menu | Item |
@@ -27,7 +62,7 @@ Requires `python3`, `gcc`, `g++` and `rustc`. No other dependencies.
 
 - The ☰ button next to the title (or above the statement while the list is hidden) does the same as **Ctrl+B**.
 - The welcome screen has a **Start at level** picker next to **Start today**.
-- **Reset…** is a whole reset: after a confirmation (Cancel is the default) it deletes your progress, **all saved code in `work/`**, your settings and the test cache.
+- **Reset…** is a whole reset: after a confirmation (Cancel is the default) it deletes your progress, **all saved code in `work/`**, your settings and the test cache (everything in [your data folder](#your-data)).
 - The desktop apps keep the theme and problem-list state in `progress.json`; the web app keeps them in the browser.
 
 ### Hints
@@ -47,8 +82,8 @@ make            # list targets
 make run        # desktop app          make web        # web app
 make install    # add to app grid      make uninstall  # remove from app grid
 make test       # all 84 reference solutions + generators, in a temp copy
-make dist       # test, then package the committed project as build/coding-trainer-<VERSION>.tar.gz
-make clean      # remove build/, cache/, __pycache__/
+make dist       # test, then package the committed app (no docs/) as build/coding-trainer-<VERSION>.tar.gz
+make clean      # remove build/, src/__pycache__/ and the test cache
 ```
 
 The version lives in `VERSION`. No target touches your `work/` folder or `progress.json`.
@@ -63,57 +98,57 @@ Install, and make sure each is on `PATH`:
 
 ```
 build              list targets
-build run          desktop app (gui_tk.py, a tkinter replica of the GTK window)
+build run          desktop app (src\gui_tk.py, a tkinter replica of the GTK window)
 build web          web app on http://localhost:8000
 build install      add "Coding Trainer" (with icon) to the Start menu
 build uninstall    remove it from the Start menu
 build test         all 84 reference solutions + generators, in a temp copy
-build dist         test, then package the committed project as build\coding-trainer-<VERSION>.zip
-build clean        remove build\, cache\, __pycache__\
+build dist         test, then package the committed app (no docs\) as build\coding-trainer-<VERSION>.zip
+build clean        remove build\, src\__pycache__\ and the test cache
 ```
 
-`build.cmd` runs `build.ps1` without changing PowerShell's execution policy. Set `PYTHON` / `GUI_PYTHON` to use other interpreters than `py` / `pyw`. No target touches `work\` or `progress.json`.
+`build.cmd` runs `scripts\build.ps1` without changing PowerShell's execution policy. Set `PYTHON` / `GUI_PYTHON` to use other interpreters than `py` / `pyw`. No target touches `work\` or `progress.json`.
 
 ### Desktop app (native window)
 
 ```
-./install-desktop.sh                  # once: adds "Coding Trainer" (with icon) to your app grid
-./gui.py                              # or start it directly: /usr/bin/python3 gui.py
+scripts/install-desktop.sh            # once: adds "Coding Trainer" (with icon) to your app grid (same as make install)
+src/gui.py                            # or start it directly: /usr/bin/python3 src/gui.py
 ```
 
-`install-desktop.sh` writes `~/.local/share/applications/coding-trainer.desktop` pointing at this folder (no root needed). Re-run it if you move the folder; remove the app with `rm ~/.local/share/applications/coding-trainer.desktop`.
+`scripts/install-desktop.sh` writes `~/.local/share/applications/coding-trainer.desktop` pointing at this folder (no root needed). Re-run it if you move the folder; remove the app with `rm ~/.local/share/applications/coding-trainer.desktop`.
 
-A GTK 3 window with the same layout and menus as the web app: menu bar, collapsible sidebar with problem sets and progress dots, problem statement, C / C++ / Python / Rust editor tabs, **Check** and **Reference solution**. No browser or server needed. It uses the system Python because that is where GTK's Python bindings live (`python3-gi`, preinstalled on Ubuntu). It shares `work/` and `progress.json` with the CLI and web app.
+A GTK 3 window with the same layout and menus as the web app: menu bar, collapsible sidebar with problem sets and progress dots, problem statement, C / C++ / Python / Rust editor tabs, **Check** and **Reference solution**. No browser or server needed. It uses the system Python because that is where GTK's Python bindings live (`python3-gi`, preinstalled on Ubuntu). It shares [your data folder](#your-data) with the CLI and web app.
 
 ### Web app
 
 ```
-python3 app.py                        # then open http://localhost:8000
+python3 src/app.py                    # then open http://localhost:8000
 ```
 
-Sidebar shows the released problem sets with a dot per language (green = passed). Pick a problem, write code in the C / C++ / Python / Rust tabs, press **Check**. Code is saved to `work/` on every check, so the CLI and the app share the same files and progress.
+Sidebar shows the released problem sets with a dot per language (green = passed). Pick a problem, write code in the C / C++ / Python / Rust tabs, press **Check**. Code is saved to `work/` in [your data folder](#your-data) on every check, so the CLI and the app share the same files and progress.
 
 Theme: **View ▸ Theme** — **System** follows your OS light/dark setting. The choice is remembered in the browser.
 
 ### CLI
 
 ```
-python3 trainer.py start              # begin today at level 1 (or: start 2026-11-22 --level 3)
-python3 trainer.py level 3            # restart the schedule at level 3 today; lower levels lock
-python3 trainer.py reset              # delete progress, settings, ALL saved code and the cache (asks first)
-python3 trainer.py list               # released problem sets + per-language progress
-python3 trainer.py show P01           # read a problem
-python3 trainer.py init P01           # creates work/week1/day01/p01_arithmetic/main.{c,cpp,py,rs} + in.txt
-python3 trainer.py check P01          # compile + run all 4 against the tests (or: check P01 rs)
-python3 trainer.py hint P01 py        # hint 1 for your current failure in Python (or: hint P01 py 2)
-python3 trainer.py status             # weekly completion summary
-python3 trainer.py solution P01       # reference solution, released with the next problem set
+python3 src/trainer.py start          # begin today at level 1 (or: start 2026-11-22 --level 3)
+python3 src/trainer.py level 3        # restart the schedule at level 3 today; lower levels lock
+python3 src/trainer.py reset          # delete progress, settings, ALL saved code and the cache (asks first)
+python3 src/trainer.py list           # released problem sets + per-language progress
+python3 src/trainer.py show P01       # read a problem
+python3 src/trainer.py init P01       # creates work/week1/day01/p01_arithmetic/main.{c,cpp,py,rs} + in.txt
+python3 src/trainer.py check P01      # compile + run all 4 against the tests (or: check P01 rs)
+python3 src/trainer.py hint P01 py    # hint 1 for your current failure in Python (or: hint P01 py 2)
+python3 src/trainer.py status         # weekly completion summary
+python3 src/trainer.py solution P01   # reference solution, released with the next problem set
 ```
 
 - Week W is level W (4 levels), 7 problem sets each. Starting at level L: set N of week W ≥ L is released on `start + 3*(7*(W-L) + N-1)` days, and its solutions 3 days later with the next set; weeks below L stay locked. Checking works any time after release.
 - The sidebar and `list` mark the current set (released, solutions not out yet). `status` counts passes made before the solutions came out.
-- Saved code lives in `work/weekW/dayNN/` (NN = set number; the folder name is kept from the old daily sets).
-- Your progress is saved in `progress.json`.
+- Saved code lives in `work/weekW/dayNN/` in [your data folder](#your-data) (NN = set number; the folder name is kept from the old daily sets).
+- Your progress is saved in `progress.json` in [your data folder](#your-data).
 
 ## Adding a week
 
@@ -128,4 +163,4 @@ problems/weekN/
     hints.json               hint 2 per failed test: {"tests": {"3": ...}, "timeout": ..., "runtime": ..., "wrong": ..., "hints": 1|2}
 ```
 
-Large tests are not stored. `N.gen.py` prints the input and the reference solution produces the expected output; both are generated on the first check and cached in `cache/` (gitignored, ~16 MB once every problem has been checked).
+Large tests are not stored. `N.gen.py` prints the input and the reference solution produces the expected output; both are generated on the first check and cached in `cache/` in [your data folder](#your-data) (~16 MB once every problem has been checked).
