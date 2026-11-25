@@ -165,6 +165,21 @@
         "c109_subset_sums",
         "c110_permutations"
       ]
+    },
+    {
+      "title": "Structs and records",
+      "problems": [
+        "c111_points",
+        "c112_path_length",
+        "c113_report_card",
+        "c114_class_list",
+        "c115_ranking",
+        "c116_stock_updates",
+        "c117_rectangle_overlap",
+        "c118_durations",
+        "c119_fractions",
+        "c120_inventory_report"
+      ]
     }
   ]
 }
