@@ -17,7 +17,7 @@ help:
 	@echo "make uninstall  remove it from your app grid"
 	@echo "make test       check generators and all 84 reference solutions (in a temp copy)"
 	@echo "make dist       package the committed project as $(DIST)"
-	@echo "make clean      remove build/, cache/ and __pycache__/"
+	@echo "make clean      remove build/, src/__pycache__/ and the test cache"
 
 run:
 	$(GUI_PYTHON) src/gui.py
@@ -40,4 +40,4 @@ dist: test
 	@echo "Built $(DIST) ($$(du -h $(DIST) | cut -f1))"
 
 clean:
-	rm -rf build cache src/__pycache__
+	rm -rf build src/__pycache__ $(HOME)/.local/share/coding-trainer/cache

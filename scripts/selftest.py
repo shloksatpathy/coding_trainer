@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Self-test: every generator is deterministic and every reference solution passes its own tests.
 
-Runs in a temporary copy of the project, so your work/, progress.json and cache/ are never touched.
+Runs in a temporary copy of the project with its own data folder, so your work/, progress.json and cache/
+are never touched.
 """
 import datetime
 import shutil
@@ -19,6 +20,8 @@ with tempfile.TemporaryDirectory() as tmp:
     shutil.copytree(ROOT / "problems", copy / "problems")
     sys.path.insert(0, str(copy / "src"))
     import trainer
+    trainer.DATA = copy / "data"
+    trainer.WORK, trainer.PROGRESS, trainer.CACHE = trainer.DATA / "work", trainer.DATA / "progress.json", trainer.DATA / "cache"
 
     failed = 0
     gens = sorted(copy.glob("problems/*/*/tests/*.gen.py"))

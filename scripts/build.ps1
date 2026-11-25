@@ -27,7 +27,7 @@ switch ($Target) {
         "build uninstall  remove it from the Start menu"
         "build test       check generators and all 84 reference solutions (in a temp copy)"
         "build dist       package the committed project as $Dist"
-        "build clean      remove build\, cache\ and __pycache__\"
+        "build clean      remove build\, src\__pycache__\ and the test cache"
     }
     "run" { Invoke-Native $GuiPython @("src\gui_tk.py") }
     "web" { Invoke-Native $Python @("src\app.py") }
@@ -50,7 +50,7 @@ switch ($Target) {
         Invoke-Native git @("archive", "--format=zip", "--prefix=coding-trainer-$Version/", "-o", $Dist, "HEAD")
         "Built $Dist ($([math]::Round((Get-Item $Dist).Length / 1KB)) KB)"
     }
-    "clean" { Remove-Item build, cache, src\__pycache__ -Recurse -Force -ErrorAction Ignore }
+    "clean" { Remove-Item build, src\__pycache__, "$env:APPDATA\coding-trainer\cache" -Recurse -Force -ErrorAction Ignore }
     default {
         "Unknown target '$Target'. Run: build help"
         exit 1
