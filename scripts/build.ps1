@@ -26,7 +26,7 @@ switch ($Target) {
         "build install    add Coding Trainer to the Start menu"
         "build uninstall  remove it from the Start menu"
         "build test       check generators and all 84 reference solutions (in a temp copy)"
-        "build dist       package the committed project as $Dist"
+        "build dist       package the committed app (no docs/) as $Dist"
         "build clean      remove build\, src\__pycache__\ and the test cache"
     }
     "run" { Invoke-Native $GuiPython @("src\gui_tk.py") }
@@ -47,7 +47,7 @@ switch ($Target) {
     "dist" {
         Invoke-Native $Python @("scripts\selftest.py")
         New-Item -ItemType Directory -Force build | Out-Null
-        Invoke-Native git @("archive", "--format=zip", "--prefix=coding-trainer-$Version/", "-o", $Dist, "HEAD")
+        Invoke-Native git @("archive", "--format=zip", "--prefix=coding-trainer-$Version/", "-o", $Dist, "HEAD", "README.md", "VERSION", "Makefile", "build.cmd", "src", "problems", "assets", "scripts")
         "Built $Dist ($([math]::Round((Get-Item $Dist).Length / 1KB)) KB)"
     }
     "clean" { Remove-Item build, src\__pycache__, "$env:APPDATA\coding-trainer\cache" -Recurse -Force -ErrorAction Ignore }

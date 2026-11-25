@@ -16,7 +16,7 @@ help:
 	@echo "make install    add Coding Trainer to your app grid"
 	@echo "make uninstall  remove it from your app grid"
 	@echo "make test       check generators and all 84 reference solutions (in a temp copy)"
-	@echo "make dist       package the committed project as $(DIST)"
+	@echo "make dist       package the committed app (no docs/) as $(DIST)"
 	@echo "make clean      remove build/, src/__pycache__/ and the test cache"
 
 run:
@@ -36,7 +36,7 @@ test:
 
 dist: test
 	mkdir -p build
-	git archive --prefix=coding-trainer-$(VERSION)/ -o $(DIST) HEAD
+	git archive --prefix=coding-trainer-$(VERSION)/ -o $(DIST) HEAD README.md VERSION Makefile build.cmd src problems assets scripts
 	@echo "Built $(DIST) ($$(du -h $(DIST) | cut -f1))"
 
 clean:
