@@ -1,0 +1,3 @@
+union: 1 2 3 8 9
+both: none
+only first: 1 2 3

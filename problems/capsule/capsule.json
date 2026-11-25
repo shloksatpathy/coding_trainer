@@ -195,6 +195,21 @@
         "c129_closest_values",
         "c130_merge"
       ]
+    },
+    {
+      "title": "Hash maps and sets",
+      "problems": [
+        "c131_word_count",
+        "c132_unique_values",
+        "c133_first_repeat",
+        "c134_two_sum",
+        "c135_anagram_groups",
+        "c136_set_operations",
+        "c137_letter_frequency",
+        "c138_phone_book",
+        "c139_longest_distinct_run",
+        "c140_most_frequent"
+      ]
     }
   ]
 }

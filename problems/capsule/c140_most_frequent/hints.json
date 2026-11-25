@@ -1,0 +1,7 @@
+{
+  "tests": {
+    "3": "Three values appear twice; the answer is the smallest of them."
+  },
+  "timeout": "Counting each value by scanning the whole list again is n\u00b2 steps. Count with a map in one pass, or sort and count runs of equal values.",
+  "hints": 2
+}

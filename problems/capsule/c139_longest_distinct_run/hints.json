@@ -1,0 +1,6 @@
+{
+  "tests": {
+    "3": "After the second `w` the window must start right after the first `w`, not at the beginning: \"wke\" is the longest."
+  },
+  "hints": 2
+}

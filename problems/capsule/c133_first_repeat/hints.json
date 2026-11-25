@@ -1,0 +1,4 @@
+{
+  "timeout": "Comparing each number with all the earlier ones is about n\u00b2 / 2 steps. Remember the seen values in a set instead.",
+  "hints": 2
+}
