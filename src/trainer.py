@@ -507,7 +507,8 @@ def capsule_problems(lang):
     names = [(m + 1, module["title"], name) for m, module in enumerate(data["modules"]) for name in module["problems"]]
     return [{"id": name.split("_")[0], "name": name, "title": name.split("_", 1)[1], "dir": CAPSULE / name,
              "level": 1, "module": m, "module_title": title, "work": WORK / "capsule" / lang / name,
-             "prev": names[i - 1][2].split("_")[0] if i else None}
+             "prev": names[i - 1][2].split("_")[0] if i else None,
+             "next": names[i + 1][2].split("_")[0] if i + 1 < len(names) else None}
             for i, (m, title, name) in enumerate(names)]
 
 
