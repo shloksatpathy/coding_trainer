@@ -105,6 +105,21 @@
         "c069_power_function",
         "c070_primes_in_range"
       ]
+    },
+    {
+      "title": "Arrays and lists",
+      "problems": [
+        "c071_store_and_list",
+        "c072_above_average",
+        "c073_find_all",
+        "c074_reverse_in_place",
+        "c075_rotate_left",
+        "c076_running_totals",
+        "c077_range_sums",
+        "c078_second_largest",
+        "c079_tally",
+        "c080_moving_average"
+      ]
     }
   ]
 }

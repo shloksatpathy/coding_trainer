@@ -1,0 +1,4 @@
+{
+  "wrong": "If the output equals the input, every pair was swapped twice: the loop must stop at the middle (n / 2).",
+  "hints": 2
+}
