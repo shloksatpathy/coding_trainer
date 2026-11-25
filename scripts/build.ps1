@@ -25,7 +25,7 @@ switch ($Target) {
         "build web        start the web app on http://localhost:8000"
         "build install    add Coding Trainer to the Start menu"
         "build uninstall  remove it from the Start menu"
-        "build test       check generators and all 84 reference solutions (in a temp copy)"
+        "build test       check generators, all 84 reference solutions and the capsule in 4 languages (in a temp copy)"
         "build dist       package the committed app (no docs/) as $Dist"
         "build clean      remove build\, src\__pycache__\ and the test cache"
     }

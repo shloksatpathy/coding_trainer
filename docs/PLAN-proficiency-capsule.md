@@ -1,4 +1,6 @@
-# PLAN: Proficiency capsule — 150 questions from Hello World to proficient
+# PLAN: Proficiency capsule — 150 questions from Hello World to proficient — done
+
+Status (v0.3.0): all 9 steps are in. C, C++ and Python reference solutions of all 150 questions pass their tests (`make test`). The Rust solutions are written but were not compiled on the build machine (no Rust toolchain there), and the tkinter window was checked statically only (no tkinter there).
 
 ## Goal
 
@@ -40,7 +42,7 @@ This applies to all four front ends, which share `trainer.py`: GTK (`gui.py`), t
 **Capsule button** (right end of the menu bar)
 - Label `◉ Proficiency · <language>  N/150`, where N is the number of questions passed in the selected language.
 - Click: switches the sidebar and the main pane to the capsule, on the first unpassed question of the selected language. The button turns accent-coloured while the capsule is open.
-- Click again (or pick a course problem from **Course**): back to the course, on the problem that was open before.
+- Click again (or start a level from **Course**): back to the course, on the problem that was open before.
 - Shown on the welcome screen too, so a new user can go straight to the capsule without starting the course.
 
 **Capsule mode**
