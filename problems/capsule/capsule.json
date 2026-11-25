@@ -60,6 +60,21 @@
         "c039_quadrant",
         "c040_grade"
       ]
+    },
+    {
+      "title": "Loops",
+      "problems": [
+        "c041_count_up",
+        "c042_countdown",
+        "c043_sum_to_n",
+        "c044_times_table_row",
+        "c045_even_and_odd",
+        "c046_count_digits",
+        "c047_until_zero",
+        "c048_skip_threes",
+        "c049_min_and_max",
+        "c050_guessing_game"
+      ]
     }
   ]
 }

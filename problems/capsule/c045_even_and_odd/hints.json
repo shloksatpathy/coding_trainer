@@ -1,0 +1,6 @@
+{
+  "tests": {
+    "4": "-3 and -1 are odd. In C, C++ and Rust their remainder by 2 is -1, so test for even with `== 0`."
+  },
+  "hints": 2
+}

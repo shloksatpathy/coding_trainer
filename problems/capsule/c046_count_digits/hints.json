@@ -1,0 +1,6 @@
+{
+  "tests": {
+    "3": "0 has one digit, but a loop that runs `while n > 0` never runs for 0."
+  },
+  "hints": 2
+}

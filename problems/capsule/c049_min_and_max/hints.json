@@ -1,0 +1,6 @@
+{
+  "tests": {
+    "3": "All numbers are negative, so a maximum that starts at 0 is never replaced. Start from the first number."
+  },
+  "hints": 2
+}

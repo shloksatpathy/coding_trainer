@@ -1,0 +1,6 @@
+{
+  "tests": {
+    "4": "After the correct guess the game is over: leave the loop so the remaining guesses print nothing."
+  },
+  "hints": 2
+}
