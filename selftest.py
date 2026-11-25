@@ -13,10 +13,11 @@ ROOT = Path(__file__).parent
 
 with tempfile.TemporaryDirectory() as tmp:
     copy = Path(tmp)
-    shutil.copy(ROOT / "trainer.py", copy)
+    (copy / "src").mkdir()
+    shutil.copy(ROOT / "src" / "trainer.py", copy / "src")
     shutil.copy(ROOT / "VERSION", copy)
     shutil.copytree(ROOT / "problems", copy / "problems")
-    sys.path.insert(0, str(copy))
+    sys.path.insert(0, str(copy / "src"))
     import trainer
 
     failed = 0
@@ -72,7 +73,7 @@ with tempfile.TemporaryDirectory() as tmp:
         "settings only before start": before == {"theme": "dark"} and not trainer.is_started(before),
         "start keeps settings": progress == {"theme": "dark", "start": day0.isoformat(), "level": 3, "passed": {}},
         "reset removes progress, work, cache": not any(x.exists() for x in (trainer.PROGRESS, trainer.WORK, trainer.CACHE)),
-        "reset keeps the program": (copy / "trainer.py").exists() and (copy / "problems").exists(),
+        "reset keeps the program": (copy / "src" / "trainer.py").exists() and (copy / "problems").exists(),
     }
     for name, ok in checks.items():
         if not ok:

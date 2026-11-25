@@ -20,10 +20,10 @@ help:
 	@echo "make clean      remove build/, cache/ and __pycache__/"
 
 run:
-	$(GUI_PYTHON) gui.py
+	$(GUI_PYTHON) src/gui.py
 
 web:
-	$(PYTHON) app.py
+	$(PYTHON) src/app.py
 
 install:
 	./install-desktop.sh
@@ -40,4 +40,4 @@ dist: test
 	@echo "Built $(DIST) ($$(du -h $(DIST) | cut -f1))"
 
 clean:
-	rm -rf build cache __pycache__
+	rm -rf build cache src/__pycache__

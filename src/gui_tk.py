@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Desktop window for the coding trainer built with tkinter, which ships with Python on Windows.
 
-Same layout and features as gui.py (GTK). Run: pyw gui_tk.py (Windows) or python3 gui_tk.py
+Same layout and features as gui.py (GTK). Run: pyw src/gui_tk.py (Windows) or python3 src/gui_tk.py
 """
 import datetime
 import queue

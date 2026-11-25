@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""Native window for the coding trainer (GTK 3). Run: /usr/bin/python3 gui.py"""
+"""Native window for the coding trainer (GTK 3). Run: /usr/bin/python3 src/gui.py"""
 import datetime
 import re
 import threading

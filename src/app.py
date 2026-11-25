@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Local web app for the coding trainer. Run: python3 app.py, open http://localhost:8000"""
+"""Local web app for the coding trainer. Run: python3 src/app.py, open http://localhost:8000"""
 import datetime
 import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 import trainer
 
-INDEX = (trainer.ROOT / "static" / "index.html").read_bytes()
+INDEX = (trainer.ROOT / "src" / "static" / "index.html").read_bytes()
 LEVELS = [f"Level {n} · {week['title']}" for n, (_d, week) in enumerate(trainer.weeks(), 1)]
 
 

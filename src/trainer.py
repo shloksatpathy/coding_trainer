@@ -11,7 +11,7 @@ import tempfile
 import traceback
 from pathlib import Path
 
-ROOT = Path(__file__).parent
+ROOT = Path(__file__).parent.parent
 PROBLEMS = ROOT / "problems"
 WORK = ROOT / "work"
 PROGRESS = ROOT / "progress.json"

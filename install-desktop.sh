@@ -10,7 +10,7 @@ cat > "$APPS/coding-trainer.desktop" <<EOF
 Type=Application
 Name=Coding Trainer
 Comment=Daily coding problems in C, C++, Python and Rust
-Exec=/usr/bin/python3 $DIR/gui.py
+Exec=/usr/bin/python3 $DIR/src/gui.py
 Icon=$DIR/assets/coding-trainer.svg
 Terminal=false
 Categories=Development;
