@@ -1,6 +1,6 @@
 # PLAN: Proficiency capsule — 150 questions from Hello World to proficient — done
 
-Status (v0.3.0): all 9 steps are in. C, C++ and Python reference solutions of all 150 questions pass their tests (`make test`). The Rust solutions are written but were not compiled on the build machine (no Rust toolchain there), and the tkinter window was checked statically only (no tkinter there).
+Status (v0.3.0): all 9 steps are in. The reference solutions of all 150 questions pass their tests in C, C++, Python and Rust (`make test`), and the Rust ones compile without warnings. The tkinter window was checked statically only (no tkinter on the build machine).
 
 ## Goal
 
