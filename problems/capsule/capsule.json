@@ -30,6 +30,21 @@
         "c019_three_answers",
         "c020_profile"
       ]
+    },
+    {
+      "title": "Arithmetic and types",
+      "problems": [
+        "c021_divide_and_remainder",
+        "c022_last_digit",
+        "c023_average",
+        "c024_rectangle",
+        "c025_floor_ceil_trunc",
+        "c026_whole_or_exact",
+        "c027_big_numbers",
+        "c028_precedence",
+        "c029_digit_sum",
+        "c030_clock"
+      ]
     }
   ]
 }

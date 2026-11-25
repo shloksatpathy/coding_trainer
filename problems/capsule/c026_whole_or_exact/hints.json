@@ -1,0 +1,6 @@
+{
+  "tests": {
+    "1": "`(double)(total / count)` converts after the whole-number division has already dropped the fraction. Convert before dividing."
+  },
+  "hints": 2
+}

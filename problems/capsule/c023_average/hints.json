@@ -1,0 +1,6 @@
+{
+  "tests": {
+    "2": "5 / 3 is not a whole number. Make the division decimal before dividing, not after."
+  },
+  "hints": 2
+}

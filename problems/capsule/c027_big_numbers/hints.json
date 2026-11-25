@@ -1,0 +1,6 @@
+{
+  "tests": {
+    "3": "46341 * 46341 is just over 2 147 483 647, the largest 32-bit whole number. Use a 64-bit type for n so the product is computed in 64 bits."
+  },
+  "hints": 2
+}
