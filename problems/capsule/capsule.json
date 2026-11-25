@@ -150,6 +150,21 @@
         "c099_walk",
         "c100_tic_tac_toe"
       ]
+    },
+    {
+      "title": "Recursion",
+      "problems": [
+        "c101_factorial",
+        "c102_fibonacci",
+        "c103_digit_sum_recursive",
+        "c104_down_and_up",
+        "c105_reverse_recursive",
+        "c106_binary",
+        "c107_sum_recursive",
+        "c108_binary_strings",
+        "c109_subset_sums",
+        "c110_permutations"
+      ]
     }
   ]
 }

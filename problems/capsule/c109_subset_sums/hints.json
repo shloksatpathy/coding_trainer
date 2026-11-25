@@ -1,0 +1,7 @@
+{
+  "tests": {
+    "2": "Taking nothing is a subset too, and it adds up to 0.",
+    "5": "The two 1s are different positions: {first 1, second 1} and {2} are two different subsets."
+  },
+  "hints": 2
+}
