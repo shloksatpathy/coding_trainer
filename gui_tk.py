@@ -46,7 +46,7 @@ class App:
         self.root = root
         root.title("Coding Trainer")
         root.geometry("1400x800")
-        self.icon = tk.PhotoImage(file=str(trainer.ROOT / "desktop" / "coding-trainer.png"))
+        self.icon = tk.PhotoImage(file=str(trainer.ROOT / "assets" / "coding-trainer.png"))
         root.iconphoto(True, self.icon)
 
         ui = tkfont.nametofont("TkDefaultFont").actual()["family"]

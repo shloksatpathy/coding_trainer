@@ -36,7 +36,7 @@ switch ($Target) {
         $link.TargetPath = (Get-Command $GuiPython).Source
         $link.Arguments = "`"$PSScriptRoot\gui_tk.py`""
         $link.WorkingDirectory = $PSScriptRoot
-        $link.IconLocation = "$PSScriptRoot\desktop\coding-trainer.ico"
+        $link.IconLocation = "$PSScriptRoot\assets\coding-trainer.ico"
         $link.Description = "Daily coding problems in C, C++, Python and Rust"
         $link.Save()
         "Installed $shortcut"
