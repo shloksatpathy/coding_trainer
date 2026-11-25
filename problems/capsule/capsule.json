@@ -75,6 +75,21 @@
         "c049_min_and_max",
         "c050_guessing_game"
       ]
+    },
+    {
+      "title": "Nested loops and patterns",
+      "problems": [
+        "c051_rectangle",
+        "c052_staircase",
+        "c053_right_aligned",
+        "c054_pyramid",
+        "c055_times_table",
+        "c056_number_triangle",
+        "c057_floyd",
+        "c058_checkerboard",
+        "c059_hollow_square",
+        "c060_diamond"
+      ]
     }
   ]
 }
