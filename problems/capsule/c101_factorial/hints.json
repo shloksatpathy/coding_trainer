@@ -1,0 +1,6 @@
+{
+  "tests": {
+    "5": "20! is about 2.4 \u00d7 10^18: the function must return a 64-bit number."
+  },
+  "hints": 2
+}

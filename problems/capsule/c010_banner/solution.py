@@ -1,0 +1,8 @@
+print("+--------------------+")
+print("|  \"Hello, World!\"   |")
+print("|  Level 1 \\ Day 1   |")
+print("+--------------------+")
+print(f"|  10 * 10 = {10 * 10}     |")
+print("+--------------------+")
+print()
+print("Module 1 done!")

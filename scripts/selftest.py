@@ -172,5 +172,54 @@ with tempfile.TemporaryDirectory() as tmp:
             failed += 1
     print(f"{len(cases)} hint diagnoses and {len(counts)} hint counts checked")
 
-    print(f"\n{len(problems)} problems, {failed} failure(s)")
+    # Capsule: every question's solution passes in all four languages; hints.json as for the course.
+    capsule = trainer.capsule_problems("py")
+    for p in capsule:
+        for lang in trainer.LANGS:
+            q = dict(p, work=trainer.WORK / "capsule" / lang / p["name"])
+            q["work"].mkdir(parents=True)
+            shutil.copy(p["dir"] / f"solution.{lang}", q["work"] / f"main.{lang}")
+            ok, report, _failure = trainer.check_lang(q, lang)
+            print(f"{p['id'].upper()} {report}")
+            if not ok:
+                failed += 1
+        data = trainer.problem_hints(p)
+        code = [line.strip() for lang in trainer.LANGS
+                for line in (p["dir"] / f"solution.{lang}").read_text(encoding="utf-8").splitlines()]
+        texts = list(data.get("tests", {}).values()) + [data[k] for k in ("timeout", "runtime", "wrong") if k in data]
+        if {line for line in code if len(line) >= 12 for text in texts if line in text}:
+            print(f"BAD HINTS {p['id']}: a hint contains a line of the solution")
+            failed += 1
+
+    # Capsule chain: one lock chain per language, attempts unlock the solution, a pass opens the next question.
+    trainer.reset_course()
+    progress = {}
+    first, second = trainer.capsule_problems("py")[:2]
+    first["work"].mkdir(parents=True)
+    (first["work"] / "main.py").write_text("print('nope')\n", encoding="utf-8")
+    before = (trainer.capsule_open(progress, first, "py"), trainer.capsule_open(progress, second, "py"),
+              trainer.capsule_solution(progress, first, "py"))
+    trainer.capsule_check(progress, first, "py")
+    after_fail = (trainer.capsule_open(progress, second, "py"), trainer.capsule_solution(progress, first, "py"))
+    shutil.copy(first["dir"] / "solution.py", first["work"] / "main.py")
+    trainer.capsule_check(progress, first, "py")
+    c_second = trainer.capsule_problems("c")[1]
+    checks = {
+        "only the first question is open": before[:2] == (True, False),
+        "no solution before an attempt": before[2] is None,
+        "a failed check unlocks the solution, not the next question": after_fail[0] is False and after_fail[1] is not None,
+        "a pass opens the next question": trainer.capsule_open(progress, second, "py"),
+        "languages have separate chains": not trainer.capsule_open(progress, c_second, "c")
+                                          and trainer.capsule_solution(progress, first, "c") is None,
+        "capsule progress is saved": trainer.load_progress()["capsule"] == progress["capsule"],
+    }
+    trainer.reset_course()
+    checks["reset removes capsule progress"] = trainer.load_progress() is None
+    for name, ok in checks.items():
+        if not ok:
+            print(f"CAPSULE FAILED: {name}")
+            failed += 1
+    print(f"{len(capsule)} capsule questions in {len(trainer.LANGS)} languages, {len(checks)} chain checks")
+
+    print(f"\n{len(problems)} problems, {len(capsule)} capsule questions, {failed} failure(s)")
     sys.exit(1 if failed else 0)

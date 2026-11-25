@@ -12,6 +12,8 @@ The week just marks the levels of the problems with level (4 levels)
 
 It should be such that the problems should help someoen who is completly new to the coding world and should also help someone who want to revisit his coding skills as people are loosing the grip and undestanding due to use of coding agents 
 
+For complete beginners there is also the **Proficiency capsule**: 150 small questions from `Hello, World!` to proficient, with no schedule. See [Proficiency capsule](#proficiency-capsule).
+
 
 ## Usage
 
@@ -29,6 +31,7 @@ coding_trainer/
 │   ├── app.py                                  web app
 │   └── static/index.html                       web app page
 ├── problems/week1..week4/                      problems, tests, hints, reference solutions
+├── problems/capsule/                           the Proficiency capsule: 150 questions, solutions in all 4 languages
 ├── assets/                                     app icons (svg, png, ico)
 ├── scripts/                                    build.ps1 (Windows build), install-desktop.sh, selftest.py
 ├── docs/                                       plans and notes (not shipped by `dist`)
@@ -44,7 +47,7 @@ Your progress, settings, saved code and the test cache live outside the program 
 | Linux | `~/.local/share/coding-trainer/` |
 | Windows | `%APPDATA%\coding-trainer\` |
 
-It holds `progress.json`, `work/` (your code) and `cache/` (generated large tests). The CLI, desktop apps and web app all share it.
+It holds `progress.json` (course and capsule progress), `work/` (your code; capsule code in `work/capsule/<language>/`) and `cache/` (generated large tests). The CLI, desktop apps and web app all share it.
 
 ### Building on another machine
 
@@ -60,6 +63,7 @@ It holds `progress.json`, `work/` (your code) and `cache/` (generated large test
 | **View** | **Problem list** (**Ctrl+B**) shows or hides the sidebar; the statement and editor take its space · **Theme ▸** System / Light / Dark |
 | **Help** | **About** (version, link to this repository) |
 
+- **◉ Proficiency** at the right end of the menu bar (in the tkinter window: the row just under it) opens the [Proficiency capsule](#proficiency-capsule); click it again to return to the course.
 - The ☰ button next to the title (or above the statement while the list is hidden) does the same as **Ctrl+B**.
 - The welcome screen has a **Start at level** picker next to **Start today**.
 - **Reset…** is a whole reset: after a confirmation (Cancel is the default) it deletes your progress, **all saved code in `work/`**, your settings and the test cache (everything in [your data folder](#your-data)).
@@ -81,7 +85,7 @@ After a failed **Check**, the **Hint** button next to **Reference solution** lig
 make            # list targets
 make run        # desktop app          make web        # web app
 make install    # add to app grid      make uninstall  # remove from app grid
-make test       # all 84 reference solutions + generators, in a temp copy
+make test       # all 84 reference solutions + 150 capsule questions in 4 languages + generators, in a temp copy
 make dist       # test, then package the committed app (no docs/) as build/coding-trainer-<VERSION>.tar.gz
 make clean      # remove build/, src/__pycache__/ and the test cache
 ```
@@ -102,7 +106,7 @@ build run          desktop app (src\gui_tk.py, a tkinter replica of the GTK wind
 build web          web app on http://localhost:8000
 build install      add "Coding Trainer" (with icon) to the Start menu
 build uninstall    remove it from the Start menu
-build test         all 84 reference solutions + generators, in a temp copy
+build test         all 84 reference solutions + 150 capsule questions in 4 languages + generators, in a temp copy
 build dist         test, then package the committed app (no docs\) as build\coding-trainer-<VERSION>.zip
 build clean        remove build\, src\__pycache__\ and the test cache
 ```
@@ -145,10 +149,58 @@ python3 src/trainer.py status         # weekly completion summary
 python3 src/trainer.py solution P01   # reference solution, released with the next problem set
 ```
 
+```
+python3 src/trainer.py capsule py           # capsule modules and progress in one language (c, cpp, py, rs)
+python3 src/trainer.py capsule show C001 py # a question, with its Learn section for that language
+python3 src/trainer.py capsule init C001 py # creates work/capsule/py/c001_hello_world/main.py + in.txt
+python3 src/trainer.py capsule check C001 py
+python3 src/trainer.py capsule hint C001 py # (or: hint C001 py 2)
+python3 src/trainer.py capsule solution C001 py   # after your first check of C001 in py
+```
+
+The `capsule` commands work without `start`.
+
 - Week W is level W (4 levels), 7 problem sets each. Starting at level L: set N of week W ≥ L is released on `start + 3*(7*(W-L) + N-1)` days, and its solutions 3 days later with the next set; weeks below L stay locked. Checking works any time after release.
 - The sidebar and `list` mark the current set (released, solutions not out yet). `status` counts passes made before the solutions came out.
 - Saved code lives in `work/weekW/dayNN/` in [your data folder](#your-data) (NN = set number; the folder name is kept from the old daily sets).
 - Your progress is saved in `progress.json` in [your data folder](#your-data).
+
+## Proficiency capsule
+
+150 short questions in 15 modules of 10, from printing `Hello, World!` to small real programs. Each module ends with a checkpoint question that combines its ideas.
+
+| Module | Questions | Module | Questions |
+| --- | --- | --- | --- |
+| 1 Hello, output | C001–C010 | 9 Strings | C081–C090 |
+| 2 Variables and input | C011–C020 | 10 2D arrays | C091–C100 |
+| 3 Arithmetic and types | C021–C030 | 11 Recursion | C101–C110 |
+| 4 Conditionals | C031–C040 | 12 Structs and records | C111–C120 |
+| 5 Loops | C041–C050 | 13 Sorting and searching | C121–C130 |
+| 6 Nested loops and patterns | C051–C060 | 14 Hash maps and sets | C131–C140 |
+| 7 Functions | C061–C070 | 15 Putting it together | C141–C150 |
+| 8 Arrays and lists | C071–C080 | | |
+
+- **One capsule per language.** C, C++, Python and Rust each have their own copy of the same 150 questions, with separate progress. Pick the language at the top of the capsule's sidebar; the editor then shows only that language. The button reads `◉ Proficiency · Python 37/150`.
+- **One question at a time.** Only C001 is open at first; passing a question opens the next one in the same language. The sidebar marks each question ✓ passed, ▶ open or 🔒 locked.
+- **Learn sections.** The first question that uses a new piece of syntax starts with a short **Learn** part showing it in your language, on a different example than the task.
+- **Instant check, hints** as in the course. A few questions have a large generated test that only a fast enough method passes.
+- **Solution after an attempt.** **Reference solution** is enabled once you have checked the question at least once in that language (pass or fail); it shows the solution in that language. **Next →** opens the next question after a pass.
+- No schedule and no start date: the capsule works before (and without) starting the course. **Reset…** clears capsule progress too.
+
+### Adding capsule questions
+
+```
+problems/capsule/
+  capsule.json               {"title": "Proficiency", "modules": [{"title": ..., "problems": ["c001_hello_world", ...]}, ...]}
+  c001_hello_world/
+    problem.md               statement, the same for every language
+    learn.c.md, learn.cpp.md, learn.py.md, learn.rs.md   optional Learn section per language, shown above the task
+    solution.c, solution.cpp, solution.py, solution.rs   reference solutions; solution.py also produces the expected output of N.gen.py tests
+    tests/1.in, 1.out, ...   as for the course (test 1 is the sample in in.txt); N.gen.py for large tests
+    hints.json               optional, as for the course
+```
+
+Questions are chained in the order of `capsule.json`. `make test` runs all four solutions of every question.
 
 ## Adding a week
 

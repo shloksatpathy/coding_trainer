@@ -56,14 +56,16 @@ class App:
         self.f_title, self.f_h1 = (ui, 12, "bold"), (ui, 16, "bold")
         self.f_mono, self.f_mono_small = (mono, 10), (mono, 9)
 
-        self.current = None      # problem dict from trainer.course_problems
+        self.mode = "course"     # or "capsule": the Proficiency capsule
+        self.course_pid = None   # course problem to return to when leaving the capsule
+        self.current = None      # problem dict from trainer.course_problems or trainer.capsule_problems
         self.code = {}           # lang -> editor text for the current problem
         self.lang = "c"
         self.result_state = ("", False)
         self.hints, self.shown = [], 0   # hints for the last failed check, and how many are shown
         self.results = queue.Queue()
         self.frame = None
-        self.sidebar_view = None
+        self.sidebar_view = 0
         self.theme_var = tk.StringVar()
         self.level_var = tk.IntVar()
         self.sidebar_var = tk.BooleanVar()
@@ -127,7 +129,7 @@ class App:
         self.sidebar_var.set(self.sidebar_open())
         state = "normal" if started else "disabled"
         self.course_menu.entryconfigure("Start at level", state=state)
-        self.view_menu.entryconfigure("Problem list", state=state)
+        self.view_menu.entryconfigure("Problem list", state="normal" if started or self.mode == "capsule" else "disabled")
         c = self.c
         for m in (self.menubar, self.course_menu, self.level_menu, self.view_menu, self.theme_menu, self.help_menu):
             m.configure(bg=c["panel"], fg=c["text"], activebackground=c["active"], activeforeground=c["text"],
@@ -152,7 +154,7 @@ class App:
             self.show_btn.pack(anchor="w", padx=6, pady=(8, 0), before=self.statement)
 
     def toggle_sidebar(self):
-        if trainer.is_started(trainer.load_progress()):
+        if self.mode == "capsule" or trainer.is_started(trainer.load_progress()):
             self.sidebar_var.set(not self.sidebar_var.get())
             self.on_sidebar()
 
@@ -169,6 +171,7 @@ class App:
                         f"Level {level} starts today. Levels below {level} will be locked.\n\n"
                         "Your passed checks and saved code are kept."):
             trainer.start_course(level)
+            self.mode = "course"
             self.current = None
         self.render()
 
@@ -204,7 +207,8 @@ class App:
         self.root.configure(bg=self.c["bg"])
         self.frame = tk.Frame(self.root, bg=self.c["bg"])
         self.frame.pack(fill="both", expand=True)
-        if not trainer.is_started(trainer.load_progress()):
+        self.build_ribbon()
+        if self.mode == "course" and not trainer.is_started(trainer.load_progress()):
             self.build_welcome()
         else:
             self.build_main()
@@ -229,6 +233,25 @@ class App:
                             activeforeground=c["text"])
         menu.pack(side="left")
         self.button(box, "Start today", self.on_start).pack()
+        tk.Label(box, text="New to coding? Open ◉ Proficiency at the top right: 150 small steps from Hello World, no schedule.",
+                 font=self.f_body, bg=c["bg"], fg=c["text"]).pack(pady=(14, 0))
+
+    def build_ribbon(self):
+        """A row under the menu bar with the Proficiency capsule button on the right."""
+        c = self.c
+        progress = trainer.load_progress() or {}
+        lang = trainer.capsule(progress)["lang"]
+        total = len(trainer.capsule_problems(lang))
+        bar = tk.Frame(self.frame, bg=c["panel"])
+        bar.pack(side="top", fill="x")
+        tk.Frame(self.frame, bg=c["border"], height=1).pack(side="top", fill="x")
+        on = self.mode == "capsule"
+        tk.Button(bar, text=f"◉ Proficiency · {NAMES[lang]}  {len(trainer.capsule_passed(progress, lang))}/{total}",
+                  command=self.on_capsule, font=self.f_body, bg=c["accent"] if on else c["panel"],
+                  fg="#ffffff" if on else c["accent"], activebackground=c["accent"] if on else c["active"],
+                  activeforeground="#ffffff" if on else c["accent"], relief="flat", bd=0, padx=14, pady=1,
+                  highlightthickness=1, highlightbackground=c["accent"], highlightcolor=c["accent"],
+                  cursor="hand2").pack(side="right", padx=8, pady=3)
 
     def button(self, parent, text, command):
         c = self.c
@@ -245,7 +268,21 @@ class App:
         head = tk.Frame(side, bg=c["panel"])
         head.pack(fill="x", padx=(6, 12), pady=(12, 6))
         self.icon_button(head, c["panel"]).pack(side="left", padx=(0, 4))
-        tk.Label(head, text="Coding Trainer", font=self.f_title, bg=c["panel"], fg=c["text"]).pack(side="left")
+        tk.Label(head, text="Proficiency" if self.mode == "capsule" else "Coding Trainer", font=self.f_title,
+                 bg=c["panel"], fg=c["text"]).pack(side="left")
+        if self.mode == "capsule":
+            pick = tk.Frame(side, bg=c["panel"])
+            pick.pack(fill="x", padx=14, pady=(0, 4))
+            tk.Label(pick, text="Language", font=self.f_body, bg=c["panel"], fg=c["text"]).pack(side="left", padx=(0, 8))
+            lang = trainer.capsule(trainer.load_progress() or {})["lang"]
+            self.cap_lang = tk.StringVar(value=NAMES[lang])
+            menu = tk.OptionMenu(pick, self.cap_lang, *NAMES.values(), command=self.on_capsule_lang)
+            menu.config(font=self.f_body, bg=c["panel"], fg=c["text"], activebackground=c["hover"],
+                        activeforeground=c["text"], relief="flat", bd=0, highlightthickness=1,
+                        highlightbackground=c["input_border"], padx=8)
+            menu["menu"].config(font=self.f_body, bg=c["panel"], fg=c["text"], activebackground=c["active"],
+                                activeforeground=c["text"])
+            menu.pack(side="left")
 
         self.canvas = tk.Canvas(side, bg=c["panel"], highlightthickness=0, bd=0)
         self.canvas.pack(fill="both", expand=True)
@@ -281,7 +318,9 @@ class App:
         tabs = tk.Frame(pane, bg=c["bg"])
         tabs.pack(side="top", fill="x", padx=12, pady=(12, 8))
         self.tabs = {}
-        for lang in trainer.LANGS:
+        if self.mode == "capsule":
+            self.lang = trainer.capsule(trainer.load_progress() or {})["lang"]
+        for lang in [self.lang] if self.mode == "capsule" else trainer.LANGS:
             b = tk.Button(tabs, text=NAMES[lang], font=self.f_body, relief="flat", bd=0, padx=12, pady=2,
                           highlightthickness=1, highlightbackground=c["input_border"],
                           highlightcolor=c["input_border"], cursor="hand2",
@@ -301,6 +340,9 @@ class App:
         self.solution_btn.pack(side="left", padx=8)
         self.hint_btn = self.button(actions, "Hint", self.on_hint)
         self.hint_btn.pack(side="left")
+        self.next_btn = self.button(actions, "Next →", lambda: self.open_problem(self.current["next"]))
+        if self.mode == "capsule":
+            self.next_btn.pack(side="left", padx=(8, 0))
         self.solution_note = tk.Label(actions, font=self.f_body, bg=c["bg"], fg=c["muted"])
         self.solution_note.pack(side="left", padx=8)
 
@@ -335,6 +377,8 @@ class App:
     # ---------- sidebar ----------
 
     def fill_sidebar(self):
+        if self.mode == "capsule":
+            return self.fill_capsule()
         c = self.c
         progress = trainer.load_progress()
         today = datetime.date.today()
@@ -374,6 +418,9 @@ class App:
             self.open_problem(self.current["id"], keep_code=True)
             self.set_result(*self.result_state)
             self.root.after_idle(self.restore_sidebar)
+        elif self.course_pid in self.rows:
+            self.open_problem(self.course_pid)
+            self.root.after_idle(lambda: self.scroll_to(self.rows[self.course_pid][0]))
         else:
             last = self.problems[-1]
             first_current = next(p for p in self.problems if (p["week"], p["set"]) == (last["week"], last["set"]))
@@ -414,22 +461,33 @@ class App:
         self.row_bg(pid, self.c["active"])
         if not keep_code:
             self.code = {}
-            for lang in trainer.LANGS:
+            for lang in [self.lang] if self.mode == "capsule" else trainer.LANGS:
                 f = self.current["work"] / f"main.{lang}"
                 self.code[lang] = f.read_text(encoding="utf-8") if f.exists() else trainer.STUBS[lang]
             self.set_result("", False)
             self.hints, self.shown = [], 0
         self.render_statement()
-        unlocked = datetime.date.today() >= self.current["solution_unlock"]
+        if self.mode == "capsule":
+            progress = trainer.load_progress() or {}
+            unlocked = trainer.capsule_attempted(progress, self.current, self.lang)
+            note = "Check once to unlock the solution"
+            nxt = self.current["id"] in trainer.capsule_passed(progress, self.lang) and self.current["next"] is not None
+            self.next_btn.configure(state="normal" if nxt else "disabled", bg=self.c["accent"] if nxt else self.c["disabled"])
+        else:
+            unlocked = datetime.date.today() >= self.current["solution_unlock"]
+            note = f"Solution unlocks {self.current['solution_unlock']}"
         self.solution_btn.configure(state="normal" if unlocked else "disabled",
                                     bg=self.c["accent"] if unlocked else self.c["disabled"])
-        self.solution_note.configure(text="" if unlocked else f"Solution unlocks {self.current['solution_unlock']}")
+        self.solution_note.configure(text="" if unlocked else note)
         self.set_hints(self.hints, self.shown)
         self.set_editor(self.code[self.lang])
         self.mark_tabs()
 
     def render_statement(self):
-        md = (self.current["dir"] / "problem.md").read_text(encoding="utf-8")
+        if self.mode == "capsule":
+            md = trainer.capsule_statement(self.current, self.lang)
+        else:
+            md = (self.current["dir"] / "problem.md").read_text(encoding="utf-8")
         st = self.statement
         st.configure(state="normal")
         st.delete("1.0", "end")
@@ -504,24 +562,39 @@ class App:
         self.check_btn.configure(state="disabled", bg=self.c["disabled"])
         self.set_result(f"Checking {NAMES[lang]}...", False)
         self.set_hints([])
-        threading.Thread(target=lambda: self.results.put((p, lang, *trainer.check_lang(p, lang))), daemon=True).start()
+        if "prev" in p:  # a capsule question: the check also records the attempt and a pass
+            check = lambda: trainer.capsule_check(trainer.load_progress() or {}, p, lang)  # noqa: E731
+        else:
+            check = lambda: trainer.check_lang(p, lang)  # noqa: E731
+        threading.Thread(target=lambda: self.results.put((p, lang, *check())), daemon=True).start()
 
     def poll_results(self):
         while not self.results.empty():
             p, lang, ok, report, failure = self.results.get()
+            if "prev" in p:
+                if self.current and self.current["id"] == p["id"] and self.lang == lang:
+                    self.set_result(report, ok)
+                    self.set_hints(trainer.hints(p, failure))
+                self.render()  # new marks, counts and buttons; keeps the open question, code, result and hints
+                continue
             progress = trainer.load_progress()
             if ok:
                 trainer.record_pass(progress, p, lang)
-            self.update_dots(progress)
-            if self.current["id"] == p["id"] and self.lang == lang:
+            if self.mode == "course":
+                self.update_dots(progress)
+            if self.current and self.current["id"] == p["id"] and self.lang == lang:
                 self.set_result(report, ok)
                 self.set_hints(trainer.hints(p, failure))
             self.check_btn.configure(state="normal", bg=self.c["accent"])
         self.root.after(100, self.poll_results)
 
     def on_solution(self):
-        solution = (self.current["dir"] / "solution.py").read_text(encoding="utf-8")
-        self.set_result("# Reference solution (Python)\n\n" + solution, False)
+        if self.mode == "capsule":
+            solution = trainer.capsule_solution(trainer.load_progress(), self.current, self.lang)
+            self.set_result(f"# Reference solution ({NAMES[self.lang]})\n\n" + solution, False)
+        else:
+            solution = (self.current["dir"] / "solution.py").read_text(encoding="utf-8")
+            self.set_result("# Reference solution (Python)\n\n" + solution, False)
         self.set_hints([])
 
     def set_hints(self, hints, shown=0):
@@ -537,6 +610,63 @@ class App:
         self.set_result(f"{text}\n\n── Hint {k}/{len(self.hints)} ──\n{self.hints[k - 1]}", ok)
         self.result.see("end")
         self.set_hints(self.hints, k)
+
+    # ---------- proficiency capsule ----------
+
+    def on_capsule(self):
+        if self.mode == "course":
+            self.course_pid = self.current["id"] if self.current else None
+        self.mode = "course" if self.mode == "capsule" else "capsule"
+        self.current = None
+        self.code = {}
+        self.render()
+
+    def on_capsule_lang(self, name):
+        progress = trainer.load_progress() or {}
+        trainer.capsule(progress)["lang"] = next(lang for lang, n in NAMES.items() if n == name)
+        trainer.save_progress(progress)
+        self.current = None
+        self.code = {}
+        self.render()
+
+    def fill_capsule(self):
+        c = self.c
+        progress = trainer.load_progress() or {}
+        self.problems = trainer.capsule_problems(self.lang)
+        passed = trainer.capsule_passed(progress, self.lang)
+        self.rows = {}
+        for i, p in enumerate(self.problems):
+            if i == 0 or p["module"] != self.problems[i - 1]["module"]:
+                module = [q for q in self.problems if q["module"] == p["module"]]
+                header = tk.Frame(self.list, bg=c["panel"])
+                header.pack(fill="x", padx=12, pady=(12, 2))
+                tk.Label(header, text=f"MODULE {p['module']} · {sum(q['id'] in passed for q in module)}/{len(module)}",
+                         font=self.f_small_bold, bg=c["panel"], fg=c["muted"], anchor="w").pack(fill="x")
+                tk.Label(header, text=p["module_title"], font=self.f_small, bg=c["panel"], fg=c["muted"],
+                         anchor="w").pack(fill="x")
+            is_open = trainer.capsule_open(progress, p, self.lang)
+            row = tk.Frame(self.list, bg=c["panel"], cursor="hand2" if is_open else "arrow")
+            row.pack(fill="x", padx=8)
+            name = tk.Label(row, text=f"{p['id'].upper()} {p['title'].replace('_', ' ')}", font=self.f_body,
+                            bg=c["panel"], fg=c["text"] if is_open else c["muted"], anchor="w", padx=6, pady=3)
+            name.pack(side="left", fill="x", expand=True)
+            mark = tk.Label(row, text="✓" if p["id"] in passed else "▶" if is_open else "🔒", font=self.f_small,
+                            bg=c["panel"], fg=c["text"] if is_open else c["muted"])
+            mark.pack(side="right", padx=(0, 4))
+            if is_open:
+                for w in [row, name, mark]:
+                    w.bind("<Button-1>", lambda e, pid=p["id"]: self.open_problem(pid))
+                    w.bind("<Enter>", lambda e, pid=p["id"]: self.hover(pid, True))
+                    w.bind("<Leave>", lambda e, pid=p["id"]: self.hover(pid, False))
+            self.rows[p["id"]] = (row, name, [mark])
+        if self.current:
+            self.open_problem(self.current["id"], keep_code=True)
+            self.set_result(*self.result_state)
+            self.root.after_idle(self.restore_sidebar)
+        else:
+            first = next((p["id"] for p in self.problems if p["id"] not in passed), self.problems[-1]["id"])
+            self.open_problem(first)
+            self.root.after_idle(lambda: self.scroll_to(self.rows[first][0]))
 
 
 if __name__ == "__main__":

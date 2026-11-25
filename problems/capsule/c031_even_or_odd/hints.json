@@ -1,0 +1,6 @@
+{
+  "tests": {
+    "4": "In C, C++ and Rust, -3 % 2 is -1, not 1. Test for even (`n % 2 == 0`) instead of odd."
+  },
+  "hints": 2
+}

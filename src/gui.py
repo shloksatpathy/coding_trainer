@@ -59,7 +59,8 @@ textview.result {{ font-family: monospace; font-size: 9pt; }}
 textview.result text {{ background-color: {result_bg}; color: #eeeeee; }}
 textview.result.ok text {{ color: #7ee787; }}
 .result-frame {{ background-color: {result_bg}; border-radius: 4px; }}
-menubar {{ background-color: {panel}; border-bottom: 1px solid {border}; padding: 0; }}
+.menurow {{ background-color: {panel}; border-bottom: 1px solid {border}; }}
+menubar {{ background-color: {panel}; border: none; padding: 0; }}
 menubar > menuitem {{ color: {text}; padding: 4px 10px; }}
 menubar > menuitem:hover {{ background-color: {hover}; }}
 menubar > menuitem label {{ color: {text}; }}
@@ -74,6 +75,13 @@ scrollbar slider {{ background-color: {input_border}; }}
 paned > separator {{ background-color: {border}; background-image: none; min-width: 1px; margin: 0;
                      padding: 0; border: none; }}
 .sidebar row {{ margin: 0 8px; }}
+button.capsule {{ background-image: none; background-color: transparent; border: 1px solid {accent};
+                  border-radius: 999px; padding: 0 14px; margin: 2px 8px; box-shadow: none; min-height: 0; }}
+button.capsule label {{ color: {accent}; }}
+button.capsule:hover {{ background-color: {active}; }}
+button.capsule.on {{ background-color: {accent}; }}
+button.capsule.on label {{ color: #ffffff; }}
+.sidebar row.locked label {{ color: {muted}; }}
 """
 
 
@@ -114,7 +122,10 @@ class TrainerWindow(Gtk.Window):
         self.desktop = Gio.Settings.new("org.gnome.desktop.interface")
         self.desktop.connect("changed::color-scheme", lambda *a: self.apply_theme())
 
-        self.current = None      # problem dict from trainer.course_problems
+        self.mode = "course"     # or "capsule": the Proficiency capsule
+        self.course_pid = None   # course problem to return to when leaving the capsule
+        self.module_headers = {} # capsule module number -> header label
+        self.current = None      # problem dict from trainer.course_problems or trainer.capsule_problems
         self.code = {}           # lang -> editor text for the current problem
         self.lang = "c"
         self.rows = {}           # problem id -> (row, [dot labels])
@@ -124,7 +135,14 @@ class TrainerWindow(Gtk.Window):
 
         outer = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         self.add(outer)
-        outer.add(self.build_menu())
+        menurow = Gtk.Box()
+        menurow.get_style_context().add_class("menurow")
+        menurow.pack_start(self.build_menu(), True, True, 0)
+        self.capsule_btn = Gtk.Button(tooltip_text="150 questions from Hello World to proficient, one set per language")
+        self.capsule_btn.get_style_context().add_class("capsule")
+        self.capsule_btn.connect("clicked", self.on_capsule)
+        menurow.pack_end(self.capsule_btn, False, False, 0)
+        outer.add(menurow)
         self.stack = Gtk.Stack(vexpand=True)
         outer.add(self.stack)
         self.stack.add_named(self.build_welcome(), "welcome")
@@ -134,10 +152,14 @@ class TrainerWindow(Gtk.Window):
         self.show_screen()
 
     def show_screen(self):
-        """Welcome screen before the course starts, the problem view after."""
+        """The capsule, or the welcome screen before the course starts, or the course's problem view."""
         progress = trainer.load_progress()
         self.sync_menus(progress)
-        if trainer.is_started(progress):
+        self.update_capsule_button(progress or {})
+        self.show_mode()
+        if self.mode == "capsule":
+            self.load_capsule()
+        elif trainer.is_started(progress):
             self.load()
         else:
             self.level_pick.set_active_id("1")
@@ -208,7 +230,7 @@ class TrainerWindow(Gtk.Window):
         self.sidebar_item.set_active(sidebar_open)
         self.syncing = False
         self.level_item.set_sensitive(started)
-        self.sidebar_item.set_sensitive(started)
+        self.sidebar_item.set_sensitive(started or self.mode == "capsule")
         self.show_sidebar(sidebar_open)
 
     def on_level_item(self, item, level):
@@ -216,6 +238,7 @@ class TrainerWindow(Gtk.Window):
             return
         if self.confirm(self.level_dialog(level)):
             trainer.start_course(level)
+            self.mode = "course"
             self.show_screen()
         else:
             self.sync_menus(trainer.load_progress())
@@ -306,6 +329,9 @@ class TrainerWindow(Gtk.Window):
         start.get_style_context().add_class("primary")
         start.connect("clicked", self.on_start)
         box.add(start)
+        hint = Gtk.Label()
+        hint.set_markup("New to coding? Open <b>◉ Proficiency</b> at the top right: 150 small steps from Hello World, no schedule.")
+        box.add(hint)
         return box
 
     def build_main(self):
@@ -319,10 +345,18 @@ class TrainerWindow(Gtk.Window):
         side.get_style_context().add_class("sidebar")
         head = Gtk.Box(margin=12, margin_start=6, margin_bottom=6, spacing=4)
         head.add(self.icon_button("☰", "Hide problem list (Ctrl+B)"))
-        title = Gtk.Label(label="Coding Trainer", xalign=0, hexpand=True)
-        title.get_style_context().add_class("app-title")
-        head.add(title)
+        self.side_title = Gtk.Label(label="Coding Trainer", xalign=0, hexpand=True)
+        self.side_title.get_style_context().add_class("app-title")
+        head.add(self.side_title)
         side.add(head)
+        self.cap_lang_box = Gtk.Box(spacing=8, margin_start=14, margin_bottom=8)
+        self.cap_lang_box.add(Gtk.Label(label="Language"))
+        self.cap_lang_pick = Gtk.ComboBoxText()
+        for lang in trainer.LANGS:
+            self.cap_lang_pick.append(lang, NAMES[lang])
+        self.cap_lang_pick.connect("changed", self.on_capsule_lang)
+        self.cap_lang_box.add(self.cap_lang_pick)
+        side.add(self.cap_lang_box)
         self.side_scroll = Gtk.ScrolledWindow(vexpand=True, hscrollbar_policy=Gtk.PolicyType.NEVER)
         self.listbox = Gtk.ListBox()
         self.listbox.connect("row-activated", lambda lb, row: self.open_problem(row.pid))
@@ -387,11 +421,15 @@ class TrainerWindow(Gtk.Window):
         self.hint_btn = Gtk.Button(label="Hint")
         self.hint_btn.get_style_context().add_class("primary")
         self.hint_btn.connect("clicked", self.on_hint)
+        self.next_btn = Gtk.Button(label="Next →", no_show_all=True)
+        self.next_btn.get_style_context().add_class("primary")
+        self.next_btn.connect("clicked", lambda _b: self.open_problem(self.current["next"]))
         self.solution_note = Gtk.Label()
         self.solution_note.get_style_context().add_class("note")
         actions.add(self.check_btn)
         actions.add(self.solution_btn)
         actions.add(self.hint_btn)
+        actions.add(self.next_btn)
         actions.add(self.solution_note)
         self.set_hints([])
         editor.add(actions)
@@ -436,12 +474,29 @@ class TrainerWindow(Gtk.Window):
         trainer.start_course(int(self.level_pick.get_active_id()))
         self.show_screen()
 
-    def load(self):
-        progress = trainer.load_progress()
+    def clear_list(self):
         for child in self.listbox.get_children():
             self.listbox.remove(child)
         self.rows = {}
         self.current = None
+
+    def show_mode(self):
+        """Sidebar title, language picker, tabs and Next button for the course or the capsule."""
+        capsule = self.mode == "capsule"
+        self.side_title.set_text("Proficiency" if capsule else "Coding Trainer")
+        self.cap_lang_box.set_visible(capsule)
+        self.next_btn.set_visible(capsule)
+        for lang, b in self.tab_buttons.items():
+            b.set_visible(not capsule or lang == self.lang)
+        ctx = self.capsule_btn.get_style_context()
+        if capsule:
+            ctx.add_class("on")
+        else:
+            ctx.remove_class("on")
+
+    def load(self):
+        progress = trainer.load_progress()
+        self.clear_list()
         today = datetime.date.today()
         self.problems = [p for p in trainer.course_problems(progress) if p["unlock"] <= today]
         last_set = None
@@ -483,6 +538,10 @@ class TrainerWindow(Gtk.Window):
         self.listbox.show_all()
         self.stack.set_visible_child_name("main")
         last = self.problems[-1]
+        if self.course_pid in self.rows:
+            self.open_problem(self.course_pid)
+            GLib.idle_add(self.scroll_to, self.rows[self.course_pid][0])
+            return
         self.open_problem(next(p["id"] for p in self.problems if (p["week"], p["set"]) == (last["week"], last["set"])))
         GLib.idle_add(self.scroll_to, current_header or self.rows[last["id"]][0])
 
@@ -506,14 +565,17 @@ class TrainerWindow(Gtk.Window):
         self.current = next(p for p in self.problems if p["id"] == pid)
         self.listbox.select_row(self.rows[pid][0])
         self.code = {}
-        for lang in trainer.LANGS:
+        for lang in [self.lang] if self.mode == "capsule" else trainer.LANGS:
             f = self.current["work"] / f"main.{lang}"
             self.code[lang] = f.read_text() if f.exists() else trainer.STUBS[lang]
         self.render_statement()
         self.set_result("", False)
-        unlocked = datetime.date.today() >= self.current["solution_unlock"]
-        self.solution_btn.set_sensitive(unlocked)
-        self.solution_note.set_text("" if unlocked else f"Solution unlocks {self.current['solution_unlock']}")
+        if self.mode == "capsule":
+            self.capsule_buttons(trainer.load_progress() or {})
+        else:
+            unlocked = datetime.date.today() >= self.current["solution_unlock"]
+            self.solution_btn.set_sensitive(unlocked)
+            self.solution_note.set_text("" if unlocked else f"Solution unlocks {self.current['solution_unlock']}")
         self.set_hints([])
         self.editor.get_buffer().set_text(self.code[self.lang])
         self.mark_tab()
@@ -521,7 +583,10 @@ class TrainerWindow(Gtk.Window):
     def render_statement(self):
         for child in self.statement.get_children():
             self.statement.remove(child)
-        md = (self.current["dir"] / "problem.md").read_text()
+        if self.mode == "capsule":
+            md = trainer.capsule_statement(self.current, self.lang)
+        else:
+            md = (self.current["dir"] / "problem.md").read_text()
         for w in markdown_widgets(md, self.palette):
             self.statement.add(w)
         self.statement.show_all()
@@ -572,24 +637,38 @@ class TrainerWindow(Gtk.Window):
         self.set_hints([])
 
         def work():
-            ok, report, failure = trainer.check_lang(p, lang)
+            if "prev" in p:  # a capsule question: the check also records the attempt and a pass
+                ok, report, failure = trainer.capsule_check(trainer.load_progress() or {}, p, lang)
+            else:
+                ok, report, failure = trainer.check_lang(p, lang)
             GLib.idle_add(self.check_done, p, lang, ok, report, failure)
 
         threading.Thread(target=work, daemon=True).start()
 
     def check_done(self, p, lang, ok, report, failure):
         progress = trainer.load_progress()
-        if ok:
-            trainer.record_pass(progress, p, lang)
-        self.update_dots(progress)
+        if "prev" in p:
+            self.update_capsule_button(progress)
+            if self.current is p:
+                self.update_capsule_marks(progress)
+                self.capsule_buttons(progress)
+        else:
+            if ok:
+                trainer.record_pass(progress, p, lang)
+            if self.mode == "course":
+                self.update_dots(progress)
         if self.current is p and self.lang == lang:
             self.set_result(report, ok)
             self.set_hints(trainer.hints(p, failure))
         self.check_btn.set_sensitive(True)
 
     def on_solution(self, _button):
-        solution = (self.current["dir"] / "solution.py").read_text()
-        self.set_result("# Reference solution (Python)\n\n" + solution, False)
+        if self.mode == "capsule":
+            solution = trainer.capsule_solution(trainer.load_progress(), self.current, self.lang)
+            self.set_result(f"# Reference solution ({NAMES[self.lang]})\n\n" + solution, False)
+        else:
+            solution = (self.current["dir"] / "solution.py").read_text()
+            self.set_result("# Reference solution (Python)\n\n" + solution, False)
         self.set_hints([])
 
     def set_hints(self, hints, shown=0):
@@ -605,6 +684,93 @@ class TrainerWindow(Gtk.Window):
         buf.place_cursor(buf.get_end_iter())
         self.result.scroll_to_mark(buf.get_insert(), 0, False, 0, 0)
         self.set_hints(self.hints, k)
+
+    # ---------- proficiency capsule ----------
+
+    def update_capsule_button(self, progress):
+        lang = trainer.capsule(progress)["lang"]
+        total = len(trainer.capsule_problems(lang))
+        self.capsule_btn.set_label(f"◉ Proficiency · {NAMES[lang]}  {len(trainer.capsule_passed(progress, lang))}/{total}")
+
+    def on_capsule(self, _button):
+        if self.mode == "course":
+            self.course_pid = self.current["id"] if self.current else None
+        self.mode = "course" if self.mode == "capsule" else "capsule"
+        self.show_screen()
+
+    def on_capsule_lang(self, combo):
+        if self.syncing:
+            return
+        progress = trainer.load_progress() or {}
+        trainer.capsule(progress)["lang"] = combo.get_active_id()
+        trainer.save_progress(progress)
+        self.show_screen()
+
+    def load_capsule(self):
+        progress = trainer.load_progress() or {}
+        self.lang = trainer.capsule(progress)["lang"]
+        self.clear_list()
+        self.show_mode()
+        self.syncing = True
+        self.cap_lang_pick.set_active_id(self.lang)
+        self.syncing = False
+        self.problems = trainer.capsule_problems(self.lang)
+        self.module_headers = {}
+        for p in self.problems:
+            if p["module"] not in self.module_headers:
+                header = Gtk.ListBoxRow(selectable=False, activatable=False)
+                box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, margin_top=10)
+                label = Gtk.Label(xalign=0)
+                label.get_style_context().add_class("set-header")
+                title = Gtk.Label(xalign=0, label=p["module_title"])
+                title.get_style_context().add_class("set-title")
+                box.add(label)
+                box.add(title)
+                header.add(box)
+                self.listbox.add(header)
+                self.module_headers[p["module"]] = label
+            row = Gtk.ListBoxRow()
+            row.pid = p["id"]
+            row.get_style_context().add_class("prob")
+            box = Gtk.Box(margin=4, margin_start=6, margin_end=6)
+            box.pack_start(Gtk.Label(label=f"{p['id'].upper()} {p['title'].replace('_', ' ')}", xalign=0,
+                                     ellipsize=Pango.EllipsizeMode.END), True, True, 0)
+            mark = Gtk.Label()
+            box.pack_start(mark, False, False, 1)
+            row.add(box)
+            self.listbox.add(row)
+            self.rows[p["id"]] = (row, [mark])
+        self.update_capsule_marks(progress)
+        self.listbox.show_all()
+        self.stack.set_visible_child_name("main")
+        passed = trainer.capsule_passed(progress, self.lang)
+        first = next((p["id"] for p in self.problems if p["id"] not in passed), self.problems[-1]["id"])
+        self.open_problem(first)
+        GLib.idle_add(self.scroll_to, self.rows[first][0])
+
+    def update_capsule_marks(self, progress):
+        """✓ passed, ▶ open, 🔒 locked; locked questions can't be opened."""
+        passed = trainer.capsule_passed(progress, self.lang)
+        for p in self.problems:
+            row, (mark,) = self.rows[p["id"]]
+            is_open = trainer.capsule_open(progress, p, self.lang)
+            mark.set_text("✓" if p["id"] in passed else "▶" if is_open else "🔒")
+            row.set_activatable(is_open)
+            row.set_selectable(is_open)
+            if is_open:
+                row.get_style_context().remove_class("locked")
+            else:
+                row.get_style_context().add_class("locked")
+        for m, label in self.module_headers.items():
+            questions = [p for p in self.problems if p["module"] == m]
+            label.set_text(f"MODULE {m} · {sum(p['id'] in passed for p in questions)}/{len(questions)}")
+
+    def capsule_buttons(self, progress):
+        attempted = trainer.capsule_attempted(progress, self.current, self.lang)
+        self.solution_btn.set_sensitive(attempted)
+        self.solution_note.set_text("" if attempted else "Check once to unlock the solution")
+        self.next_btn.set_sensitive(self.current["id"] in trainer.capsule_passed(progress, self.lang)
+                                    and self.current["next"] is not None)
 
 
 if __name__ == "__main__":

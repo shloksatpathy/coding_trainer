@@ -1,0 +1,7 @@
+{
+  "tests": {
+    "1": "9 appears twice; the second largest different value is 7.",
+    "3": "Both numbers are negative: don't start the search from 0."
+  },
+  "hints": 2
+}

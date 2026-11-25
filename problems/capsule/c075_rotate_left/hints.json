@@ -1,0 +1,6 @@
+{
+  "tests": {
+    "4": "Rotating 4 numbers by 4 changes nothing, so only `k % n` steps matter."
+  },
+  "hints": 2
+}

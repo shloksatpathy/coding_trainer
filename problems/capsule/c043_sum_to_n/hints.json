@@ -1,0 +1,6 @@
+{
+  "tests": {
+    "4": "The total for 100 000 is about 5 billion: more than a 32-bit `int` holds. Make the total 64-bit."
+  },
+  "hints": 2
+}

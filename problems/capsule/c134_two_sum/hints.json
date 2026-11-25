@@ -1,0 +1,8 @@
+{
+  "tests": {
+    "2": "Look for the partner before adding the current number, or 3 + itself would count as a pair.",
+    "4": "The answer is the pair that is complete first while reading from the left: the smallest `j`."
+  },
+  "timeout": "Trying every pair is about n\u00b2 / 2 sums. Remember each value's first position in a map and look up `t - a[j]`.",
+  "hints": 2
+}

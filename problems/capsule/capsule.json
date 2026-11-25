@@ -1,0 +1,230 @@
+{
+  "title": "Proficiency",
+  "modules": [
+    {
+      "title": "Hello, output",
+      "problems": [
+        "c001_hello_world",
+        "c002_three_lines",
+        "c003_quotes_and_backslashes",
+        "c004_blank_line",
+        "c005_same_line",
+        "c006_numbers",
+        "c007_expressions",
+        "c008_one_print",
+        "c009_columns",
+        "c010_banner"
+      ]
+    },
+    {
+      "title": "Variables and input",
+      "problems": [
+        "c011_read_a_number",
+        "c012_use_it_again",
+        "c013_two_numbers",
+        "c014_greeting",
+        "c015_whole_line",
+        "c016_swap",
+        "c017_constants",
+        "c018_step_by_step",
+        "c019_three_answers",
+        "c020_profile"
+      ]
+    },
+    {
+      "title": "Arithmetic and types",
+      "problems": [
+        "c021_divide_and_remainder",
+        "c022_last_digit",
+        "c023_average",
+        "c024_rectangle",
+        "c025_floor_ceil_trunc",
+        "c026_whole_or_exact",
+        "c027_big_numbers",
+        "c028_precedence",
+        "c029_digit_sum",
+        "c030_clock"
+      ]
+    },
+    {
+      "title": "Conditionals",
+      "problems": [
+        "c031_even_or_odd",
+        "c032_sign",
+        "c033_max_of_two",
+        "c034_max_of_three",
+        "c035_in_range",
+        "c036_weekend",
+        "c037_triangle",
+        "c038_ticket_price",
+        "c039_quadrant",
+        "c040_grade"
+      ]
+    },
+    {
+      "title": "Loops",
+      "problems": [
+        "c041_count_up",
+        "c042_countdown",
+        "c043_sum_to_n",
+        "c044_times_table_row",
+        "c045_even_and_odd",
+        "c046_count_digits",
+        "c047_until_zero",
+        "c048_skip_threes",
+        "c049_min_and_max",
+        "c050_guessing_game"
+      ]
+    },
+    {
+      "title": "Nested loops and patterns",
+      "problems": [
+        "c051_rectangle",
+        "c052_staircase",
+        "c053_right_aligned",
+        "c054_pyramid",
+        "c055_times_table",
+        "c056_number_triangle",
+        "c057_floyd",
+        "c058_checkerboard",
+        "c059_hollow_square",
+        "c060_diamond"
+      ]
+    },
+    {
+      "title": "Functions",
+      "problems": [
+        "c061_greet_function",
+        "c062_square_function",
+        "c063_max3_from_max2",
+        "c064_is_between",
+        "c065_distance",
+        "c066_area_and_box",
+        "c067_classify",
+        "c068_digit_sum_function",
+        "c069_power_function",
+        "c070_primes_in_range"
+      ]
+    },
+    {
+      "title": "Arrays and lists",
+      "problems": [
+        "c071_store_and_list",
+        "c072_above_average",
+        "c073_find_all",
+        "c074_reverse_in_place",
+        "c075_rotate_left",
+        "c076_running_totals",
+        "c077_range_sums",
+        "c078_second_largest",
+        "c079_tally",
+        "c080_moving_average"
+      ]
+    },
+    {
+      "title": "Strings",
+      "problems": [
+        "c081_length",
+        "c082_first_middle_last",
+        "c083_reverse_text",
+        "c084_swap_case",
+        "c085_count_vowels",
+        "c086_count_words",
+        "c087_join_with_dashes",
+        "c088_palindrome",
+        "c089_caesar",
+        "c090_word_stats"
+      ]
+    },
+    {
+      "title": "2D arrays",
+      "problems": [
+        "c091_row_sums",
+        "c092_column_sums",
+        "c093_transpose",
+        "c094_diagonals",
+        "c095_largest_cell",
+        "c096_count_walls",
+        "c097_minesweeper",
+        "c098_rotate",
+        "c099_walk",
+        "c100_tic_tac_toe"
+      ]
+    },
+    {
+      "title": "Recursion",
+      "problems": [
+        "c101_factorial",
+        "c102_fibonacci",
+        "c103_digit_sum_recursive",
+        "c104_down_and_up",
+        "c105_reverse_recursive",
+        "c106_binary",
+        "c107_sum_recursive",
+        "c108_binary_strings",
+        "c109_subset_sums",
+        "c110_permutations"
+      ]
+    },
+    {
+      "title": "Structs and records",
+      "problems": [
+        "c111_points",
+        "c112_path_length",
+        "c113_report_card",
+        "c114_class_list",
+        "c115_ranking",
+        "c116_stock_updates",
+        "c117_rectangle_overlap",
+        "c118_durations",
+        "c119_fractions",
+        "c120_inventory_report"
+      ]
+    },
+    {
+      "title": "Sorting and searching",
+      "problems": [
+        "c121_first_position",
+        "c122_bubble_sort",
+        "c123_insertion_steps",
+        "c124_library_sort",
+        "c125_sort_words",
+        "c126_binary_search",
+        "c127_pair_sums",
+        "c128_distinct_sorted",
+        "c129_closest_values",
+        "c130_merge"
+      ]
+    },
+    {
+      "title": "Hash maps and sets",
+      "problems": [
+        "c131_word_count",
+        "c132_unique_values",
+        "c133_first_repeat",
+        "c134_two_sum",
+        "c135_anagram_groups",
+        "c136_set_operations",
+        "c137_letter_frequency",
+        "c138_phone_book",
+        "c139_longest_distinct_run",
+        "c140_most_frequent"
+      ]
+    },
+    {
+      "title": "Putting it together",
+      "problems": [
+        "c141_brackets",
+        "c142_undo",
+        "c143_queue",
+        "c144_coins",
+        "c145_stairs",
+        "c146_best_run",
+        "c147_calculator",
+        "c148_csv_totals",
+        "c149_cheapest_path",
+        "c150_adventure"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "tests": {
+    "2": "All numbers are negative, and the run can't be empty: the answer is the largest single number, not 0."
+  },
+  "timeout": "Trying every run is n\u00b2 sums or more. Keep the best sum of a run ending at the current position.",
+  "hints": 2
+}

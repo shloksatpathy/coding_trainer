@@ -1,0 +1,4 @@
+{
+  "runtime": "Counting down with an unsigned index (like `usize` or `size_t`) can't go below 0: it wraps to a huge number. Use a signed index, or stop the loop before 0.",
+  "hints": 2
+}

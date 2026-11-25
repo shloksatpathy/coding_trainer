@@ -1,0 +1,6 @@
+{
+  "tests": {
+    "2": "Rounding down a negative number goes further from zero: -2.7 rounds down to -3, while cutting off the fraction gives -2."
+  },
+  "hints": 2
+}

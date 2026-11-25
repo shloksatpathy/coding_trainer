@@ -1,0 +1,6 @@
+{
+  "tests": {
+    "2": "1/4 + 1/4 = 8/16 before reducing; divide the top and bottom by their greatest common divisor."
+  },
+  "hints": 2
+}

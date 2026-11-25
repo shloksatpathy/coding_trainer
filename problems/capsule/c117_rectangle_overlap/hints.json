@@ -1,0 +1,6 @@
+{
+  "tests": {
+    "2": "These rectangles share only an edge: the overlap width is 0, so the area is 0, not a negative number."
+  },
+  "hints": 2
+}

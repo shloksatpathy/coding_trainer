@@ -15,7 +15,7 @@ help:
 	@echo "make web        start the web app on http://localhost:8000"
 	@echo "make install    add Coding Trainer to your app grid"
 	@echo "make uninstall  remove it from your app grid"
-	@echo "make test       check generators and all 84 reference solutions (in a temp copy)"
+	@echo "make test       check generators, all 84 reference solutions and the capsule in 4 languages (in a temp copy)"
 	@echo "make dist       package the committed app (no docs/) as $(DIST)"
 	@echo "make clean      remove build/, src/__pycache__/ and the test cache"
 

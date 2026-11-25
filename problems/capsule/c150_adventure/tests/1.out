@@ -1,0 +1,8 @@
+hall: exits north south west
+You are in the library.
+The vault is locked.
+You are in the hall.
+You are in the garden.
+garden: exits north (key here)
+You take the key.
+You give up in the garden.

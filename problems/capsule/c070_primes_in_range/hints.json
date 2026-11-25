@@ -1,0 +1,7 @@
+{
+  "tests": {
+    "5": "0 and 1 are not prime: `is_prime` must say no for anything below 2.",
+    "2": "Nothing in this range is prime, so the output is `none`, not an empty line."
+  },
+  "hints": 2
+}

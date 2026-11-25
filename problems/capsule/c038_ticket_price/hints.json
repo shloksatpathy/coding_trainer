@@ -1,0 +1,4 @@
+{
+  "wrong": "Look at the failing age against the table: is it a boundary? `age < 13` and `age <= 12` mean the same; `age < 12` does not.",
+  "hints": 2
+}

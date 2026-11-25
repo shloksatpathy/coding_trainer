@@ -31,6 +31,12 @@
   .menu-items hr { border: 0; border-top: 1px solid var(--border); margin: 4px 0; }
   .menu-label { padding: 4px 10px 2px; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; }
   .kbd { color: var(--muted); }
+  #capsule-btn { margin-left: auto; align-self: center; padding: 1px 14px; border: 1px solid var(--accent); border-radius: 999px; background: none; color: var(--accent); font: inherit; cursor: pointer; }
+  #capsule-btn:hover { background: var(--active); }
+  body.capsule #capsule-btn { background: var(--accent); color: #fff; }
+  .cap-lang { margin-bottom: 14px; }
+  .prob.locked { color: var(--muted); cursor: default; }
+  .prob.locked:hover { background: none; }
   #app { flex: 1; display: flex; overflow: hidden; min-height: 0; }
   nav { width: 280px; flex-shrink: 0; overflow-y: auto; border-right: 1px solid var(--border); background: var(--panel); padding: 12px; }
   body.collapsed nav { display: none; }
@@ -103,6 +109,7 @@ applyTheme();
   <details class="menu"><summary>Help</summary><div class="menu-items">
     <button onclick="closeMenus(); about()">About Coding Trainer</button>
   </div></details>
+  <button id="capsule-btn" onclick="toggleCapsule()" title="150 questions from Hello World to proficient, one set per language"></button>
 </header>
 <div id="app">
   <div id="welcome" hidden>
@@ -110,11 +117,12 @@ applyTheme();
     <p>Weekly problem sets in C, C++, Python and Rust. A new set every 3 days, with the solutions to the previous one.</p>
     <p class="pick">Start at level <select id="level-pick"></select></p>
     <button onclick="start()">Start today</button>
+    <p>New to coding? Open <b>◉ Proficiency</b> at the top right: 150 small steps from Hello World, no schedule.</p>
   </div>
   <nav hidden>
     <div class="nav-head">
       <button class="icon" onclick="toggleSidebar()" title="Hide problem list (Ctrl+B)">☰</button>
-      <h1>Coding Trainer</h1>
+      <h1 id="nav-title">Coding Trainer</h1>
     </div>
     <div id="sets"></div>
   </nav>
@@ -130,6 +138,7 @@ applyTheme();
         <button id="check" onclick="check()">Check</button>
         <button id="solution" onclick="showSolution()">Reference solution</button>
         <button id="hint" onclick="showHint()" disabled>Hint</button>
+        <button id="next" onclick="openQuestion(current.next)" hidden>Next →</button>
         <span id="solution-note"></span>
       </div>
       <pre id="result"></pre>
@@ -156,6 +165,7 @@ const LANGS = ["c", "cpp", "py", "rs"];
 const NAMES = { c: "C", cpp: "C++", py: "Python", rs: "Rust" };
 const THEMES = [["system", "System"], ["light", "Light"], ["dark", "Dark"]];
 let current = null, lang = "c", state = null;
+let mode = "course", cap = null, courseId = null;  // capsule state, and the course problem to return to
 let hints = [], shown = 0;  // hints for the last failed check, and how many are shown
 
 function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
@@ -195,7 +205,7 @@ function renderMenus() {
       `<button ${started ? "" : "disabled"} onclick="closeMenus(); changeLevel(${i + 1})">${mark(started && state.level === i + 1)} ${label}</button>`).join("") +
     `<hr><button onclick="closeMenus(); resetAll()">Reset…</button>`;
   document.getElementById("menu-view").innerHTML =
-    `<button ${started ? "" : "disabled"} onclick="closeMenus(); toggleSidebar()"><span>${sidebarOpen() ? "☑" : "☐"} Problem list</span><span class="kbd">Ctrl+B</span></button>` +
+    `<button ${started || mode === "capsule" ? "" : "disabled"} onclick="closeMenus(); toggleSidebar()"><span>${sidebarOpen() ? "☑" : "☐"} Problem list</span><span class="kbd">Ctrl+B</span></button>` +
     `<hr><div class="menu-label">Theme</div>` +
     THEMES.map(([key, label]) => `<button onclick="closeMenus(); pickTheme('${key}')">${mark(theme === key)} ${label}</button>`).join("");
 }
@@ -207,7 +217,7 @@ function sidebarOpen() { return localStorage.sidebar !== "collapsed"; }
 function applySidebar() { document.body.classList.toggle("collapsed", !sidebarOpen()); }
 
 function toggleSidebar() {
-  if (!state.started) return;
+  if (!state.started && mode !== "capsule") return;
   localStorage.sidebar = sidebarOpen() ? "collapsed" : "open";
   applySidebar();
   renderMenus();
@@ -237,6 +247,7 @@ async function changeLevel(level) {
                  `Level ${level} starts today. Levels below ${level} will be locked.\nYour passed checks and saved code are kept.`,
                  `Start level ${level}`)) return;
   await api("/api/level", { level });
+  mode = "course";
   current = null;
   load();
 }
@@ -269,11 +280,17 @@ async function start() {
 
 async function load() {
   state = await api("/api/state");
-  document.getElementById("welcome").hidden = state.started;
-  document.querySelector("nav").hidden = !state.started;
-  document.querySelector("main").hidden = !state.started;
+  cap = await api("/api/capsule");
+  const shown = state.started || mode === "capsule";
+  document.getElementById("welcome").hidden = shown;
+  document.querySelector("nav").hidden = !shown;
+  document.querySelector("main").hidden = !shown;
+  document.body.classList.toggle("capsule", mode === "capsule");
+  document.getElementById("capsule-btn").textContent = `◉ Proficiency · ${NAMES[cap.lang]}  ${cap.passed}/${cap.total}`;
+  document.getElementById("nav-title").textContent = mode === "capsule" ? "Proficiency" : "Coding Trainer";
   applySidebar();
   renderMenus();
+  if (mode === "capsule") return renderCapsule();
   if (!state.started) {
     document.getElementById("level-pick").innerHTML =
       state.levels.map((label, i) => `<option value="${i + 1}">${label}</option>`).join("");
@@ -289,7 +306,8 @@ async function load() {
           <span class="dots">${LANGS.map(l => `<span class="${p.passed.includes(l) ? "ok" : ""}" title="${NAMES[l]}"></span>`).join("")}</span>
         </div>`).join("")}
     </div>`).join("");
-  if (!current) {
+  if (!current && courseId) openProblem(courseId);
+  else if (!current) {
     const last = state.sets[state.sets.length - 1];
     openProblem(last.problems[0].id);
     document.querySelector(".set:last-child").scrollIntoView();
@@ -302,6 +320,7 @@ async function openProblem(id) {
   document.getElementById("result").textContent = "";
   document.getElementById("solution").disabled = !current.solution;
   document.getElementById("solution-note").textContent = current.solution ? "" : `Solution unlocks ${current.solution_unlock}`;
+  document.getElementById("next").hidden = true;
   document.getElementById("code").value = "";
   selectLang(lang);
   load();
@@ -310,7 +329,7 @@ async function openProblem(id) {
 function selectLang(l) {
   current.code[lang] = document.getElementById("code").value || current.code[lang];
   lang = l;
-  document.querySelector(".tabs").innerHTML = LANGS.map(x =>
+  document.querySelector(".tabs").innerHTML = (current.capsule ? [lang] : LANGS).map(x =>
     `<button class="${x === lang ? "active" : ""}" onclick="selectLang('${x}')">${NAMES[x]}</button>`).join(" ");
   document.getElementById("code").value = current.code[lang];
   setHints([]);
@@ -324,19 +343,77 @@ async function check() {
   out.textContent = `Checking ${NAMES[lang]}...`;
   setHints([]);
   const id = current.id, l = lang;
-  const r = await api("/api/check", { id, lang, code: current.code[lang] });
+  const r = await api(current.capsule ? "/api/capsule/check" : "/api/check", { id, lang, code: current.code[lang] });
   out.className = r.ok ? "ok" : "";
   out.textContent = r.report;
+  if (current.capsule && current.id === id) {
+    current.attempted = true;
+    current.passed = current.passed || r.ok;
+    capsuleButtons();
+  }
   if (current.id === id && lang === l) setHints(r.hints);
   btn.disabled = false;
   load();
 }
 
-function showSolution() {
+async function showSolution() {
   const out = document.getElementById("result");
+  const solution = current.capsule ? (await api("/api/capsule/solution", { id: current.id, lang })).solution : current.solution;
   out.className = "";
-  out.textContent = "# Reference solution (Python)\n\n" + current.solution;
+  out.textContent = `# Reference solution (${current.capsule ? NAMES[lang] : "Python"})\n\n` + solution;
   setHints([]);
+}
+
+// ---------- proficiency capsule ----------
+
+const MARKS = { passed: "✓", open: "▶", locked: "🔒" };
+
+function toggleCapsule() {
+  if (mode === "course") courseId = current && current.id;
+  mode = mode === "course" ? "capsule" : "course";
+  current = null;
+  load();
+}
+
+async function pickCapsuleLang(l) {
+  await api("/api/capsule/lang", { lang: l });
+  current = null;
+  load();
+}
+
+function renderCapsule() {
+  document.getElementById("sets").innerHTML = `
+    <div class="cap-lang">Language <select onchange="pickCapsuleLang(this.value)">
+      ${LANGS.map(l => `<option value="${l}" ${l === cap.lang ? "selected" : ""}>${NAMES[l]}</option>`).join("")}
+    </select></div>` + cap.modules.map(m => `
+    <div class="set">
+      <h2>Module ${m.n} · ${m.passed}/${m.questions.length}</h2>
+      <div class="set-title">${m.title}</div>
+      ${m.questions.map(q => `
+        <div class="prob ${q.state} ${current && current.id === q.id ? "active" : ""}"
+             ${q.state === "locked" ? "" : `onclick="openQuestion('${q.id}')"`}>
+          <span>${q.id.toUpperCase()} ${q.title.replace(/_/g, " ")}</span><span>${MARKS[q.state]}</span>
+        </div>`).join("")}
+    </div>`).join("");
+  if (!current) openQuestion(cap.first);
+}
+
+async function openQuestion(id) {
+  current = { ...await api(`/api/capsule/${cap.lang}/${id}`), capsule: true };
+  document.getElementById("statement").innerHTML = markdown(current.statement);
+  document.getElementById("result").textContent = "";
+  document.getElementById("code").value = "";
+  lang = cap.lang;
+  selectLang(lang);
+  capsuleButtons();
+  load();
+}
+
+function capsuleButtons() {
+  document.getElementById("solution").disabled = !current.attempted;
+  document.getElementById("solution-note").textContent = current.attempted ? "" : "Check once to unlock the solution";
+  document.getElementById("next").hidden = false;
+  document.getElementById("next").disabled = !current.passed || !current.next;
 }
 
 function setHints(list, n = 0) {

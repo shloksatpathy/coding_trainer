@@ -1,0 +1,4 @@
+{
+  "timeout": "Comparing every pair is n\u00b2 steps. Sort, then compare only neighbours.",
+  "hints": 2
+}

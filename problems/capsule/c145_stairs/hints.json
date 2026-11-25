@@ -1,0 +1,8 @@
+{
+  "tests": {
+    "5": "The answer for 90 is about 4.7 \u00d7 10^18: it needs 64 bits.",
+    "4": "Last step is 1 or 2 steps, so ways(n) = ways(n - 1) + ways(n - 2)."
+  },
+  "timeout": "Recomputing the same smaller staircases is exponential. Fill an array from 0 up to n instead.",
+  "hints": 2
+}
