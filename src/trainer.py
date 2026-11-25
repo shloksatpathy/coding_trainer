@@ -11,13 +11,15 @@ import tempfile
 import traceback
 from pathlib import Path
 
-ROOT = Path(__file__).parent
+ROOT = Path(__file__).parent.parent
 PROBLEMS = ROOT / "problems"
-WORK = ROOT / "work"
-PROGRESS = ROOT / "progress.json"
-CACHE = ROOT / "cache"
 LANGS = ["c", "cpp", "py", "rs"]
 WINDOWS = os.name == "nt"
+# Your data lives in a per-user folder, so the program folder can be replaced or read-only.
+DATA = Path(os.environ["APPDATA"]) / "coding-trainer" if WINDOWS else Path.home() / ".local" / "share" / "coding-trainer"
+WORK = DATA / "work"
+PROGRESS = DATA / "progress.json"
+CACHE = DATA / "cache"
 # Child Python must be python.exe: when the window app is started with pythonw.exe, sys.executable is pythonw.
 PYTHON = str(Path(sys.executable).with_name("python.exe")) if WINDOWS else sys.executable
 EXE = "p.exe" if WINDOWS else "p"
@@ -40,6 +42,7 @@ def load_progress():
 
 
 def save_progress(progress):
+    DATA.mkdir(parents=True, exist_ok=True)
     PROGRESS.write_text(json.dumps(progress, indent=2), encoding="utf-8")
 
 
@@ -197,7 +200,7 @@ def cmd_init(progress, args):
             f.write_text(STUBS[lang], encoding="utf-8")
     sample = p["dir"] / "tests" / "1.in"
     (p["work"] / "in.txt").write_text(sample.read_text(encoding="utf-8"), encoding="utf-8")
-    print(f"Workspace ready: {p['work'].relative_to(ROOT)}")
+    print(f"Workspace ready: {p['work']}")
 
 
 def run_cmd(cmd, stdin=None, **kwargs):
@@ -259,7 +262,7 @@ def check_lang(p, lang):
     """Return (passed, report, failure) for one language's solution; failure is None on a pass."""
     src = p["work"] / f"main.{lang}"
     if not src.exists():
-        return False, f"{lang:<4} missing {src.relative_to(ROOT)}", {"kind": "missing", "lang": lang}
+        return False, f"{lang:<4} missing {src}", {"kind": "missing", "lang": lang}
     if lang == "py":
         try:
             compile(src.read_text(encoding="utf-8"), str(src), "exec")

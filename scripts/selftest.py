@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Self-test: every generator is deterministic and every reference solution passes its own tests.
 
-Runs in a temporary copy of the project, so your work/, progress.json and cache/ are never touched.
+Runs in a temporary copy of the project with its own data folder, so your work/, progress.json and cache/
+are never touched.
 """
 import datetime
 import shutil
@@ -9,15 +10,18 @@ import sys
 import tempfile
 from pathlib import Path
 
-ROOT = Path(__file__).parent
+ROOT = Path(__file__).parent.parent
 
 with tempfile.TemporaryDirectory() as tmp:
     copy = Path(tmp)
-    shutil.copy(ROOT / "trainer.py", copy)
+    (copy / "src").mkdir()
+    shutil.copy(ROOT / "src" / "trainer.py", copy / "src")
     shutil.copy(ROOT / "VERSION", copy)
     shutil.copytree(ROOT / "problems", copy / "problems")
-    sys.path.insert(0, str(copy))
+    sys.path.insert(0, str(copy / "src"))
     import trainer
+    trainer.DATA = copy / "data"
+    trainer.WORK, trainer.PROGRESS, trainer.CACHE = trainer.DATA / "work", trainer.DATA / "progress.json", trainer.DATA / "cache"
 
     failed = 0
     gens = sorted(copy.glob("problems/*/*/tests/*.gen.py"))
@@ -72,7 +76,7 @@ with tempfile.TemporaryDirectory() as tmp:
         "settings only before start": before == {"theme": "dark"} and not trainer.is_started(before),
         "start keeps settings": progress == {"theme": "dark", "start": day0.isoformat(), "level": 3, "passed": {}},
         "reset removes progress, work, cache": not any(x.exists() for x in (trainer.PROGRESS, trainer.WORK, trainer.CACHE)),
-        "reset keeps the program": (copy / "trainer.py").exists() and (copy / "problems").exists(),
+        "reset keeps the program": (copy / "src" / "trainer.py").exists() and (copy / "problems").exists(),
     }
     for name, ok in checks.items():
         if not ok:

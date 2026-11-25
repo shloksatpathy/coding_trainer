@@ -16,28 +16,28 @@ help:
 	@echo "make install    add Coding Trainer to your app grid"
 	@echo "make uninstall  remove it from your app grid"
 	@echo "make test       check generators and all 84 reference solutions (in a temp copy)"
-	@echo "make dist       package the committed project as $(DIST)"
-	@echo "make clean      remove build/, cache/ and __pycache__/"
+	@echo "make dist       package the committed app (no docs/) as $(DIST)"
+	@echo "make clean      remove build/, src/__pycache__/ and the test cache"
 
 run:
-	$(GUI_PYTHON) gui.py
+	$(GUI_PYTHON) src/gui.py
 
 web:
-	$(PYTHON) app.py
+	$(PYTHON) src/app.py
 
 install:
-	./install-desktop.sh
+	scripts/install-desktop.sh
 
 uninstall:
 	rm -f $(HOME)/.local/share/applications/coding-trainer.desktop
 
 test:
-	$(PYTHON) selftest.py
+	$(PYTHON) scripts/selftest.py
 
 dist: test
 	mkdir -p build
-	git archive --prefix=coding-trainer-$(VERSION)/ -o $(DIST) HEAD
+	git archive --prefix=coding-trainer-$(VERSION)/ -o $(DIST) HEAD README.md VERSION Makefile build.cmd src problems assets scripts
 	@echo "Built $(DIST) ($$(du -h $(DIST) | cut -f1))"
 
 clean:
-	rm -rf build cache __pycache__
+	rm -rf build src/__pycache__ $(HOME)/.local/share/coding-trainer/cache
