@@ -1,0 +1,4 @@
+{
+  "runtime": "A neighbour of an edge cell can be outside the grid. Check that the row and column are inside before reading the cell.",
+  "hints": 2
+}

@@ -135,6 +135,21 @@
         "c089_caesar",
         "c090_word_stats"
       ]
+    },
+    {
+      "title": "2D arrays",
+      "problems": [
+        "c091_row_sums",
+        "c092_column_sums",
+        "c093_transpose",
+        "c094_diagonals",
+        "c095_largest_cell",
+        "c096_count_walls",
+        "c097_minesweeper",
+        "c098_rotate",
+        "c099_walk",
+        "c100_tic_tac_toe"
+      ]
     }
   ]
 }
