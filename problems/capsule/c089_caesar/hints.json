@@ -1,0 +1,6 @@
+{
+  "tests": {
+    "2": "After `z` comes `a` again: use the letter's place 0 to 25 and `% 26` before converting back."
+  },
+  "hints": 2
+}

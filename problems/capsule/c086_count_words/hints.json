@@ -1,0 +1,6 @@
+{
+  "tests": {
+    "2": "Several spaces in a row are one separator, and spaces at the start or end separate nothing."
+  },
+  "hints": 2
+}

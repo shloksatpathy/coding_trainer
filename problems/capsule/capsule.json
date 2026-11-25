@@ -120,6 +120,21 @@
         "c079_tally",
         "c080_moving_average"
       ]
+    },
+    {
+      "title": "Strings",
+      "problems": [
+        "c081_length",
+        "c082_first_middle_last",
+        "c083_reverse_text",
+        "c084_swap_case",
+        "c085_count_vowels",
+        "c086_count_words",
+        "c087_join_with_dashes",
+        "c088_palindrome",
+        "c089_caesar",
+        "c090_word_stats"
+      ]
     }
   ]
 }
