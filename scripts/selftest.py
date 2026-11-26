@@ -42,7 +42,7 @@ with tempfile.TemporaryDirectory() as tmp:
             failed += 1
 
     # Start level: week N's first set on the start date, then a set every 3 days; a set's solutions
-    # unlock with the next set; lower weeks locked. Every week has 7 sets.
+    # unlock with the next set; lower weeks locked. Every week has 2 sets.
     day0 = datetime.date(2030, 1, 7)
     levels = len(trainer.weeks())
     for level in range(1, levels + 1):
@@ -50,7 +50,7 @@ with tempfile.TemporaryDirectory() as tmp:
             if p["week"] < level:
                 ok = p["unlock"] == p["solution_unlock"] == trainer.LOCKED
             else:
-                n = 7 * (p["week"] - level) + p["set"] - 1
+                n = 2 * (p["week"] - level) + p["set"] - 1
                 ok = (p["unlock"] == day0 + datetime.timedelta(days=3 * n)
                       and p["solution_unlock"] == day0 + datetime.timedelta(days=3 * (n + 1)))
             if not ok:

@@ -3,56 +3,31 @@
   "level": 4,
   "sets": [
     {
-      "title": "Graph traversal",
+      "title": "Graph traversal, shortest paths, weighted graphs, first DP",
       "problems": [
         "p64_bfs",
         "p65_dfs_components",
-        "p66_islands"
-      ]
-    },
-    {
-      "title": "Unweighted shortest paths and ordering",
-      "problems": [
+        "p66_islands",
         "p67_shortest_path",
         "p68_maze",
-        "p69_topological_sort"
-      ]
-    },
-    {
-      "title": "Weighted graphs",
-      "problems": [
+        "p69_topological_sort",
         "p70_dijkstra",
         "p71_kruskal",
-        "p72_bipartite"
+        "p72_bipartite",
+        "p73_climbing_stairs"
       ]
     },
     {
-      "title": "Dynamic programming: first steps",
+      "title": "Dynamic programming, greedy and the final mini-project",
       "problems": [
-        "p73_climbing_stairs",
         "p74_coin_change_min",
-        "p75_coin_change_ways"
-      ]
-    },
-    {
-      "title": "Dynamic programming on sequences",
-      "problems": [
+        "p75_coin_change_ways",
         "p76_lis",
         "p77_lcs",
-        "p78_edit_distance"
-      ]
-    },
-    {
-      "title": "Dynamic programming: knapsack and grids",
-      "problems": [
+        "p78_edit_distance",
         "p79_knapsack",
         "p80_grid_paths",
-        "p81_max_subarray"
-      ]
-    },
-    {
-      "title": "Greedy and the final mini-project",
-      "problems": [
+        "p81_max_subarray",
         "p82_activity_selection",
         "p83_jump_game",
         "p84_route_planner"

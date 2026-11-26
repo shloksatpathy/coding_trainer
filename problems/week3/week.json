@@ -3,56 +3,31 @@
   "level": 3,
   "sets": [
     {
-      "title": "Hashing",
+      "title": "Hashing, two pointers, sliding window, first backtracking",
       "problems": [
         "p43_two_sum",
         "p44_word_frequency",
-        "p45_first_unique_char"
-      ]
-    },
-    {
-      "title": "Two pointers",
-      "problems": [
+        "p45_first_unique_char",
         "p46_three_sum",
         "p47_container_water",
-        "p48_trapping_rain_water"
-      ]
-    },
-    {
-      "title": "Sliding window",
-      "problems": [
+        "p48_trapping_rain_water",
         "p49_max_window_sum",
         "p50_longest_unique_substring",
-        "p51_min_subarray_len"
+        "p51_min_subarray_len",
+        "p52_subsets"
       ]
     },
     {
-      "title": "Recursion and backtracking",
+      "title": "Backtracking, binary trees, BSTs and heaps",
       "problems": [
-        "p52_subsets",
         "p53_permutations",
-        "p54_n_queens"
-      ]
-    },
-    {
-      "title": "Binary trees",
-      "problems": [
+        "p54_n_queens",
         "p55_tree_traversals",
         "p56_level_order",
-        "p57_tree_diameter"
-      ]
-    },
-    {
-      "title": "Binary search trees",
-      "problems": [
+        "p57_tree_diameter",
         "p58_bst_search",
         "p59_validate_bst",
-        "p60_bst_delete"
-      ]
-    },
-    {
-      "title": "Heaps",
-      "problems": [
+        "p60_bst_delete",
         "p61_heap_sort",
         "p62_k_largest",
         "p63_running_median"

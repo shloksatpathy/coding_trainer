@@ -3,56 +3,31 @@
   "level": 1,
   "sets": [
     {
-      "title": "Setup + I/O and arithmetic",
+      "title": "I/O, arithmetic, conditionals, loops, number theory, first recursion",
       "problems": [
         "p01_arithmetic",
         "p02_temperature",
-        "p03_swap"
-      ]
-    },
-    {
-      "title": "Conditionals and loops",
-      "problems": [
+        "p03_swap",
         "p04_fizzbuzz",
         "p05_leap_year",
-        "p06_reverse_number"
-      ]
-    },
-    {
-      "title": "Number theory with loops",
-      "problems": [
+        "p06_reverse_number",
         "p07_sieve",
         "p08_gcd_lcm",
-        "p09_fibonacci"
+        "p09_fibonacci",
+        "p10_factorial"
       ]
     },
     {
-      "title": "Functions and recursion",
+      "title": "Recursion, arrays, strings, structs and a mini-project",
       "problems": [
-        "p10_factorial",
         "p11_fast_power",
-        "p12_hanoi"
-      ]
-    },
-    {
-      "title": "Arrays",
-      "problems": [
+        "p12_hanoi",
         "p13_array_stats",
         "p14_reverse_array",
-        "p15_binary_search"
-      ]
-    },
-    {
-      "title": "Strings",
-      "problems": [
+        "p15_binary_search",
         "p16_palindrome_string",
         "p17_char_classes",
-        "p18_anagram"
-      ]
-    },
-    {
-      "title": "Structs, 2D arrays, mini-project",
-      "problems": [
+        "p18_anagram",
         "p19_matrix_multiply",
         "p20_student_records",
         "p21_bank_account"

@@ -3,56 +3,31 @@
   "level": 2,
   "sets": [
     {
-      "title": "Pointers and dynamic memory",
+      "title": "Pointers, simple and divide-and-conquer sorts, first linked list",
       "problems": [
         "p22_dynamic_array",
         "p23_rotate_array",
-        "p24_remove_duplicates"
-      ]
-    },
-    {
-      "title": "Simple sorts",
-      "problems": [
+        "p24_remove_duplicates",
         "p25_bubble_sort",
         "p26_selection_sort",
-        "p27_insertion_sort"
-      ]
-    },
-    {
-      "title": "Divide and conquer sorts",
-      "problems": [
+        "p27_insertion_sort",
         "p28_merge_sort",
         "p29_quick_sort",
-        "p30_kth_smallest"
+        "p30_kth_smallest",
+        "p31_linked_list_ops"
       ]
     },
     {
-      "title": "Linked lists I",
+      "title": "Linked lists, stacks, queues and a mini-project",
       "problems": [
-        "p31_linked_list_ops",
         "p32_reverse_list",
-        "p33_list_middle_kth"
-      ]
-    },
-    {
-      "title": "Linked lists II",
-      "problems": [
+        "p33_list_middle_kth",
         "p34_merge_sorted_lists",
         "p35_remove_value",
-        "p36_add_big_numbers"
-      ]
-    },
-    {
-      "title": "Stacks",
-      "problems": [
+        "p36_add_big_numbers",
         "p37_balanced_brackets",
         "p38_postfix_eval",
-        "p39_next_greater"
-      ]
-    },
-    {
-      "title": "Queues and a mini-project",
-      "problems": [
+        "p39_next_greater",
         "p40_circular_queue",
         "p41_josephus",
         "p42_browser_history"

@@ -160,7 +160,7 @@ python3 src/trainer.py capsule solution C001 py   # after your first check of C0
 
 The `capsule` commands work without `start`.
 
-- Week W is level W (4 levels), 7 problem sets each. Starting at level L: set N of week W ≥ L is released on `start + 3*(7*(W-L) + N-1)` days, and its solutions 3 days later with the next set; weeks below L stay locked. Checking works any time after release.
+- Week W is level W (4 levels), 2 problem sets each (10 and 11 problems). Starting at level L: set N of week W ≥ L is released on `start + 3*(2*(W-L) + N-1)` days, and its solutions 3 days later with the next set; weeks below L stay locked. Checking works any time after release.
 - The sidebar and `list` mark the current set (released, solutions not out yet). `status` counts passes made before the solutions came out.
 - Saved code lives in `work/weekW/dayNN/` in [your data folder](#your-data) (NN = set number; the folder name is kept from the old daily sets).
 - Your progress is saved in `progress.json` in [your data folder](#your-data).
